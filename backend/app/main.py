@@ -13,7 +13,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
-# --- END Create App ---
+
 
 # Set up CORS middleware
 if settings.BACKEND_CORS_ORIGINS:
@@ -26,7 +26,7 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 origins = [
-    "http://localhost:3000",  # Replace with your frontend URL
+    "http://localhost:3000",  
 ]
 
 
