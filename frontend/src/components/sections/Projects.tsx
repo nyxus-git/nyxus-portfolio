@@ -1,12 +1,16 @@
-// frontend/src/components/sections/Projects.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { getProjects, type Project } from "@/lib/api"; // Import the API function and type
+import { getProjects, type Project } from "@/lib/api";
 
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -17,12 +21,15 @@ export function Projects() {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        setError(null);
         const data = await getProjects();
         setProjects(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching projects:", err);
-        setError(err.message || "Failed to load projects. Please try again later.");
+        const message =
+          err && typeof err === "object" && "message" in err
+            ? String((err as { message?: string }).message)
+            : "Failed to load projects. Please try again later.";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -72,14 +79,16 @@ export function Projects() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                whileHover={{ y: -5 }} // Subtle hover lift effect
+                whileHover={{ y: -5 }}
               >
                 <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300 border-border">
                   <CardHeader>
                     <CardTitle className="text-xl">{project.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow">
-                    <p className="mb-4 text-muted-foreground">{project.description}</p>
+                    <p className="mb-4 text-muted-foreground">
+                      {project.description}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {project.tech_stack.map((tech, index) => (
                         <Badge key={index} variant="secondary">

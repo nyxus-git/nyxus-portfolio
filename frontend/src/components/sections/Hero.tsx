@@ -1,4 +1,3 @@
-// frontend/src/components/sections/Hero.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,18 +12,21 @@ export function Hero() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentRoleIndex((prevIndex) => (prevIndex + 1) % roles.length);
+      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, [roles.length]);
+  }, []);
 
   return (
-    <section id="home" className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+    <section
+      id="home"
+      className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10"
+    >
       <motion.div
+        className="max-w-3xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-3xl"
       >
         <motion.h1
           className="text-4xl md:text-6xl font-bold mb-6"
@@ -32,18 +34,19 @@ export function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          Hi, I'm <span className="text-primary">Nyxus</span>
+          Hi, I&apos;m <span className="text-primary">Nyxus</span>
         </motion.h1>
+
         <motion.h2
           className="text-2xl md:text-4xl font-semibold mb-8 h-12 text-muted-foreground"
           key={currentRoleIndex}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
         >
           {roles[currentRoleIndex]}
         </motion.h2>
+
         <motion.p
           className="text-lg md:text-xl mb-10 text-muted-foreground"
           initial={{ opacity: 0 }}
@@ -52,6 +55,7 @@ export function Hero() {
         >
           Final-year AIML student passionate about building intelligent systems and innovative tech solutions.
         </motion.p>
+
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center"
           initial={{ opacity: 0 }}
