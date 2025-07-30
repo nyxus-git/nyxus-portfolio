@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { sendContactMessage, type ContactFormData } from "@/lib/api"; // Import API function and type
+// Import the API function to send the message
+import { sendContactMessage, type ContactFormData } from "@/lib/api";
 
 // Define the form schema using Zod for validation
 const formSchema = z.object({
@@ -51,17 +52,32 @@ export function ContactForm() {
     setIsSubmitting(true);
     setSubmitStatus(null);
     try {
-      // Call the API function
+      // Call the API function to send the message
+      // --- CORRECTED TYPE HANDLING FOR ERROR OBJECT ---
       const response = await sendContactMessage(values as ContactFormData);
       console.log("Message sent successfully:", response);
       setSubmitStatus({ type: 'success', message: response.message || "Your message has been sent successfully!" });
       form.reset(); // Clear the form on success
-    } catch (error: any) {
-      console.error("Error sending message:", error);
+      // --- END CORRECTION ---
+    } catch (err: unknown) { // Use 'unknown' for better type safety
+      console.error("Error sending message:", err);
+      // --- IMPROVED ERROR MESSAGE HANDLING ---
+      let errorMessage = "Failed to send your message. Please try again.";
+      if (err instanceof Error) {
+        // If it's a standard JavaScript Error object
+        errorMessage = err.message;
+      } else if (typeof err === 'object' && err !== null && 'message' in err) {
+        // If it's an object with a 'message' property (e.g., API response error)
+        errorMessage = (err as { message: string }).message;
+      } else if (typeof err === 'string') {
+        // If it's a string error message
+        errorMessage = err;
+      }
       setSubmitStatus({
         type: 'error',
-        message: error.message || "Failed to send your message. Please try again.",
+        message: errorMessage,
       });
+      // --- END IMPROVEMENT ---
     } finally {
       setIsSubmitting(false);
     }
@@ -71,7 +87,7 @@ export function ContactForm() {
     <section id="contact" className="py-20 px-4 bg-background">
       <div className="container mx-auto max-w-2xl">
         <motion.h2
-          className="text-3xl font-bold mb-12 text-center"
+          className="text-3xl font-bold mb-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
