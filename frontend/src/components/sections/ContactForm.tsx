@@ -108,7 +108,7 @@ export function ContactForm() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Let&apos;s discuss how we can work together on exciting AI and development projects.
+          Let&apos;s discuss how we can work together on exciting AI and development projects. {/* FIXED: Escaped apostrophe */}
         </motion.p>
 
         {submitStatus && (

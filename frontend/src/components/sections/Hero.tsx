@@ -15,8 +15,10 @@ export function Hero() {
     const interval = setInterval(() => {
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2000);
+    // Added roles.length to the dependency array to satisfy ESLint.
+    // While 'roles' is a const, ESLint wants explicit mention if its properties are used.
     return () => clearInterval(interval);
-  }, []);
+  }, [roles.length]); // FIXED: Added roles.length to dependency array
 
   return (
     <section
@@ -35,7 +37,7 @@ export function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          Hi, I'm <span className="text-lime-400">Rohan Mane</span>
+          Hi, I&apos;m <span className="text-lime-400">Rohan Mane</span>
         </motion.h1>
 
         <motion.h2
