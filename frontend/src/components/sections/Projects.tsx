@@ -101,7 +101,7 @@ export function Projects() {
                 transition={{ duration: 0.6 }}
                 whileHover={{ y: -8, boxShadow: "0 15px 30px rgba(0,255,102,0.2)" }}
               >
-                <Card className="flex flex-col h-full shadow-xl hover:shadow-2xl transition-shadow duration-300
+                <Card className="flex flex-col h-full 2shadow-xl hover:shadow-2xl transition-shadow duration-300
                                 bg-gray-800/60 backdrop-filter backdrop-blur-lg border border-gray-700/50
                                 text-white rounded-xl overflow-hidden group">
                   {project.image_url && (
