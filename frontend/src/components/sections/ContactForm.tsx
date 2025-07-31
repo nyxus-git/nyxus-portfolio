@@ -88,7 +88,7 @@ export function ContactForm() {
   ];
 
   return (
-    <section id="contact" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"> {/* Consistent background */}
+    <section id="contact" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
       <div className="container mx-auto max-w-6xl">
         <motion.h2
           className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-lime-400 uppercase tracking-wide"
@@ -108,7 +108,7 @@ export function ContactForm() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Let's discuss how we can work together on exciting AI and development projects.
+          Let&apos;s discuss how we can work together on exciting AI and development projects.
         </motion.p>
 
         {submitStatus && (

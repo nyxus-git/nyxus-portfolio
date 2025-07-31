@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function About() {
   return (
-    <section id="about" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"> {/* Consistent background */}
+    <section id="about" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
       <div className="container mx-auto">
         <motion.h2
           className="text-4xl md:text-5xl font-extrabold mb-16 text-center text-lime-400 uppercase tracking-wide"
@@ -38,10 +38,10 @@ export function About() {
 
           <div className="flex-grow text-center md:text-left">
             <p className="text-lg md:text-xl mb-4 text-gray-300">
-              Hi, I'm <strong className="text-lime-400">Rohan Mane</strong>, an aspiring machine learning engineer and full stack developer with hands-on experience in AI, open source contributions, and Linux. I completed an internship at DIAT-DRDO. I am passionate about building innovative solutions and contributing to impactful projects in AI and Web development.
+              Hi, I&apos;m <strong className="text-lime-400">Rohan Mane</strong>, an aspiring machine learning engineer and full stack developer with hands-on experience in AI, open source contributions, and Linux. I completed an internship at DIAT-DRDO. I am passionate about building innovative solutions and contributing to impactful projects in AI and Web development.
             </p>
             <p className="text-lg md:text-xl text-gray-300">
-              I'm driven by the desire to build intelligent systems and innovative tech solutions that make a real impact. Let's connect and build something amazing together!
+              I&apos;m driven by the desire to build intelligent systems and innovative tech solutions that make a real impact. Let&apos;s connect and build something amazing together!
             </p>
           </div>
         </motion.div>

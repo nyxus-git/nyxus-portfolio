@@ -74,7 +74,7 @@ export function Certifications() {
     };
 
     fetchCertifications();
-  }, []); // Added empty dependency array for useEffect
+  }, []); // Empty dependency array means this runs once on mount.
 
   return (
     <section id="certifications" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">

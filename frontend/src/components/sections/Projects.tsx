@@ -48,21 +48,21 @@ export function Projects() {
   }, []);
 
   return (
-    <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"> {/* Consistent background gradient */}
-      <div className="container mx-auto max-w-6xl"> {/* Max width for content consistency */}
+    <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+      <div className="container mx-auto max-w-6xl">
         <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-lime-400 uppercase tracking-wide" // Larger, bold, uppercase, tracking
+          className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-lime-400 uppercase tracking-wide"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
           My Projects
-          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div> {/* Underline consistent with other sections */}
+          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div>
         </motion.h2>
 
         <motion.p
-          className="text-lg md:text-xl mb-12 text-center text-gray-300" // Sub-heading style
+          className="text-lg md:text-xl mb-12 text-center text-gray-300"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

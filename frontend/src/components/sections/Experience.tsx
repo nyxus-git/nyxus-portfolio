@@ -39,7 +39,7 @@ export function Experience() {
   ];
 
   return (
-    <section id="experience" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"> {/* Consistent background */}
+    <section id="experience" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
       <div className="container mx-auto">
         <motion.h2
           className="text-4xl md:text-5xl font-extrabold mb-16 text-center text-lime-400 uppercase tracking-wide"
