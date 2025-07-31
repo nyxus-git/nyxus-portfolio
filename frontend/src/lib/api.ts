@@ -1,6 +1,8 @@
 // frontend/src/lib/api.ts
 
-const API_BASE_URL = "http://localhost:8000/api/v1"; // Ensure this is correct for local development
+// Use NEXT_PUBLIC_API_BASE_URL from environment variables for Vercel deployment.
+// Fallback to http://localhost:8000/api/v1 for local development.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 // --- Project API Definitions ---
 
