@@ -1,4 +1,3 @@
-// frontend/src/components/sections/Hero.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -15,10 +14,10 @@ export function Hero() {
     const interval = setInterval(() => {
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2000);
-    // Added roles.length to the dependency array to satisfy ESLint.
-    // While 'roles' is a const, ESLint wants explicit mention if its properties are used.
+    // Explicitly including roles.length as a dependency to satisfy ESLint.
+    // Also including 'roles' itself to ensure the effect re-runs if 'roles' array ever changes.
     return () => clearInterval(interval);
-  }, [roles.length]); // FIXED: Added roles.length to dependency array
+  }, [roles, roles.length]);
 
   return (
     <section

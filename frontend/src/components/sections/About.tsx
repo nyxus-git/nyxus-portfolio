@@ -1,8 +1,7 @@
-// frontend/src/components/sections/About.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image"; // Already imported, good!
+import Image from "next/image"; // Ensure Image is imported for optimized images
 
 export function About() {
   return (
@@ -28,7 +27,7 @@ export function About() {
         >
           <div className="flex-shrink-0 w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-lime-400 shadow-lg relative">
             <Image
-              src="/profile.jpeg"
+              src="/profile.jpeg" // Make sure this path is correct relative to your public folder
               alt="Rohan Mane Profile"
               layout="fill"
               objectFit="cover"
