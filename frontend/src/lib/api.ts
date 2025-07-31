@@ -19,7 +19,10 @@ export interface Project {
 
 export async function getProjects(): Promise<Project[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/projects/`);
+    const response = await fetch(`${API_BASE_URL}/projects/`, {
+      cache: 'no-store' // This tells Next.js and the browser NOT to cache this response.
+                        // Every call to getProjects will now go to the network.
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
