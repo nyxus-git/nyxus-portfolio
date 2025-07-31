@@ -1,15 +1,16 @@
 // frontend/src/components/sections/Hero.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react"; // <--- Added useMemo
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowDownIcon, Download } from "lucide-react"; // Import Download icon
+import { ArrowDownIcon, Download } from "lucide-react";
 import { Navbar } from "@/components/sections/Navbar";
 
 export function Hero() {
-  const roles = ["AI Engineer", "Linux Enthusiast", "Full Stack Developer", "Open Source Contributor"];
+  // Fix for react-hooks/exhaustive-deps warning: Wrap 'roles' in useMemo
+  const roles = useMemo(() => ["AI Engineer", "Linux Enthusiast", "Full Stack Developer", "Open Source Contributor"], []);
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
 
   useEffect(() => {
@@ -17,14 +18,14 @@ export function Hero() {
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, [roles, roles.length]);
+  }, [roles]); // 'roles' is now stable due to useMemo, so it's fine in deps
 
   return (
     <>
       <Navbar />
       <section
         id="home"
-        className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 pt-32 md:pt-24" // Added pt-32 for spacing below fixed navbar
+        className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 pt-32 md:pt-24"
       >
         <motion.div
           className="max-w-3xl"
@@ -38,7 +39,8 @@ export function Hero() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Hi, I'm <span className="text-lime-400">Rohan Mane</span>
+            Hi, I&apos;m <span className="text-lime-400">Rohan Mane</span>{" "}
+            {/* <--- FIX: Changed 'I'm' to 'I&apos;m' */}
           </motion.h1>
 
           <motion.h2
@@ -61,7 +63,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center" // Added flex-col for small screens, sm:flex-row for larger
+            className="flex flex-col sm:flex-row gap-4 justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
@@ -76,12 +78,11 @@ export function Hero() {
                 Get In Touch
               </Link>
             </Button>
-            {/* New Resume Download Button */}
             <Button asChild size="lg" className="px-8 py-6 text-lg bg-gray-700 hover:bg-gray-600 text-white border border-gray-600">
               <a
-                href="Rohan_Resume.pdf" // Make sure this path is correct relative to your public folder
-                download="Rohan_Resume.pdf" // Suggests a filename for download
-                className="inline-flex items-center justify-center" // Added justify-center for consistent icon alignment
+                href="/Rohan_Resume.pdf"
+                download="Rohan_Resume.pdf"
+                className="inline-flex items-center justify-center"
               >
                 <Download className="w-5 h-5 mr-2" /> Download Resume
               </a>
