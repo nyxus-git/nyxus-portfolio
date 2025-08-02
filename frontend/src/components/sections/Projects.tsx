@@ -4,47 +4,61 @@ import { motion } from "framer-motion";
 import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image"; // Import Next.js Image component
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+
+// Define the type for your project data
+interface ProjectData {
+  id: number; // Or string if your backend returns string IDs (e.g., UUIDs or ObjectId strings)
+  title: string;
+  description: string;
+  image_url?: string; // Cloudinary URL from backend
+  image_public_id?: string; // Cloudinary public ID from backend
+  tech_stack: string[]; // Changed from techStack to tech_stack to match backend
+  github_url?: string; // Changed from githubUrl to github_url to match backend
+  live_url?: string; // Changed from liveDemoUrl to live_url to match backend
+}
 
 export function Projects() {
-  const projects = [
-    {
-      id: 1,
-      title: "AI-Powered Chatbot",
-      description: "Developed an intelligent chatbot capable of understanding natural language and providing relevant responses, built with Python and a custom NLP model.",
-      image: "/chatbot.png", // Replace with your actual image path
-      techStack: ["Python", "TensorFlow", "NLTK", "Flask", "Docker"],
-      githubUrl: "https://github.com/your-username/ai-chatbot", // Replace with actual URL
-      liveDemoUrl: "#", // Replace with actual URL or remove if not applicable
-    },
-    {
-      id: 2,
-      title: "E-commerce Platform",
-      description: "Built a full-stack e-commerce application with user authentication, product listings, shopping cart, and payment integration.",
-      image: "/ecommerce.png", // Replace with your actual image path
-      techStack: ["React", "Node.js", "Express.js", "MongoDB", "Stripe API"],
-      githubUrl: "https://github.com/your-username/ecommerce-platform", // Replace with actual URL
-      liveDemoUrl: "#", // Replace with actual URL or remove if not applicable
-    },
-    {
-      id: 3,
-      title: "Portfolio Website (This one!)",
-      description: "Designed and developed this responsive and interactive personal portfolio website using Next.js and Tailwind CSS.",
-      image: "/portfolio.png", // Replace with your actual image path
-      techStack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion"],
-      githubUrl: "https://github.com/your-username/portfolio-website", // Replace with actual URL
-      liveDemoUrl: "#", // Replace with actual URL or remove if not applicable
-    },
-    {
-      id: 4,
-      title: "Zero-Connect Web Chat App",
-      description: "ZeroConnect is a sleek and efficient real-time web chat application designed to facilitate seamless communication between users. Built with a focus on speed and responsiveness, the platform allows for instant message exchange, ensuring a fluid and interactive user experience. It features a modern, intuitive interface that prioritizes ease of use, making it ideal for casual conversations or collaborative discussions.",
-      image: "/zero-connect.png", // Replace with your actual image path
-      techStack: ["Next.js (React)", "FastAPI", "PostgreSQL", "Tailwind CSS", "Vercel"],
-      githubUrl: "https://github.com/nyxus-git/Zero-connect.git",
-      liveDemoUrl: "https://zero-connect.vercel.app/",
-    },
-    // Add more projects as needed
-  ];
+  const [projects, setProjects] = useState<ProjectData[]>([]); // State to store fetched projects
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: ProjectData[] = await response.json();
+        setProjects(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []); // Empty dependency array means this effect runs once on component mount
+
+  // Handle loading and error states
+  if (loading) {
+    return (
+      <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-white text-center">
+        <p>Loading projects...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-red-500 text-center">
+        <p>Error loading projects: {error}</p>
+        <p>Please ensure your backend is running at {process.env.NEXT_PUBLIC_API_URL}</p>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
@@ -61,59 +75,66 @@ export function Projects() {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-xl border border-gray-700/50 text-white flex flex-col"
-            >
-              {project.image && (
-                <div className="relative w-full h-48 rounded-t-lg mb-4 overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-t-lg"
-                  />
+          {projects.length === 0 ? (
+            <div className="col-span-full text-center text-gray-400 text-lg">
+              No projects found. Create one from the backend API!
+            </div>
+          ) : (
+            projects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-xl border border-gray-700/50 text-white flex flex-col"
+              >
+                {/* Use image_url from backend */}
+                {project.image_url && (
+                  <div className="relative w-full h-48 rounded-t-lg mb-4 overflow-hidden">
+                    <Image
+                      src={project.image_url} // Use image_url here
+                      alt={project.title}
+                      fill // Use fill for responsive image sizing
+                      style={{ objectFit: 'cover' }} // Use style prop for objectFit
+                      className="rounded-t-lg"
+                    />
+                  </div>
+                )}
+                <h3 className="text-xl font-semibold text-lime-400 mb-2">{project.title}</h3>
+                <p className="text-gray-300 mb-4 flex-grow">{project.description}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {project.tech_stack.map((tech, techIndex) => ( // Use tech_stack
+                    <span key={techIndex} className="bg-lime-600/30 text-lime-300 px-3 py-1 rounded-full text-xs font-medium border border-lime-500/50">
+                      {tech}
+                    </span>
+                  ))}
                 </div>
-              )}
-              <h3 className="text-xl font-semibold text-lime-400 mb-2">{project.title}</h3>
-              <p className="text-gray-300 mb-4 flex-grow">{project.description}</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.techStack.map((tech, techIndex) => (
-                  <span key={techIndex} className="bg-lime-600/30 text-lime-300 px-3 py-1 rounded-full text-xs font-medium border border-lime-500/50">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-4 mt-auto">
-                {project.githubUrl && (
-                  <Link
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
-                  >
-                    <Github className="w-5 h-5 mr-2" /> GitHub
-                  </Link>
-                )}
-                {project.liveDemoUrl && (
-                  <Link
-                    href={project.liveDemoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
-                  >
-                    <ExternalLink className="w-5 h-5 mr-2" /> Live Demo
-                  </Link>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                <div className="flex gap-4 mt-auto">
+                  {project.github_url && ( // Use github_url
+                    <Link
+                      href={project.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
+                    >
+                      <Github className="w-5 h-5 mr-2" /> GitHub
+                    </Link>
+                  )}
+                  {project.live_url && ( // Use live_url
+                    <Link
+                      href={project.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
+                    >
+                      <ExternalLink className="w-5 h-5 mr-2" /> Live Demo
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
     </section>

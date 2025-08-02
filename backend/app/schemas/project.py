@@ -1,15 +1,15 @@
 # backend/app/schemas/project.py
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from fastapi import UploadFile, Form, File # Add File here!
+from fastapi import UploadFile, Form, File
 
 # Properties to receive via API on creation
 class ProjectCreate(BaseModel):
     title: str
     description: str
     tech_stack: List[str]
-    github_url: Optional[str] = None # New
-    live_url: Optional[str] = None    # New
+    github_url: Optional[str] = None
+    live_url: Optional[str] = None
 
 # Schema for file upload with other form data for POST requests
 # This is specifically for endpoints that handle multipart/form-data (file uploads)
@@ -36,12 +36,12 @@ class ProjectUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     tech_stack: Optional[List[str]] = None
-    github_url: Optional[str] = None # New
-    live_url: Optional[str] = None    # New
-    # For updating an image, you might need a separate endpoint or handle it carefully
-    # We'll simplify for now and allow image_path update directly if needed,
-    # or a separate endpoint for image replacement.
-    image_path: Optional[str] = None
+    github_url: Optional[str] = None
+    live_url: Optional[str] = None
+    # For updating an image, you can send the new Cloudinary URL/public_id directly
+    # or implement a separate PATCH endpoint for file re-upload if needed.
+    image_url: Optional[str] = None
+    image_public_id: Optional[str] = None
 
 
 # Properties shared by models stored in DB
@@ -50,19 +50,20 @@ class ProjectInDBBase(BaseModel):
     title: str
     description: str
     tech_stack: List[str]
-    github_url: Optional[str] = None # New
-    live_url: Optional[str] = None    # New
-    image_path: Optional[str] = None  # New
+    github_url: Optional[str] = None
+    live_url: Optional[str] = None
+    # Changed from image_path
+    image_url: Optional[str] = None
+    image_public_id: Optional[str] = None
 
     class Config:
-        from_attributes = True # Was already correct
+        from_attributes = True
 
-# Properties to return to client (includes computed image_url)
+# Properties to return to client (includes all fields from DB)
 class Project(ProjectInDBBase):
-    # This field is not stored in DB, but computed for the client
-    # Its value will be set in the endpoint or by a custom serializer if needed
-    # For simplicity, we'll build the full URL in the endpoint or via a method
-    image_url: Optional[str] = None
+    # No need for a separate `image_url` computation field here,
+    # as the `image_url` is directly stored in the DB now.
+    pass
 
 # Properties stored in DB (same as ProjectInDBBase for now)
 class ProjectInDB(ProjectInDBBase):

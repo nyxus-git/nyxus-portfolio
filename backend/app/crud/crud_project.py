@@ -1,7 +1,6 @@
-# backend/app/crud/crud_project.py
 from sqlalchemy.orm import Session
 from app import models, schemas
-from typing import List, Optional # Import Optional
+from typing import List, Optional
 
 def get_project(db: Session, project_id: int):
     return db.query(models.Project).filter(models.Project.id == project_id).first()
@@ -9,7 +8,7 @@ def get_project(db: Session, project_id: int):
 def get_projects(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Project).offset(skip).limit(limit).all()
 
-# Modified to accept new fields and image_path
+# Modified to accept Cloudinary image_url and image_public_id
 def create_project(
     db: Session,
     title: str,
@@ -17,7 +16,8 @@ def create_project(
     tech_stack: List[str],
     github_url: Optional[str] = None,
     live_url: Optional[str] = None,
-    image_path: Optional[str] = None, # New
+    image_url: Optional[str] = None,      # Changed from image_path
+    image_public_id: Optional[str] = None, # New field for Cloudinary public ID
 ):
     db_project = models.Project(
         title=title,
@@ -25,14 +25,15 @@ def create_project(
         tech_stack=tech_stack,
         github_url=github_url,
         live_url=live_url,
-        image_path=image_path, # New
+        image_url=image_url,              # Changed from image_path
+        image_public_id=image_public_id,  # New field
     )
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
     return db_project
 
-# Modified to accept new fields and image_path
+# Modified to accept Cloudinary image_url and image_public_id
 def update_project(
     db: Session,
     db_project: models.Project,
@@ -41,7 +42,8 @@ def update_project(
     tech_stack: Optional[List[str]] = None,
     github_url: Optional[str] = None,
     live_url: Optional[str] = None,
-    image_path: Optional[str] = None, # New
+    image_url: Optional[str] = None,      # Changed from image_path
+    image_public_id: Optional[str] = None, # New field
 ):
     if title is not None:
         db_project.title = title
@@ -53,8 +55,10 @@ def update_project(
         db_project.github_url = github_url
     if live_url is not None:
         db_project.live_url = live_url
-    if image_path is not None:
-        db_project.image_path = image_path # New
+    if image_url is not None:
+        db_project.image_url = image_url      # Changed from image_path
+    if image_public_id is not None:
+        db_project.image_public_id = image_public_id # New field
 
     db.add(db_project)
     db.commit()
