@@ -3,25 +3,24 @@
 import { motion } from "framer-motion";
 import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image"; // Import Next.js Image component
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+import Image from "next/image";
+import React, { useState, useEffect } from 'react';
 
-// Define the type for your project data
 interface ProjectData {
-  id: number; // Or string if your backend returns string IDs (e.g., UUIDs or ObjectId strings)
+  id: number;
   title: string;
   description: string;
-  image_url?: string; // Cloudinary URL from backend
-  image_public_id?: string; // Cloudinary public ID from backend
-  tech_stack: string[]; // Changed from techStack to tech_stack to match backend
-  github_url?: string; // Changed from githubUrl to github_url to match backend
-  live_url?: string; // Changed from liveDemoUrl to live_url to match backend
+  image_url?: string;
+  image_public_id?: string;
+  tech_stack: string[];
+  github_url?: string;
+  live_url?: string;
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectData[]>([]); // State to store fetched projects
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -32,17 +31,21 @@ export function Projects() {
         }
         const data: ProjectData[] = await response.json();
         setProjects(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) { // Changed 'any' to 'unknown'
+        // Type guard to safely access error message
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
-  }, []); // Empty dependency array means this effect runs once on component mount
+  }, []);
 
-  // Handle loading and error states
   if (loading) {
     return (
       <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-white text-center">
@@ -89,14 +92,13 @@ export function Projects() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-xl border border-gray-700/50 text-white flex flex-col"
               >
-                {/* Use image_url from backend */}
                 {project.image_url && (
                   <div className="relative w-full h-48 rounded-t-lg mb-4 overflow-hidden">
                     <Image
-                      src={project.image_url} // Use image_url here
+                      src={project.image_url}
                       alt={project.title}
-                      fill // Use fill for responsive image sizing
-                      style={{ objectFit: 'cover' }} // Use style prop for objectFit
+                      fill
+                      style={{ objectFit: 'cover' }}
                       className="rounded-t-lg"
                     />
                   </div>
@@ -104,14 +106,14 @@ export function Projects() {
                 <h3 className="text-xl font-semibold text-lime-400 mb-2">{project.title}</h3>
                 <p className="text-gray-300 mb-4 flex-grow">{project.description}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tech_stack.map((tech, techIndex) => ( // Use tech_stack
+                  {project.tech_stack.map((tech, techIndex) => (
                     <span key={techIndex} className="bg-lime-600/30 text-lime-300 px-3 py-1 rounded-full text-xs font-medium border border-lime-500/50">
                       {tech}
                     </span>
                   ))}
                 </div>
                 <div className="flex gap-4 mt-auto">
-                  {project.github_url && ( // Use github_url
+                  {project.github_url && (
                     <Link
                       href={project.github_url}
                       target="_blank"
@@ -121,7 +123,7 @@ export function Projects() {
                       <Github className="w-5 h-5 mr-2" /> GitHub
                     </Link>
                   )}
-                  {project.live_url && ( // Use live_url
+                  {project.live_url && (
                     <Link
                       href={project.live_url}
                       target="_blank"
