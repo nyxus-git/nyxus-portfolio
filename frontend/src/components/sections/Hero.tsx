@@ -69,7 +69,7 @@ export function Hero() {
             transition={{ delay: 0.6, duration: 0.5 }}
           >
             <Button asChild size="lg" className="px-8 py-6 text-lg bg-lime-600 hover:bg-lime-700 text-white">
-              <Link href="#projects">
+              <Link href="#project">
                 View My Work
               </Link>
             </Button>

@@ -121,7 +121,6 @@ export function ContactForm() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Left Column: Contact Information & Socials */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -178,7 +177,6 @@ export function ContactForm() {
             </div>
           </motion.div>
 
-          {/* Right Column: Send Message Form */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}

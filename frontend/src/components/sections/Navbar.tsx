@@ -3,8 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react"; // Removed Download icon
-
+import { Menu, X } from "lucide-react";
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -13,25 +12,23 @@ export function Navbar() {
     { name: "About", href: "#about" },
     { name: "Skills", href: "#skills" },
     { name: "Experience", href: "#experience" },
-    { name: "Projects", href: "#projects" },
-    { name: "Certifications", href: "#certifications" },
+    { name: "Project", href: "#project" },
+    { name: "Certification", href: "#Certification" },
     { name: "Education", href: "#education" },
     { name: "Contact", href: "#contact" },
   ];
 
   const handleLinkClick = () => {
-    setIsOpen(false); // Close mobile menu on link click
+    setIsOpen(false); 
   };
 
   return (
     <nav className="fixed w-full top-0 left-0 bg-gray-900/80 backdrop-filter backdrop-blur-lg z-50 shadow-lg border-b border-lime-400/20">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        {/* Brand/Logo */}
         <Link href="#home" className="text-xl md:text-2xl font-extrabold text-lime-400 uppercase tracking-wider hover:text-lime-300 transition-colors">
           ROHAN MANE
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
             <Link
@@ -43,10 +40,8 @@ export function Navbar() {
               {link.name}
             </Link>
           ))}
-          {/* Resume button is removed from here */}
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -58,7 +53,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <div
         className={`md:hidden bg-gray-900/90 backdrop-filter backdrop-blur-lg ${
           isOpen ? "block" : "hidden"
@@ -75,7 +69,6 @@ export function Navbar() {
               {link.name}
             </Link>
           ))}
-          {/* Resume button is removed from here */}
         </div>
       </div>
     </nav>

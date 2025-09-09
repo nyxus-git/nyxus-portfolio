@@ -1,10 +1,4 @@
-// frontend/src/lib/api.ts
-
-// Use NEXT_PUBLIC_API_BASE_URL from environment variables for Vercel deployment.
-// Fallback to http://localhost:8000/api/v1 for local development.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-
-// --- Project API Definitions ---
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
 export interface Project {
   id: number;
@@ -20,8 +14,7 @@ export interface Project {
 export async function getProjects(): Promise<Project[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/projects/`, {
-      cache: 'no-store' // This tells Next.js and the browser NOT to cache this response.
-                        // Every call to getProjects will now go to the network.
+      cache: 'no-store'
     });
 
     if (!response.ok) {
@@ -37,8 +30,6 @@ export async function getProjects(): Promise<Project[]> {
   }
 }
 
-// --- Contact Form API Definitions ---
-
 export interface ContactFormData {
   name: string;
   email: string;
@@ -46,10 +37,10 @@ export interface ContactFormData {
   message: string;
 }
 
-// Ensure this function is EXPORTED
 export async function sendContactMessage(data: ContactFormData): Promise<{ message: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/contact/`, {
+    // The change is here: using a relative path for the Next.js API route
+    const response = await fetch(`/api/contact`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
