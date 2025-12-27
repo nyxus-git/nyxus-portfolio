@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { getCertifications, Certification as CertificationType } from "@/lib/contentfulApi";
+import { getCertifications, Certification as CertificationType } from "../../lib/contentfulApi";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 

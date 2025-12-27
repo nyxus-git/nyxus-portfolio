@@ -4,31 +4,37 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getBlogPostBySlug, BlogPost } from "@/lib/contentfulApi";
+import { getBlogPostBySlug, BlogPost } from "../../../lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, MARKS } from "@contentful/rich-text-types";
 import { ArrowLeft, Calendar, User } from "lucide-react";
-import { Navbar } from "@/components/sections/Navbar";
+import { Navbar } from "../../../components/sections/Navbar";
 
 // Rich Text Rendering Options
 const richTextOptions = {
     renderNode: {
-        [BLOCKS.HEADING_2]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.HEADING_2]: (_node: any, children: any) => (
             <h2 className="text-3xl font-bold text-lime-400 mt-8 mb-4">{children}</h2>
         ),
-        [BLOCKS.HEADING_3]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.HEADING_3]: (_node: any, children: any) => (
             <h3 className="text-2xl font-semibold text-white mt-6 mb-3">{children}</h3>
         ),
-        [BLOCKS.PARAGRAPH]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.PARAGRAPH]: (_node: any, children: any) => (
             <p className="text-gray-300 mb-6 leading-relaxed text-lg">{children}</p>
         ),
-        [BLOCKS.UL_LIST]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.UL_LIST]: (_node: any, children: any) => (
             <ul className="list-disc list-inside text-gray-300 mb-6 space-y-2">{children}</ul>
         ),
-        [BLOCKS.OL_LIST]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.OL_LIST]: (_node: any, children: any) => (
             <ol className="list-decimal list-inside text-gray-300 mb-6 space-y-2">{children}</ol>
         ),
-        [BLOCKS.QUOTE]: (node: any, children: any) => (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [BLOCKS.QUOTE]: (_node: any, children: any) => (
             <blockquote className="border-l-4 border-lime-400 pl-4 py-2 italic text-gray-400 my-6 bg-white/5 rounded-r-lg">
                 {children}
             </blockquote>
@@ -36,7 +42,9 @@ const richTextOptions = {
         // Add more renderers for images/code blocks if needed
     },
     renderMark: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [MARKS.BOLD]: (text: any) => <span className="font-bold text-white">{text}</span>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [MARKS.CODE]: (text: any) => (
             <code className="bg-gray-800 text-lime-400 px-1 py-0.5 rounded font-mono text-sm">{text}</code>
         ),

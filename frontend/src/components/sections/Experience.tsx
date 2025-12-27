@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
-import { getExperience, Experience as ExperienceType } from "@/lib/contentfulApi";
+import { getExperience, Experience as ExperienceType } from "../../lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
 export function Experience() {

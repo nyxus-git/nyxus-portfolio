@@ -5,7 +5,7 @@ import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
-import { getProjects, Project as ProjectType } from "@/lib/contentfulApi";
+import { getProjects, Project as ProjectType } from "../../lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
 export function Project() {

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getBlogs, BlogPost } from "@/lib/contentfulApi";
+import { getBlogs, BlogPost } from "../../lib/contentfulApi";
 import { Calendar, User, ArrowRight } from "lucide-react";
 
 export function Blog() {
