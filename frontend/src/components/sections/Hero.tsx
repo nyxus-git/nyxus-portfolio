@@ -1,15 +1,14 @@
 // frontend/src/components/sections/Hero.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react"; // <--- Added useMemo
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowDownIcon, Download } from "lucide-react";
+import { ArrowDownIcon, Github, Linkedin, Mail } from "lucide-react";
 import { Navbar } from "@/components/sections/Navbar";
 
 export function Hero() {
-  // Fix for react-hooks/exhaustive-deps warning: Wrap 'roles' in useMemo
   const roles = useMemo(() => ["AI Engineer", "Linux Enthusiast", "Full Stack Developer", "Open Source Contributor"], []);
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
 
@@ -18,87 +17,100 @@ export function Hero() {
       setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, [roles]); // 'roles' is now stable due to useMemo, so it's fine in deps
+  }, [roles]);
 
   return (
     <>
       <Navbar />
       <section
         id="home"
-        className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 pt-32 md:pt-24"
+        className="relative flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 pt-32 md:pt-24 overflow-hidden"
       >
+        {/* Glow Effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-lime-500/20 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+
         <motion.div
-          className="max-w-3xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="max-w-4xl z-10"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <span className="px-4 py-2 rounded-full border border-lime-500/30 bg-lime-500/10 text-lime-400 text-sm font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(132,204,22,0.3)]">
+              Available for hire
+            </span>
+          </motion.div>
+
           <motion.h1
-            className="text-4xl md:text-6xl font-bold mb-6 text-white"
+            className="text-5xl md:text-8xl font-black mb-6 text-white leading-tight tracking-tighter"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.3 }}
           >
-            Hi, I&apos;m <span className="text-lime-400">Rohan Mane</span>{" "}
-            {/* <--- FIX: Changed 'I'm' to 'I&apos;m' */}
+            I BUILD <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400">
+              INTELLIGENT
+            </span>{" "}
+            SYSTEMS
           </motion.h1>
 
-          <motion.h2
-            className="text-2xl md:text-4xl font-semibold mb-8 h-12 text-gray-300"
-            key={currentRoleIndex}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {roles[currentRoleIndex]}
-          </motion.h2>
-
-          <motion.p
-            className="text-lg md:text-xl mb-10 text-gray-300"
+          <motion.div
+            className="h-16 md:h-20 mb-8 flex items-center justify-center overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            transition={{ delay: 0.5 }}
           >
-            Building innovative AI solutions and contributing to impactful open source projects
+            <span className="text-2xl md:text-4xl text-gray-400 font-light">
+              I am a <span className="text-white font-semibold">{roles[currentRoleIndex]}</span>
+            </span>
+          </motion.div>
+
+          <motion.p
+            className="text-lg md:text-xl mb-12 text-gray-400 max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            Crafting the future with cutting-edge AI solutions and robust full-stack architectures. Let's turn ideas into reality.
           </motion.p>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
           >
-            <Button asChild size="lg" className="px-8 py-6 text-lg bg-lime-600 hover:bg-lime-700 text-white">
+            <Button asChild size="lg" className="h-14 px-8 text-lg font-bold bg-lime-400 hover:bg-lime-300 text-black rounded-full shadow-[0_0_20px_rgba(163,230,53,0.4)] hover:shadow-[0_0_30px_rgba(163,230,53,0.6)] transition-all transform hover:scale-105">
               <Link href="#project">
-                View My Work
+                View Projects
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg border-lime-400 text-lime-400 hover:bg-lime-400/20 hover:text-lime-400">
-              <Link href="#contact">
-                Get In Touch
-              </Link>
-            </Button>
-            <Button asChild size="lg" className="px-8 py-6 text-lg bg-gray-700 hover:bg-gray-600 text-white border border-gray-600">
-              <a
-                href="/Rohan_Resume.pdf"
-                download="Rohan_Resume.pdf"
-                className="inline-flex items-center justify-center"
-              >
-                <Download className="w-5 h-5 mr-2" /> Download Resume
+
+            <div className="flex gap-4">
+              <a href="https://github.com/nyxus-git" target="_blank" className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-lime-400 transition-colors">
+                <Github className="w-6 h-6" />
               </a>
-            </Button>
+              <a href="mailto:rohanmane9841@gmail.com" className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-lime-400 transition-colors">
+                <Mail className="w-6 h-6" />
+              </a>
+            </div>
           </motion.div>
         </motion.div>
 
         <motion.div
-          className="absolute bottom-10 animate-bounce"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
         >
-          <Link href="#about">
-            <ArrowDownIcon className="h-6 w-6 text-lime-400" />
-            <span className="sr-only">Scroll Down</span>
+          <Link href="#about" className="flex flex-col items-center gap-2 text-gray-500 hover:text-lime-400 transition-colors">
+            <span className="text-xs uppercase tracking-widest">Scroll</span>
+            <ArrowDownIcon className="h-5 w-5" />
           </Link>
         </motion.div>
       </section>

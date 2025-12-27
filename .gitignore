@@ -140,3 +140,6 @@ alembic/versions/*.py
 
 # Node.js (for frontend)
 node_modules/
+# Debug scripts
+debug-*.js
+list-content-types.js

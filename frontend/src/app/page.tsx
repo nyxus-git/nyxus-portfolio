@@ -9,6 +9,7 @@ import { Education } from "@/components/sections/Education";
 import { Certification } from "@/components/sections/Certification";
 import { Experience } from "@/components/sections/Experience";
 import { ContactForm } from "@/components/sections/ContactForm";
+import { Blog } from "@/components/sections/Blog";
 
 export default function Home() {
   return (
@@ -17,9 +18,10 @@ export default function Home() {
       <About />
       <Skills />
       <Project />
-      <Education />
-      <Certification />
       <Experience />
+      <Blog />
+      <Certification />
+      <Education />
       <ContactForm />
     </main>
   );

@@ -2,102 +2,90 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { getCertifications } from "@/lib/contentfulApi";
-
-interface Certification {
-  name: string;
-  issuingOrganization: string;
-  issueDate: string;
-  credentialId: string;
-  credentialUrl: string;
-  skills: string[];
-}
+import { getCertifications, Certification as CertificationType } from "@/lib/contentfulApi";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 export function Certification() {
-  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [certifications, setCertifications] = useState<CertificationType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchCertifications() {
-      try {
-        const fetchedCerts = await getCertifications();
-        setCertifications(fetchedCerts);
-      } catch (err) {
-        console.error("Failed to fetch certifications:", err);
-        setError("Failed to load certifications. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+    async function fetchData() {
+      const data = await getCertifications();
+      setCertifications(data);
+      setLoading(false);
     }
-
-    fetchCertifications();
+    fetchData();
   }, []);
 
+  if (loading) return null;
+
   return (
-    <section id="certifications" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+    <section id="certifications" className="py-20 px-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-0 left-10 w-64 h-64 bg-lime-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+
       <div className="container mx-auto">
         <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-16 text-center text-lime-400 uppercase tracking-wide"
+          className="text-4xl md:text-5xl font-black mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-400 uppercase tracking-wide"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
         >
           My Certifications
-          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div>
         </motion.h2>
 
-        {loading && (
-          <div className="text-center text-gray-400">Loading certifications...</div>
-        )}
-        {error && (
-          <div className="text-center text-red-400">{error}</div>
-        )}
-        {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {certifications.map((cert, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-xl border border-gray-700/50 text-white flex flex-col"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {certifications.map((cert, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="glass glass-hover p-6 rounded-xl border border-white/5 text-white flex flex-col relative group"
+            >
+              {cert.certificateImage && (
+                <div className="absolute top-4 right-4 w-12 h-12 opacity-50 group-hover:opacity-100 transition-opacity">
+                  <div className="relative w-full h-full rounded-full overflow-hidden border border-lime-500/30">
+                    <Image src={cert.certificateImage} alt="Logo" fill className="object-cover" />
+                  </div>
+                </div>
+              )}
+
+              <h3 className="text-xl font-bold text-lime-400 mb-2 pr-12">{cert.name}</h3>
+              <p className="text-gray-300 font-medium mb-1">{cert.issuingOrganization}</p>
+              <p className="text-sm text-gray-500 mb-6 font-mono">
+                {new Date(cert.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+              </p>
+
+              {cert.credentialId && (
+                <p className="text-xs text-gray-500 mb-4 font-mono break-all">ID: {cert.credentialId}</p>
+              )}
+
+              <div className="flex flex-wrap gap-2 mb-6 mt-auto">
+                {cert.skills?.map((skill, skillIndex) => (
+                  <Badge key={skillIndex} variant="outline" className="text-xs border-lime-500/30 text-lime-200">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+
+              <a
+                href={cert.credentialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 w-full text-center py-2 rounded-lg bg-white/5 hover:bg-lime-500/20 text-lime-400 hover:text-lime-300 transition-colors text-sm font-bold uppercase tracking-wider border border-white/5 hover:border-lime-500/50"
               >
-                <h3 className="text-xl font-semibold text-lime-400 mb-2">{cert.name}</h3>
-                <p className="text-gray-300 mb-1">{cert.issuingOrganization}</p>
-                <p className="text-sm text-gray-400 mb-4 flex items-center">
-                  <svg className="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h.01M7 12h.01M11 12h.01M15 12h.01M17 12h.01M17 16h.01M11 16h.01M15 16h.01M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  {cert.issueDate}
-                </p>
-                {cert.credentialId && (
-                  <p className="text-sm text-gray-400 mb-4">Credential ID: {cert.credentialId}</p>
-                )}
-                {/* Re-add the rendering of skills */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {cert.skills && cert.skills.map((skill, skillIndex) => (
-                    <span key={skillIndex} className="bg-lime-600/30 text-lime-300 px-3 py-1 rounded-full text-xs font-medium border border-lime-500/50">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-auto">
-                  <a
-                    href={cert.credentialUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-lime-400 hover:text-lime-300 transition-colors font-medium"
-                  >
-                    Show Credential
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0l-7 7m7-7V9"></path></svg>
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                View Credential
+              </a>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
+

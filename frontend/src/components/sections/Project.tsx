@@ -5,178 +5,99 @@ import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
-import { getContentfulClient } from "@/lib/contentfulClient";
+import { getProjects, Project as ProjectType } from "@/lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { Document } from "@contentful/rich-text-types";
-import { Entry, EntrySkeletonType } from "contentful";
-
-interface ProjectFields {
-  projectName: string;
-  description: Document | string;
-  technologies: string[];
-  featuredImage?: {
-    fields: {
-      file: {
-        url: string;
-      };
-    };
-  };
-  liveUrl?: string;
-  sourceCodeUrl?: string;
-}
-
-interface ProjectSkeleton extends EntrySkeletonType {
-  fields: ProjectFields;
-}
-
-type ProjectEntry = Entry<ProjectSkeleton>;
-
 
 export function Project() {
-  const [projects, setProjects] = useState<ProjectFields[]>([]);
+  const [projects, setProjects] = useState<ProjectType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await getContentfulClient().getEntries<ProjectSkeleton>({
-          content_type: "project",
-          include: 1,
-        });
-
-        const fetchedProjects: ProjectFields[] = response.items.map((item: ProjectEntry) => {
-          const locale = 'en-US'; // Assuming default English locale
-          let description: Document | string;
-          const rawDescription = item.fields.description;
-          if (rawDescription && typeof rawDescription === 'object' && 'nodeType' in rawDescription) {
-            description = rawDescription as unknown as Document;
-          } else {
-            description = ((rawDescription as unknown as { [key: string]: string })?.[locale] || '') as string;
-          }
-          return {
-            projectName: ((item.fields.projectName as unknown as { [key: string]: string })?.[locale] || '') as string,
-            description,
-            technologies: (item.fields.technologies as unknown as string[]) || [],
-            featuredImage: ((item.fields.featuredImage as unknown as { [key: string]: ProjectFields['featuredImage'] })?.[locale]) || undefined,
-            liveUrl: ((item.fields.liveUrl as unknown as { [key: string]: string })?.[locale] || '') as string,
-            sourceCodeUrl: ((item.fields.sourceCodeUrl as unknown as { [key: string]: string })?.[locale] || '') as string,
-          };
-        });
-
-        setProjects(fetchedProjects); 
-
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
+    async function fetchData() {
+      const data = await getProjects();
+      setProjects(data);
+      setLoading(false);
+    }
+    fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <section id="project" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-white text-center">
-        <p>Loading projects...</p>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section id="project" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-red-500 text-center">
-        <p>Error loading projects: {error}</p>
-      </section>
-    );
-  }
+  if (loading) return null;
 
   return (
-    <section id="project" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+    <section id="project" className="py-20 px-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900 -z-20"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+
       <div className="container mx-auto">
         <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-16 text-center text-lime-400 uppercase tracking-wide"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-4xl md:text-6xl font-black mb-20 text-center text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400 uppercase tracking-tighter"
+          initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
         >
-          My Projects
-          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div>
+          Featured Projects
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.length === 0 ? (
-            <div className="col-span-full text-center text-gray-400 text-lg">
-              No projects found in Contentful.
-            </div>
-          ) : (
-            projects.map((project, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-xl border border-gray-700/50 text-white flex flex-col"
-              >
-                {project.featuredImage?.fields?.file?.url && (
-                  <div className="relative w-full h-48 rounded-t-lg mb-4 overflow-hidden">
-                    <Image
-                      src={`https:${project.featuredImage.fields.file.url}`}
-                      alt={project.projectName || "Project Image"}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      className="rounded-t-lg"
-                    />
+          {projects.map((project, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="glass glass-hover rounded-2xl overflow-hidden flex flex-col group h-full"
+            >
+              <div className="relative h-60 w-full overflow-hidden">
+                {project.coverImage ? (
+                  <Image
+                    src={project.coverImage}
+                    alt={project.projectTitle}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600">
+                    No Image
                   </div>
                 )}
-                <h3 className="text-xl font-semibold text-lime-400 mb-2">{project.projectName}</h3>
-                <div className="text-gray-300 mb-4 flex-grow contentful-rich-text">
-                  {project.description && typeof project.description === "object" && "nodeType" in project.description
-                    ? documentToReactComponents(project.description)
-                    : <p>{String(project.description)}</p>}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  <div className="flex gap-4">
+                    {project.sourceCodeLink && (
+                      <Link href={project.sourceCodeLink} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
+                        <Github size={20} />
+                      </Link>
+                    )}
+                    {project.liveDemoLink && (
+                      <Link href={project.liveDemoLink} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
+                        <ExternalLink size={20} />
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.technologies?.map((tech, techIndex) => (
-                    <span
-                      key={techIndex}
-                      className="bg-lime-600/30 text-lime-300 px-3 py-1 rounded-full text-xs font-medium border border-lime-500/50"
-                    >
+              </div>
+
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-lime-400 transition-colors">
+                  {project.projectTitle}
+                </h3>
+
+                <div className="text-gray-400 mb-6 flex-grow line-clamp-3 text-sm">
+                  {documentToReactComponents(project.description)}
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  {project.technologies?.map((tech, i) => (
+                    <span key={i} className="px-3 py-1 text-xs font-medium text-lime-300 bg-lime-400/10 rounded-full border border-lime-400/20">
                       {tech}
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-4 mt-auto">
-                  {project.liveUrl && (
-                    <Link
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
-                    >
-                      <ExternalLink className="w-5 h-5 mr-2" /> Live Demo
-                    </Link>
-                  )}
-                  {project.sourceCodeUrl && (
-                    <Link
-                      href={project.sourceCodeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-gray-300 hover:text-lime-400 transition-colors"
-                    >
-                      <Github className="w-5 h-5 mr-2" /> GitHub
-                    </Link>
-                  )}
-                </div>
-              </motion.div>
-            ))
-          )}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

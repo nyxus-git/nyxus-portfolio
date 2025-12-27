@@ -27,7 +27,7 @@ export async function getProjects(): Promise<Project[]> {
   } catch (error) {
     console.error("Failed to fetch projects:", error);
     throw error;
-  }
+  } 
 }
 
 export interface ContactFormData {
