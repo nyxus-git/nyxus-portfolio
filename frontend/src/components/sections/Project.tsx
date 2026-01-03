@@ -8,6 +8,8 @@ import React, { useState, useEffect } from "react";
 import { getProjects, Project as ProjectType } from "../../lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
+import { ExpandableContent } from "../ui/ExpandableContent";
+
 export function Project() {
   const [projects, setProjects] = useState<ProjectType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,8 +86,10 @@ export function Project() {
                   {project.projectTitle}
                 </h3>
 
-                <div className="text-gray-400 mb-6 flex-grow line-clamp-3 text-sm">
-                  {documentToReactComponents(project.description)}
+                <div className="text-gray-400 mb-6 flex-grow text-sm">
+                  <ExpandableContent maxHeight={80}>
+                    {documentToReactComponents(project.description)}
+                  </ExpandableContent>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-auto">

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { getExperience, Experience as ExperienceType } from "../../lib/contentfulApi";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
+import { ExpandableContent } from "../ui/ExpandableContent";
+
 export function Experience() {
   const [experiences, setExperiences] = useState<ExperienceType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,8 +89,10 @@ export function Experience() {
                 </div>
 
                 <div className="text-gray-300 mb-6 leading-relaxed contentful-rich-text">
-                  {exp.description && documentToReactComponents(exp.description)}
-                  {!exp.description && <p>No description available.</p>}
+                  <ExpandableContent maxHeight={100}>
+                    {exp.description && documentToReactComponents(exp.description)}
+                    {!exp.description && <p>No description available.</p>}
+                  </ExpandableContent>
                 </div>
               </div>
             </motion.div>
