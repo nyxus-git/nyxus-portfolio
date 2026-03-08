@@ -1,81 +1,86 @@
 # Rohan Mane - Portfolio
 
-A modern, glassmorphic portfolio website built with Next.js, Tailwind CSS, and Framer Motion, featuring dynamic content management via Contentful.
+A modern portfolio website built with Next.js, Tailwind CSS, and Framer Motion, now powered by a custom FastAPI + MongoDB content backend.
 
-## 🚀 Tech Stack
+## Tech Stack
 
--   **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
--   **CMS**: Contentful
--   **Backend**: Python (FastAPI) - *For contact form functionality*
--   **Design**: Glassmorphism, Animated Gradients, Lucide Icons
+- Frontend: Next.js, React, Tailwind CSS, Framer Motion
+- Backend: FastAPI
+- Database: MongoDB Atlas
+- Admin CMS: Built-in `/admin` dashboard
+- AI: Grok API (server-side)
 
-## 🛠️ Setup & Installation
+## Setup
 
-### Prerequisites
+### 1. Frontend
 
--   Node.js (v18+)
--   Python 3.8+
--   Contentful Account
-
-### 1. Clone the Repository
-
-\`\`\`bash
-git clone https://github.com/yourusername/nyxus-portfolio.git
-cd nyxus-portfolio
-\`\`\`
-
-### 2. Frontend Setup
-
-\`\`\`bash
+```bash
 cd frontend
 npm install
-\`\`\`
+```
 
-Create a `.env.local` file in the `frontend` directory:
+Create `frontend/.env.local`:
 
-\`\`\`env
-NEXT_PUBLIC_CONTENTFUL_SPACE_ID=your_space_id
-NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN=your_access_token
-\`\`\`
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+```
 
-Run the development server:
+Run:
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
-The site will be available at [http://localhost:3000](http://localhost:3000).
+### 2. Backend
 
-### 3. Backend Setup (Contact Form)
-
-\`\`\`bash
+```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-\`\`\`
+```
 
-Create a `.env` file in the `backend` directory (if needed for email creds):
+Create `backend/.env`:
 
-\`\`\`env
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-RECIPIENT_EMAIL=your_email@gmail.com
-\`\`\`
+```env
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<db>?retryWrites=true&w=majority
+MONGODB_DB_NAME=nyxus_portfolio
+ADMIN_USERNAME=nyxus
+ADMIN_PASSWORD=nyxus123
+ADMIN_TOKEN=optional_token_for_scripts
+XAI_API_KEY=your_grok_api_key
+XAI_BASE_URL=https://api.x.ai/v1
+XAI_MODEL=grok-3-mini
+```
 
-Run the backend server:
+Run:
 
-\`\`\`bash
+```bash
 uvicorn app.main:app --reload
-\`\`\`
+```
 
-## 📂 Project Structure
+## Admin Dashboard
 
--   `/frontend`: Next.js application (UI, Pages, Components)
--   `/backend`: FastAPI application (API, Email logic)
+Open `http://localhost:3000/admin` and use `ADMIN_TOKEN` to perform CRUD for:
+Open `http://localhost:3000/admin` and login with `ADMIN_USERNAME` and `ADMIN_PASSWORD` from `backend/.env` to perform CRUD for:
 
-## ✨ key Features
+- Projects
+- Experiences
+- Certifications
+- Blogs
 
--   **Dynamic Content**: Projects, Experience, Certifications, and Blogs are fetched from Contentful.
--   **Modern UI**: Glassmorphism design with animated backgrounds and interactions.
--   **Responsive**: Fully optimized for mobile and desktop.
+## One-time Migration from Contentful
+
+If your current content still lives in Contentful, migrate it once into MongoDB:
+
+```bash
+cd frontend
+CONTENTFUL_SPACE_ID=your_space_id \
+CONTENTFUL_ACCESS_TOKEN=your_access_token \
+API_BASE_URL=http://localhost:8000/api \
+ADMIN_USERNAME=nyxus \
+ADMIN_PASSWORD=nyxus123 \
+npm run migrate:contentful
+```
+
+After migration, all content is stored in MongoDB and editable from `/admin`.

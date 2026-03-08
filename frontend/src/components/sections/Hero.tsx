@@ -1,106 +1,154 @@
-// frontend/src/components/sections/Hero.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react"; // <--- Added useMemo
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowDownIcon, Download } from "lucide-react";
+import { Github, Linkedin, Youtube, Download } from "lucide-react";
 import { Navbar } from "@/components/sections/Navbar";
+import { useEffect, useState } from "react";
+import { getSiteConfig } from "@/lib/siteConfig";
 
 export function Hero() {
-  // Fix for react-hooks/exhaustive-deps warning: Wrap 'roles' in useMemo
-  const roles = useMemo(() => ["AI Engineer", "Linux Enthusiast", "Full Stack Developer", "Open Source Contributor"], []);
-  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+  const [resumeUrl, setResumeUrl] = useState("/Rohan_Resume.pdf");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [roles]); // 'roles' is now stable due to useMemo, so it's fine in deps
+    async function loadConfig() {
+      const config = await getSiteConfig();
+      setResumeUrl(config.resumeUrl);
+    }
+    void loadConfig();
+  }, []);
 
   return (
     <>
       <Navbar />
       <section
         id="home"
-        className="flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 pt-32 md:pt-24"
+        className="relative min-h-screen overflow-hidden bg-[#05050A] px-4 pb-16 pt-28 sm:px-6 lg:px-10"
       >
-        <motion.div
-          className="max-w-3xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.h1
-            className="text-4xl md:text-6xl font-bold mb-6 text-white"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            Hi, I&apos;m <span className="text-lime-400">Rohan Mane</span>{" "}
-            {/* <--- FIX: Changed 'I'm' to 'I&apos;m' */}
-          </motion.h1>
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] [background-size:40px_40px]" />
+          <div className="absolute -left-20 -top-20 h-[420px] w-[420px] rounded-full bg-purple-600/20 blur-[100px]" />
+          <div className="absolute -bottom-20 right-0 h-[460px] w-[460px] rounded-full bg-cyan-400/15 blur-[120px]" />
+        </div>
 
-          <motion.h2
-            className="text-2xl md:text-4xl font-semibold mb-8 h-12 text-gray-300"
-            key={currentRoleIndex}
-            initial={{ opacity: 0, y: 10 }}
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5 }}
+            className="order-2 space-y-7 lg:order-1"
           >
-            {roles[currentRoleIndex]}
-          </motion.h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1">
+              <span className="h-2 w-2 rounded-full bg-cyan-300" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-300">
+                System Online
+              </span>
+            </div>
 
-          <motion.p
-            className="text-lg md:text-xl mb-10 text-gray-300"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            Building innovative AI solutions and contributing to impactful open source projects
-          </motion.p>
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+                Build For the{" "}
+                <span className="bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent">
+                  Intelligent Future
+                </span>
+              </h1>
+              <p className="max-w-2xl text-base text-gray-300 sm:text-lg">
+                I&apos;m <span className="font-semibold text-white">Rohan Mane</span>,
+                an AI Engineer and Full Stack Developer building practical
+                systems with machine learning, modern web stacks, and open
+                source tooling.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {["AI Systems", "React.js", "FastAPI", "Linux"].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-wide text-gray-300"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                asChild
+                className="h-11 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-6 text-xs font-bold uppercase tracking-wider text-white"
+              >
+                <Link href="#project">View Projects</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-11 rounded-lg border-white/20 bg-transparent px-6 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/5"
+              >
+                <Link href="#contact">Contact</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-11 rounded-lg border-cyan-400/40 bg-cyan-400/10 px-6 text-xs font-bold uppercase tracking-wider text-cyan-200 hover:bg-cyan-400/20"
+              >
+                <a href={resumeUrl} target="_blank" rel="noreferrer">
+                  <Download className="mr-2 h-4 w-4" />
+                  Resume
+                </a>
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <a
+                href="https://github.com/nyxus-git"
+                target="_blank"
+                rel="noreferrer"
+                className="text-gray-400 transition-colors hover:text-cyan-300"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nyxus-link/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-gray-400 transition-colors hover:text-cyan-300"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.youtube.com/@nyxus-linux"
+                target="_blank"
+                rel="noreferrer"
+                className="text-gray-400 transition-colors hover:text-cyan-300"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
+            </div>
+          </motion.div>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="order-1 flex justify-center lg:order-2 lg:justify-end"
           >
-            <Button asChild size="lg" className="px-8 py-6 text-lg bg-lime-600 hover:bg-lime-700 text-white">
-              <Link href="#project">
-                View My Work
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg border-lime-400 text-lime-400 hover:bg-lime-400/20 hover:text-lime-400">
-              <Link href="#contact">
-                Get In Touch
-              </Link>
-            </Button>
-            <Button asChild size="lg" className="px-8 py-6 text-lg bg-gray-700 hover:bg-gray-600 text-white border border-gray-600">
-              <a
-                href="/Rohan_Resume.pdf"
-                download="Rohan_Resume.pdf"
-                className="inline-flex items-center justify-center"
-              >
-                <Download className="w-5 h-5 mr-2" /> Download Resume
-              </a>
-            </Button>
+            <div className="relative w-full max-w-[380px] overflow-hidden rounded-2xl border border-white/20 bg-black/40 p-2 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-500/20 blur-2xl" />
+              <div
+                className="relative aspect-[4/5] rounded-xl bg-cover bg-center"
+                style={{ backgroundImage: "url('/profile.jpeg')" }}
+              />
+              <div className="absolute bottom-5 left-5 right-5 rounded-xl border-l-4 border-l-cyan-300 bg-black/60 p-3 backdrop-blur">
+                <p className="text-[10px] uppercase tracking-widest text-cyan-300">
+                  Current Status
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  Accepting New Projects
+                </p>
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-10 animate-bounce"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-        >
-          <Link href="#about">
-            <ArrowDownIcon className="h-6 w-6 text-lime-400" />
-            <span className="sr-only">Scroll Down</span>
-          </Link>
-        </motion.div>
+        </div>
       </section>
     </>
   );

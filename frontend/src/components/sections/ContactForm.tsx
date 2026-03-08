@@ -1,41 +1,55 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion } from "framer-motion";
+import { sendContactMessage, type ContactFormData } from "@/lib/api";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Linkedin,
+  Send,
+  User,
+  AtSign,
+  Tag,
+  MessageSquare,
+  Youtube,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { sendContactMessage, type ContactFormData } from "@/lib/api";
-
-import { Phone, MapPin, Youtube, Linkedin, Github, X } from 'lucide-react';
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
   subject: z.string().optional(),
-  message: z.string().min(10, {
-    message: "Message must be at least 10 characters.",
-  }),
+  message: z
+    .string()
+    .min(10, { message: "Message must be at least 10 characters." }),
 });
+
+const inputClass =
+  "h-14 rounded-lg border border-[#282e39] bg-[#1c1f27] pl-12 text-white placeholder:text-[#9da6b9]/50 focus-visible:ring-0 focus-visible:border-[#135bec]";
 
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,224 +66,288 @@ export function ContactForm() {
     setSubmitStatus(null);
     try {
       const response = await sendContactMessage(values as ContactFormData);
-      console.log("Message sent successfully:", response);
-      setSubmitStatus({ type: 'success', message: response.message || "Your message has been sent successfully!" });
+      setSubmitStatus({
+        type: "success",
+        message: response.message || "Transmission sent successfully.",
+      });
       form.reset();
     } catch (err: unknown) {
-      console.error("Error sending message:", err);
-      let errorMessage = "Failed to send your message. Please try again.";
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'object' && err !== null && 'message' in err) {
-        errorMessage = (err as { message: string }).message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
-      }
-      setSubmitStatus({
-        type: 'error',
-        message: errorMessage,
-      });
+      let errorMessage = "Failed to send transmission.";
+      if (err instanceof Error) errorMessage = err.message;
+      setSubmitStatus({ type: "error", message: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const socialLinks = [
-    { name: "YouTube", icon: Youtube, url: "https://www.youtube.com/@nyxus-linux", color: "text-red-500" },
-    { name: "LeetCode", icon: ({ className }: { className?: string }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-1.875 16.5h-2.1c-.825 0-1.5-.675-1.5-1.5v-6c0-.825.675-1.5 1.5-1.5h2.1c.825 0 1.5.675 1.5 1.5v6c0 .825-.675 1.5-1.5 1.5zm6-1.5h-2.1c-.825 0-1.5-.675-1.5-1.5v-6c0-.825.675-1.5 1.5-1.5h2.1c.825 0 1.5.675 1.5 1.5v6c0 .825-.675 1.5-1.5 1.5z"></path>
-      </svg>
-    ), url: "https://leetcode.com/u/nyxus-dsa/", color: "text-orange-500" },
-    { name: "GitHub", icon: Github, url: "https://github.com/nyxus-git", color: "text-gray-400" },
-    { name: "X (Twitter)", icon: X, url: "https://x.com/NyxusXplore", color: "text-blue-400" },
-    { name: "LinkedIn", icon: Linkedin, url: "https://www.linkedin.com/in/nyxus-link/", color: "text-blue-500" },
-  ];
-
   return (
-    <section id="contact" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
-      <div className="container mx-auto max-w-6xl">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-lime-400 uppercase tracking-wide"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          Get In Touch
-          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div>
-        </motion.h2>
-
-        <motion.p
-          className="text-lg md:text-xl mb-12 text-center text-gray-300"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          Let&apos;s discuss how we can work together on exciting AI and development projects.
-        </motion.p>
-
-        {submitStatus && (
-          <div className={`mb-6 p-4 rounded-md text-center ${
-            submitStatus.type === 'success'
-              ? 'bg-green-800/50 text-green-300 border border-green-700/50 backdrop-filter backdrop-blur-lg'
-              : 'bg-red-800/50 text-red-300 border border-red-700/50 backdrop-filter backdrop-blur-lg'
-          }`}>
-            {submitStatus.message}
+    <section id="contact" className="px-4 py-16 md:px-8">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-7 flex flex-col gap-8">
+          <div className="border-b border-[#282e39] pb-4">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+              </span>
+              <span className="font-mono text-xs uppercase tracking-widest text-green-500">
+                System Online
+              </span>
+            </div>
+            <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
+              Establish <span className="text-[#135bec]">Connection</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-lg text-[#9da6b9]">
+              Send a signal across the network. I&apos;ll respond once your data
+              packet is received.
+            </p>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-            className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-8 rounded-lg shadow-xl border border-gray-700/50 h-full flex flex-col justify-between"
-          >
-            <div>
-              <h3 className="text-xl font-bold mb-6 text-white uppercase">Contact Information</h3>
-              <div className="space-y-6">
-                <div className="flex items-center text-white">
-                  <div className="w-12 h-12 bg-lime-600/30 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Phone className="w-6 h-6 text-lime-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm uppercase text-gray-400">Phone</p>
-                    <p className="text-lg font-semibold text-white">+91 9356216808</p>
-                  </div>
-                </div>
-                <div className="flex items-center text-white">
-                  <div className="w-12 h-12 bg-lime-600/30 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-lime-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm uppercase text-gray-400">Location</p>
-                    <p className="text-lg font-semibold text-white">Pune, Maharashtra</p>
-                  </div>
-                </div>
-              </div>
+          {submitStatus ? (
+            <div
+              className={`rounded-lg border px-4 py-3 text-sm ${
+                submitStatus.type === "success"
+                  ? "border-green-500/40 bg-green-500/10 text-green-300"
+                  : "border-red-500/40 bg-red-500/10 text-red-300"
+              }`}
+            >
+              {submitStatus.message}
             </div>
+          ) : null}
 
-            <div className="mt-10">
-              <h3 className="text-xl font-bold mb-6 text-white uppercase">Connect With Me</h3>
-              <div className="flex flex-wrap gap-4">
-                {socialLinks.map((link, index) => (
-                  <motion.a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:shadow-lg"
-                    style={{
-                      backgroundColor: 'rgba(59, 130, 246, 0.2)'
-                    }}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.3, delay: 0.1 * index }}
-                  >
-                    <link.icon className={`w-6 h-6 ${link.color}`} />
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-            className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-8 rounded-lg shadow-xl border border-gray-700/50"
-          >
-            <h3 className="text-xl font-bold mb-6 text-white uppercase">Send Message</h3>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-300">Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder=""
-                            {...field}
-                            className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-red-300" />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-300">Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder=""
-                            {...field}
-                            className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-red-300" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-6"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
-                  name="subject"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Subject</FormLabel>
+                      <p className="pb-2 text-xs font-mono uppercase tracking-wider text-white">
+                        User.Name
+                      </p>
+                      <div className="relative">
+                        <User className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-[#9da6b9]" />
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="ENTER NAME"
+                            className={inputClass}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage className="text-red-300" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <p className="pb-2 text-xs font-mono uppercase tracking-wider text-white">
+                        User.Email
+                      </p>
+                      <div className="relative">
+                        <AtSign className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-[#9da6b9]" />
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="ENTER EMAIL ADDRESS"
+                            className={inputClass}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage className="text-red-300" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <p className="pb-2 text-xs font-mono uppercase tracking-wider text-white">
+                      Subject.Protocol
+                    </p>
+                    <div className="relative">
+                      <Tag className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-[#9da6b9]" />
                       <FormControl>
                         <Input
-                          placeholder=""
                           {...field}
-                          className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
+                          placeholder="SYSTEM INQUIRY"
+                          className={inputClass}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-300" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-300">Message</FormLabel>
+                    </div>
+                    <FormMessage className="text-red-300" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <p className="pb-2 text-xs font-mono uppercase tracking-wider text-white">
+                      Message.Data
+                    </p>
+                    <div className="relative">
+                      <MessageSquare className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-[#9da6b9]" />
                       <FormControl>
                         <Textarea
-                          placeholder=""
-                          className="min-h-[180px] bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
                           {...field}
+                          placeholder="INPUT TRANSMISSION DATA..."
+                          className="min-h-40 rounded-lg border border-[#282e39] bg-[#1c1f27] pl-12 pt-4 text-white placeholder:text-[#9da6b9]/50 focus-visible:ring-0 focus-visible:border-[#135bec]"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-300" />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold py-3 px-6 rounded-md text-lg shadow-md hover:shadow-lg transition-all duration-300"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
-                </Button>
-              </form>
-            </Form>
-          </motion.div>
+                    </div>
+                    <FormMessage className="text-red-300" />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full md:w-auto bg-[#135bec] px-8 py-6 text-sm font-bold uppercase tracking-widest text-white hover:bg-blue-600 hover:shadow-[0_0_20px_rgba(19,91,236,0.5)]"
+              >
+                <span className="mr-2">
+                  {isSubmitting ? "Transmitting..." : "Initiate Transmission"}
+                </span>
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </Form>
         </div>
+
+        <motion.div
+          className="lg:col-span-5 flex flex-col gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="relative overflow-hidden rounded-xl border border-[#282e39] bg-[#1c1f27] p-8">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#135bec]/20 blur-3xl" />
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-white">
+              <span className="material-symbols-outlined text-[#135bec]">
+                hub
+              </span>
+              Contact Nodes
+            </h3>
+
+            <div className="space-y-5">
+              <InfoRow
+                icon={<Mail className="h-5 w-5" />}
+                label="Electronic Mail"
+                value="rohanmane9841@gmail.com"
+                href="mailto:rohanmane9841@gmail.com"
+              />
+              <InfoRow
+                icon={<Phone className="h-5 w-5" />}
+                label="Signal Line"
+                value="+91 9356216808"
+                href="tel:+919356216808"
+              />
+              <InfoRow
+                icon={<MapPin className="h-5 w-5" />}
+                label="Base Coordinates"
+                value="Pune, Maharashtra"
+              />
+            </div>
+
+            <div className="mt-8 border-t border-[#282e39] pt-6">
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-[#9da6b9]">
+                Network Links
+              </h4>
+              <div className="flex gap-3">
+                <SocialIcon
+                  href="https://github.com/nyxus-git"
+                  icon={<Github className="h-5 w-5" />}
+                />
+                <SocialIcon
+                  href="https://www.linkedin.com/in/nyxus-link/"
+                  icon={<Linkedin className="h-5 w-5" />}
+                />
+                <SocialIcon
+                  href="https://x.com/NyxusXplore"
+                  icon={<X className="h-5 w-5" />}
+                />
+                <SocialIcon
+                  href="https://www.youtube.com/@nyxus-linux"
+                  icon={<Youtube className="h-5 w-5" />}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-64 overflow-hidden rounded-xl border border-[#282e39]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(19,91,236,0.22),transparent_55%)]" />
+            <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(to_right,#2b3342_1px,transparent_1px),linear-gradient(to_bottom,#2b3342_1px,transparent_1px)] [background-size:28px_28px]" />
+            <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
+              <span className="relative inline-flex h-4 w-4 rounded-full bg-[#135bec] border-2 border-white" />
+              <div className="mt-2 rounded border border-[#282e39] bg-[#101622]/90 px-3 py-1 text-xs font-mono text-white">
+                LOC: 18.5204° N, 73.8567° E
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
+  );
+}
+
+function InfoRow({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="rounded-lg border border-[#282e39] bg-[#101622] p-2 text-[#9da6b9]">
+        {icon}
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-mono uppercase tracking-wider text-[#9da6b9]">
+          {label}
+        </p>
+        {href ? (
+          <a
+            href={href}
+            className="font-medium text-white hover:text-[#135bec]"
+          >
+            {value}
+          </a>
+        ) : (
+          <p className="font-medium text-white">{value}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SocialIcon({ href, icon }: { href: string; icon: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#282e39] bg-[#101622] text-white transition-all hover:border-[#135bec] hover:text-[#135bec] hover:shadow-[0_0_10px_rgba(19,91,236,0.3)]"
+    >
+      {icon}
+    </a>
   );
 }

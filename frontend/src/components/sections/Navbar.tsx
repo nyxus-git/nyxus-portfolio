@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSiteConfig } from "@/lib/siteConfig";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState("/Rohan_Resume.pdf");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,14 @@ export function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    async function loadConfig() {
+      const config = await getSiteConfig();
+      setResumeUrl(config.resumeUrl);
+    }
+    void loadConfig();
   }, []);
 
   const navLinks = [
@@ -33,11 +43,17 @@ export function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-4 left-0 right-0 mx-auto w-[95%] md:w-[85%] max-w-5xl z-50 transition-all duration-300 rounded-full border border-white/10 ${scrolled || isOpen ? "bg-gray-900/60 backdrop-blur-md shadow-2xl" : "bg-transparent border-transparent"
-        }`}
+      className={`fixed top-3 left-0 right-0 mx-auto w-[95%] md:w-[85%] max-w-5xl z-50 transition-all duration-300 rounded-2xl md:rounded-full border border-white/10 ${
+        scrolled || isOpen
+          ? "bg-gray-900/60 backdrop-blur-md shadow-2xl"
+          : "bg-transparent border-transparent"
+      }`}
     >
-      <div className="px-6 py-3 flex justify-between items-center">
-        <Link href="#home" className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400 tracking-tighter">
+      <div className="px-4 sm:px-6 py-3 flex justify-between items-center gap-3">
+        <Link
+          href="#home"
+          className="text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 tracking-tighter"
+        >
           ROHAN <span className="text-white">MANE</span>
         </Link>
 
@@ -50,10 +66,14 @@ export function Navbar() {
               className="relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors group"
             >
               {link.name}
-              <span className="absolute inset-x-0 bottom-0 h-0.5 bg-lime-400 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              <span className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>
           ))}
-          <Link href="/Rohan_Resume.pdf" target="_blank" className="ml-4 px-5 py-2 text-sm font-bold bg-lime-400 text-black rounded-full hover:bg-lime-300 transition-colors shadow-[0_0_15px_rgba(163,230,53,0.5)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)]">
+          <Link
+            href={resumeUrl}
+            target="_blank"
+            className="ml-4 px-5 py-2 text-sm font-bold bg-blue-500 text-black rounded-full hover:bg-blue-300 transition-colors shadow-[0_0_15px_rgba(163,230,53,0.5)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)]"
+          >
             Resume
           </Link>
         </div>
@@ -62,7 +82,10 @@ export function Navbar() {
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-300 hover:text-white focus:outline-none"
+            className="text-gray-300 hover:text-white focus:outline-none p-1"
+            aria-label={
+              isOpen ? "Close navigation menu" : "Open navigation menu"
+            }
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -89,7 +112,11 @@ export function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              <Link href="/Rohan_Resume.pdf" target="_blank" className="mt-4 w-full text-center py-3 font-bold bg-lime-400 text-black rounded-lg">
+              <Link
+                href={resumeUrl}
+                target="_blank"
+                className="mt-4 w-full text-center py-3 font-bold bg-blue-500 text-black rounded-lg"
+              >
                 Download Resume
               </Link>
             </div>
