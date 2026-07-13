@@ -3,31 +3,30 @@
 import { motion } from "framer-motion";
 import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import React, { useState, useEffect } from "react";
-import { getProjects, Project as ProjectType } from "../../lib/contentfulApi";
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-
-import { ExpandableContent } from "../ui/ExpandableContent";
+import { getProjects, type Project } from "../../lib/api";
 
 export function Project() {
-  const [projects, setProjects] = useState<ProjectType[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await getProjects();
+    getProjects().then((data) => {
       setProjects(data);
       setLoading(false);
-    }
-    fetchData();
+    });
   }, []);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <section id="project" className="py-20 px-4">
+        <div className="container mx-auto text-center text-gray-500">Loading projects...</div>
+      </section>
+    );
+  }
 
   return (
     <section id="project" className="py-20 px-4 relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900 -z-20"></div>
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
@@ -45,35 +44,35 @@ export function Project() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
             <motion.div
-              key={index}
+              key={project.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               className="glass glass-hover rounded-2xl overflow-hidden flex flex-col group h-full"
             >
-              <div className="relative h-60 w-full overflow-hidden">
-                {project.coverImage ? (
-                  <Image
-                    src={project.coverImage}
-                    alt={project.projectTitle}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+              {/* Image / Placeholder */}
+              <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                {project.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={project.image_url} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (
-                  <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600">
-                    No Image
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-lime-500/20 flex items-center justify-center">
+                      <span className="text-2xl font-black text-lime-400">{project.title.charAt(0)}</span>
+                    </div>
+                    <p className="text-gray-600 text-xs font-mono">NO IMAGE</p>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                   <div className="flex gap-4">
-                    {project.sourceCodeLink && (
-                      <Link href={project.sourceCodeLink} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
+                    {project.github_url && (
+                      <Link href={project.github_url} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
                         <Github size={20} />
                       </Link>
                     )}
-                    {project.liveDemoLink && (
-                      <Link href={project.liveDemoLink} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
+                    {project.live_url && (
+                      <Link href={project.live_url} target="_blank" className="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-lime-400 hover:text-black transition-colors">
                         <ExternalLink size={20} />
                       </Link>
                     )}
@@ -82,19 +81,13 @@ export function Project() {
               </div>
 
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-lime-400 transition-colors">
-                  {project.projectTitle}
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-lime-400 transition-colors">
+                  {project.title}
                 </h3>
-
-                <div className="text-gray-400 mb-6 flex-grow text-sm">
-                  <ExpandableContent maxHeight={80}>
-                    {documentToReactComponents(project.description)}
-                  </ExpandableContent>
-                </div>
-
+                <p className="text-gray-400 text-sm mb-6 flex-grow line-clamp-4">{project.description}</p>
                 <div className="flex flex-wrap gap-2 mt-auto">
-                  {project.technologies?.map((tech, i) => (
-                    <span key={i} className="px-3 py-1 text-xs font-medium text-lime-300 bg-lime-400/10 rounded-full border border-lime-400/20">
+                  {project.tech_stack?.map((tech, i) => (
+                    <span key={i} className="px-2 py-1 text-xs font-medium text-lime-300 bg-lime-400/10 rounded-full border border-lime-400/20">
                       {tech}
                     </span>
                   ))}

@@ -1,55 +1,84 @@
-// frontend/src/components/sections/Skills.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import { Gauge, Code, Package } from 'lucide-react'; // Icons for categories
+import { useEffect, useState } from "react";
+import { Gauge, Code, Package } from "lucide-react";
+import { getSkills, Skill } from "../../lib/api";
+
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  "PROGRAMMING LANGUAGES": Code,
+  "FRAMEWORKS & LIBRARIES": Package,
+  "TOOLS & TECHNOLOGIES": Gauge,
+};
 
 export function Skills() {
-  const skillCategories = [
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSkills().then((data) => {
+      setSkills(data);
+      setLoading(false);
+    });
+  }, []);
+
+  // Group by category
+  const categories = skills.reduce<Record<string, Skill[]>>((acc, skill) => {
+    if (!acc[skill.category]) acc[skill.category] = [];
+    acc[skill.category].push(skill);
+    return acc;
+  }, {});
+
+  const categoryList = Object.entries(categories);
+
+  // Fallback static data while loading or if no API data
+  const staticCategories = [
     {
-      id: 1,
       name: "PROGRAMMING LANGUAGES",
       icon: Code,
       skills: [
         { name: "Python", level: 90 },
         { name: "JavaScript", level: 85 },
-        { name: "Bash", level: 75 },
-        { name: "HTML5", level: 95 },
-        { name: "CSS3", level: 90 },
-        { name: "Assembly", level: 70 },
-        { name: "Linux", level: 80 }, // Assuming Linux as a skill within languages/OS context
+        { name: "TypeScript", level: 78 },
+        { name: "HTML5 & CSS3", level: 95 },
+        { name: "Bash / Shell", level: 80 },
+        { name: "SQL", level: 75 },
       ],
     },
     {
-      id: 2,
       name: "FRAMEWORKS & LIBRARIES",
       icon: Package,
       skills: [
-        { name: "React.js", level: 80 },
-        { name: "Vite.js", level: 75 },
-        { name: "Svelte", level: 70 },
-        { name: "Node.js", level: 85 },
-        { name: "Express.js", level: 80 },
-        { name: "Flask", level: 70 },
-        { name: "Django", level: 65 },
+        { name: "TensorFlow / Keras", level: 85 },
+        { name: "scikit-learn", level: 90 },
+        { name: "React.js / Next.js", level: 82 },
+        { name: "FastAPI / Flask", level: 88 },
+        { name: "Pandas / NumPy", level: 92 },
+        { name: "OpenCV", level: 80 },
       ],
     },
     {
-      id: 3,
       name: "TOOLS & TECHNOLOGIES",
-      icon: Gauge, // Using Gauge for tools/technologies
+      icon: Gauge,
       skills: [
-        { name: "Git", level: 90 },
-        { name: "GitHub", level: 90 },
-        { name: "Linux (Arch)", level: 85 },
-        { name: "Bash scripting", level: 80 },
-        { name: "NumPy", level: 88 },
-        { name: "Pandas", level: 87 },
-        { name: "Matplotlib", level: 85 },
-        { name: "MongoDB", level: 75 },
+        { name: "Git & GitHub", level: 90 },
+        { name: "Linux (Arch)", level: 88 },
+        { name: "Docker", level: 72 },
+        { name: "Jupyter Notebook", level: 95 },
+        { name: "Matplotlib / Seaborn", level: 85 },
+        { name: "MongoDB / SQLite", level: 78 },
       ],
     },
   ];
+
+  const displayCategories =
+    !loading && categoryList.length > 0
+      ? categoryList.map(([name, skillList]) => ({
+          name,
+          icon: CATEGORY_ICONS[name] || Gauge,
+          skills: skillList,
+        }))
+      : staticCategories;
 
   return (
     <section id="skills" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 overflow-hidden">
@@ -66,9 +95,9 @@ export function Skills() {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {skillCategories.map((category, catIndex) => (
+          {displayCategories.map((category, catIndex) => (
             <motion.div
-              key={category.id}
+              key={category.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -82,10 +111,10 @@ export function Skills() {
               <div className="w-full space-y-4">
                 {category.skills.map((skill, skillIndex) => (
                   <div key={skillIndex} className="flex flex-col items-start w-full">
-                    <span className="text-gray-200 text-lg mb-1">{skill.name}</span>
-                    <div className="w-full bg-gray-700 rounded-full h-2.5">
+                    <span className="text-gray-200 text-sm mb-1">{skill.name}</span>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
                       <motion.div
-                        className="bg-lime-400 h-2.5 rounded-full"
+                        className="bg-lime-400 h-2 rounded-full"
                         initial={{ width: 0 }}
                         whileInView={{ width: `${skill.level}%` }}
                         viewport={{ once: true, amount: 0.5 }}
