@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 };
 
 
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
+import { PageLoader } from "@/components/ui/PageLoader";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +33,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <PageLoader />
+        <CustomCursor />
+        <ScrollProgress />
         <AnimatedBackground />
         {children}
       </body>

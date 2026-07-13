@@ -87,73 +87,71 @@ export function ContactForm() {
   ];
 
   return (
-    <section id="contact" className="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
-      <div className="container mx-auto max-w-6xl">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-lime-400 uppercase tracking-wide"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          Get In Touch
-          <div className="w-24 h-1 bg-lime-400 mx-auto mt-4 rounded-full"></div>
-        </motion.h2>
+    <section id="contact" className="py-24 px-4 relative overflow-hidden">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] mix-blend-screen" />
+      </div>
 
-        <motion.p
-          className="text-lg md:text-xl mb-12 text-center text-gray-300"
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <motion.div
+          className="mb-16 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.6 }}
         >
-          Let&apos;s discuss how we can work together on exciting AI and development projects.
-        </motion.p>
+          <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 tracking-tight">
+            Get In Touch
+          </h2>
+          <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
+            Let&apos;s discuss how we can work together on exciting AI and development projects.
+          </p>
+        </motion.div>
 
         {submitStatus && (
-          <div className={`mb-6 p-4 rounded-md text-center ${
+          <div className={`mb-8 p-4 rounded-xl text-center font-medium ${
             submitStatus.type === 'success'
-              ? 'bg-green-800/50 text-green-300 border border-green-700/50 backdrop-filter backdrop-blur-lg'
-              : 'bg-red-800/50 text-red-300 border border-red-700/50 backdrop-filter backdrop-blur-lg'
+              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+              : 'bg-red-500/10 text-red-400 border border-red-500/20'
           }`}>
             {submitStatus.message}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-8 rounded-lg shadow-xl border border-gray-700/50 h-full flex flex-col justify-between"
+            className="glass-card p-8 md:p-10 rounded-3xl flex flex-col justify-between h-full"
           >
             <div>
-              <h3 className="text-xl font-bold mb-6 text-white uppercase">Contact Information</h3>
-              <div className="space-y-6">
-                <div className="flex items-center text-white">
-                  <div className="w-12 h-12 bg-lime-600/30 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <Phone className="w-6 h-6 text-lime-400" />
+              <h3 className="text-xl font-bold mb-8 text-white">Contact Information</h3>
+              <div className="space-y-8">
+                <div className="flex items-center text-white group">
+                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mr-6 border border-white/10 group-hover:border-primary/50 transition-colors">
+                    <Phone className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm uppercase text-gray-400">Phone</p>
-                    <p className="text-lg font-semibold text-white">+91 9356216808</p>
+                    <p className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-1">Phone</p>
+                    <p className="text-lg font-medium text-white group-hover:text-primary transition-colors">+91 9356216808</p>
                   </div>
                 </div>
-                <div className="flex items-center text-white">
-                  <div className="w-12 h-12 bg-lime-600/30 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-lime-400" />
+                <div className="flex items-center text-white group">
+                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mr-6 border border-white/10 group-hover:border-primary/50 transition-colors">
+                    <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm uppercase text-gray-400">Location</p>
-                    <p className="text-lg font-semibold text-white">Pune, Maharashtra</p>
+                    <p className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-1">Location</p>
+                    <p className="text-lg font-medium text-white group-hover:text-primary transition-colors">Pune, Maharashtra</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10">
-              <h3 className="text-xl font-bold mb-6 text-white uppercase">Connect With Me</h3>
+            <div className="mt-16">
+              <h3 className="text-lg font-bold mb-6 text-white">Connect With Me</h3>
               <div className="flex flex-wrap gap-4">
                 {socialLinks.map((link, index) => (
                   <motion.a
@@ -161,16 +159,11 @@ export function ContactForm() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:shadow-lg"
-                    style={{
-                      backgroundColor: 'rgba(59, 130, 246, 0.2)'
-                    }}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.3, delay: 0.1 * index }}
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <link.icon className={`w-6 h-6 ${link.color}`} />
+                    <link.icon className={`w-5 h-5 ${link.color}`} />
                   </motion.a>
                 ))}
               </div>
@@ -178,30 +171,29 @@ export function ContactForm() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-gray-800/50 backdrop-filter backdrop-blur-lg p-8 rounded-lg shadow-xl border border-gray-700/50"
+            className="glass-card p-8 md:p-10 rounded-3xl"
           >
-            <h3 className="text-xl font-bold mb-6 text-white uppercase">Send Message</h3>
+            <h3 className="text-xl font-bold mb-8 text-white">Send Message</h3>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-300">Name</FormLabel>
+                        <FormLabel className="text-gray-400">Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder=""
                             {...field}
-                            className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
+                            className="bg-black/20 border-white/10 text-white focus:ring-primary focus:border-primary rounded-xl h-12"
                           />
                         </FormControl>
-                        <FormMessage className="text-red-300" />
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
@@ -210,16 +202,15 @@ export function ContactForm() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-300">Email</FormLabel>
+                        <FormLabel className="text-gray-400">Email</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder=""
                             {...field}
-                            className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
+                            className="bg-black/20 border-white/10 text-white focus:ring-primary focus:border-primary rounded-xl h-12"
                           />
                         </FormControl>
-                        <FormMessage className="text-red-300" />
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
@@ -229,15 +220,14 @@ export function ContactForm() {
                   name="subject"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Subject</FormLabel>
+                      <FormLabel className="text-gray-400">Subject</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder=""
                           {...field}
-                          className="bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
+                          className="bg-black/20 border-white/10 text-white focus:ring-primary focus:border-primary rounded-xl h-12"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-300" />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -246,21 +236,20 @@ export function ContactForm() {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Message</FormLabel>
+                      <FormLabel className="text-gray-400">Message</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder=""
-                          className="min-h-[180px] bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:ring-lime-400 focus:border-lime-400"
+                          className="min-h-[160px] bg-black/20 border-white/10 text-white focus:ring-primary focus:border-primary rounded-xl resize-none"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-300" />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
                 <Button
                   type="submit"
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-gray-900 font-bold py-3 px-6 rounded-md text-lg shadow-md hover:shadow-lg transition-all duration-300"
+                  className="w-full h-14 bg-primary hover:bg-primary/90 text-black font-bold rounded-xl text-base transition-transform active:scale-[0.98]"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "SENDING..." : "SEND MESSAGE"}

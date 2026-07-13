@@ -1,14 +1,15 @@
-// frontend/src/components/sections/Navbar.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAbout } from "../../lib/api";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,27 +19,33 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    getAbout().then(data => {
+      if (data?.resume_url) {
+        setResumeUrl(data.resume_url);
+      }
+    });
+  }, []);
+
   const navLinks = [
     { name: "Home", href: "#home" },
+    { name: "Work", href: "#best-project" },
     { name: "About", href: "#about" },
-    { name: "Skills", href: "#skills" },
-    { name: "Work", href: "#experience" },
-    { name: "Projects", href: "#project" },
+    { name: "Experience", href: "#experience" },
     { name: "Blog", href: "#blog" },
-    { name: "Contact", href: "#contact" },
   ];
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-4 left-0 right-0 mx-auto w-[95%] md:w-[85%] max-w-5xl z-50 transition-all duration-300 rounded-full border border-white/10 ${scrolled || isOpen ? "bg-gray-900/60 backdrop-blur-md shadow-2xl" : "bg-transparent border-transparent"
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-4 left-0 right-0 mx-auto w-[92%] md:w-[85%] max-w-5xl z-50 transition-all duration-500 rounded-full border ${scrolled || isOpen ? "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" : "bg-transparent border-transparent"
         }`}
     >
-      <div className="px-6 py-3 flex justify-between items-center">
-        <Link href="#home" className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400 tracking-tighter">
-          ROHAN <span className="text-white">MANE</span>
+      <div className="px-5 md:px-6 py-3 flex justify-between items-center">
+        <Link href="#home" className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tighter hover:text-white transition-colors">
+          Rohan <span className="text-primary text-glow-primary">Mane</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -50,21 +57,23 @@ export function Navbar() {
               className="relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors group"
             >
               {link.name}
-              <span className="absolute inset-x-0 bottom-0 h-0.5 bg-lime-400 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left ease-out duration-300" />
             </Link>
           ))}
-          <Link href="/Rohan_Resume.pdf" target="_blank" className="ml-4 px-5 py-2 text-sm font-bold bg-lime-400 text-black rounded-full hover:bg-lime-300 transition-colors shadow-[0_0_15px_rgba(163,230,53,0.5)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)]">
-            Resume
-          </Link>
+          {resumeUrl && (
+            <Link href={resumeUrl} target="_blank" className="ml-4 px-5 py-2.5 text-sm font-bold bg-white/10 text-white rounded-full border border-white/10 hover:bg-white hover:text-black hover:border-white transition-all">
+              Resume
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-300 hover:text-white focus:outline-none"
+            className="text-gray-300 hover:text-white focus:outline-none p-2 bg-white/5 rounded-full border border-white/10 transition-colors"
           >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
@@ -76,22 +85,25 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden overflow-hidden bg-gray-900/95 backdrop-blur-xl rounded-b-3xl border-t border-white/5"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden bg-black/60 backdrop-blur-2xl rounded-b-[2rem] border-t border-white/10"
           >
-            <div className="px-4 pt-2 pb-6 space-y-2 flex flex-col items-center">
+            <div className="px-6 pt-4 pb-8 space-y-2 flex flex-col items-center">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="block w-full text-center py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  className="block w-full text-center py-4 text-gray-300 hover:text-primary hover:bg-white/5 rounded-2xl transition-colors font-medium text-lg"
                 >
                   {link.name}
                 </Link>
               ))}
-              <Link href="/Rohan_Resume.pdf" target="_blank" className="mt-4 w-full text-center py-3 font-bold bg-lime-400 text-black rounded-lg">
-                Download Resume
-              </Link>
+              {resumeUrl && (
+                <Link href={resumeUrl} target="_blank" className="mt-6 w-full text-center py-4 font-bold bg-primary text-black rounded-2xl active:scale-95 transition-transform">
+                  Download Resume
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
