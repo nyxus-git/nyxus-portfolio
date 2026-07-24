@@ -5,6 +5,7 @@ import { Save, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { getAbout, updateAbout, About } from "@/lib/api";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
+import { FileUploadButton } from "./FileUploadButton";
 
 export function AboutManager() {
   const [form, setForm] = useState<Omit<About, "id">>({
@@ -63,7 +64,13 @@ export function AboutManager() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AdminInput label="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Rohan Mane" />
-            <AdminInput label="Profile Image URL" value={form.profile_image || ""} onChange={e => setForm(f => ({ ...f, profile_image: e.target.value }))} placeholder="/profile.jpeg" />
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profile Image URL</label>
+                <FileUploadButton accept="image/*" label="Upload Image" onUploadSuccess={(url) => setForm(f => ({ ...f, profile_image: url }))} />
+              </div>
+              <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.profile_image || ""} onChange={e => setForm(f => ({ ...f, profile_image: e.target.value }))} placeholder="/profile.jpeg" />
+            </div>
             <div className="md:col-span-2">
               <AdminInput label="Tagline" value={form.tagline || ""} onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))} placeholder="Building intelligent systems that make a real impact" />
             </div>
@@ -96,7 +103,13 @@ export function AboutManager() {
             <AdminInput label="Twitter/X URL" value={form.twitter_url || ""} onChange={e => setForm(f => ({ ...f, twitter_url: e.target.value }))} placeholder="https://x.com/..." />
             <AdminInput label="YouTube URL" value={form.youtube_url || ""} onChange={e => setForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/..." />
             <AdminInput label="LeetCode URL" value={form.leetcode_url || ""} onChange={e => setForm(f => ({ ...f, leetcode_url: e.target.value }))} placeholder="https://leetcode.com/u/..." />
-            <AdminInput label="Resume URL" value={form.resume_url || ""} onChange={e => setForm(f => ({ ...f, resume_url: e.target.value }))} placeholder="/Rohan_Resume.pdf" />
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Resume URL</label>
+                <FileUploadButton accept=".pdf,.doc,.docx" label="Upload Resume" onUploadSuccess={(url) => setForm(f => ({ ...f, resume_url: url }))} />
+              </div>
+              <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.resume_url || ""} onChange={e => setForm(f => ({ ...f, resume_url: e.target.value }))} placeholder="/Rohan_Resume.pdf" />
+            </div>
           </div>
         </div>
       </div>

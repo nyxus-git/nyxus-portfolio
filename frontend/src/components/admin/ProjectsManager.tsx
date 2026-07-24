@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { getProjects, createProject, updateProject, deleteProject, Project } from "@/lib/api";
 import { Modal } from "./Modal";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
+import { FileUploadButton } from "./FileUploadButton";
 
 const DEFAULT_FORM: Omit<Project, "id"> = {
   title: "", description: "", tech_stack: [], github_url: "", live_url: "",
@@ -135,7 +136,13 @@ export function ProjectsManager() {
           <AdminInput label="Tech Stack (comma-separated)" value={techInput} onChange={e => setTechInput(e.target.value)} placeholder="Python, TensorFlow, React..." />
           <AdminInput label="GitHub URL" value={form.github_url || ""} onChange={e => setForm(f => ({ ...f, github_url: e.target.value }))} placeholder="https://github.com/..." />
           <AdminInput label="Live URL" value={form.live_url || ""} onChange={e => setForm(f => ({ ...f, live_url: e.target.value }))} placeholder="https://..." />
-          <AdminInput label="Image URL" value={form.image_url || ""} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Image URL</label>
+              <FileUploadButton accept="image/*" label="Upload Image" onUploadSuccess={(url) => setForm(f => ({ ...f, image_url: url }))} />
+            </div>
+            <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.image_url || ""} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
+          </div>
           <div className="flex gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Featured</label>

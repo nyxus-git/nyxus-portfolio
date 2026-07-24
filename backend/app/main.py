@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .core.database import Base, engine, SessionLocal
 from .models import project, experience, certification, blog, skill as skill_model
-from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile
+from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
+import os
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -25,6 +27,14 @@ app.include_router(exp_routes.router, prefix="/api/experience", tags=["experienc
 app.include_router(certifications.router, prefix="/api/certifications", tags=["certifications"])
 app.include_router(blogs.router, prefix="/api/blogs", tags=["blogs"])
 app.include_router(profile.router, prefix="/api", tags=["profile"])
+app.include_router(demo.router, prefix="/api/demo", tags=["demo"])
+app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
+
+# Mount static files for uploads
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/")

@@ -1,6 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+// Call our FastAPI backend which proxies to HuggingFace (avoids CORS)
+const BACKEND_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
+const API_BASE_URL = BACKEND_BASE;
 export async function adminLogin(username: string, password: string): Promise<string> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
@@ -174,6 +175,32 @@ export async function updateBlog(id: number, data: Omit<BlogPost, "id">): Promis
 export async function deleteBlog(id: number): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/blogs/${id}`, { method: "DELETE", headers: authHeaders() });
   if (!res.ok) throw new Error(await res.text());
+}
+
+// ─── File Upload ─────────────────────────────────────────────────────────────
+export async function uploadFile(file: File, token: string): Promise<{ url: string; filename: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE_URL}/upload/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.detail || "Failed to upload file");
+  }
+  
+  const data = await res.json();
+  // Adjust the URL if the backend is on a different origin in development
+  if (data.url.startsWith("/")) {
+    data.url = API_BASE_URL.replace("/api", "") + data.url;
+  }
+  return data;
 }
 
 // ─── Skills ───────────────────────────────────────────────────────────────────

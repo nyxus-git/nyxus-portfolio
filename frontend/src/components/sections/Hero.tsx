@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowDownIcon, Download, Code2, Cpu, Terminal } from "lucide-react";
+import { Download, Code2, Cpu, Terminal } from "lucide-react";
 import { Navbar } from "@/components/sections/Navbar";
 import { getAbout, type About } from "../../lib/api";
+import { NeuralNetCanvas } from "@/components/ui/NeuralNetCanvas";
+import { TerminalLine } from "@/components/ui/TerminalLine";
 
 export function Hero() {
   const [about, setAbout] = useState<About | null>(null);
@@ -33,15 +34,16 @@ export function Hero() {
         id="home"
         className="relative flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 overflow-hidden pt-32 md:pt-24"
       >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] mix-blend-screen animate-pulse-glow" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/20 rounded-full blur-[100px] mix-blend-screen animate-pulse-glow" style={{ animationDelay: '2s' }} />
-          <div className="absolute inset-0 bg-grid-white/[0.02] [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+        {/* Neural Network Canvas Background */}
+        <div className="absolute inset-0 z-0">
+          <NeuralNetCanvas />
         </div>
 
-        {/* Floating Icons Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
+        {/* Soft radial vignette so text stays readable */}
+        <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_30%,rgba(3,7,18,0.85)_100%)]" />
+
+        {/* Floating Icons — keep but reduce opacity slightly */}
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none opacity-15">
           <motion.div className="absolute top-1/3 left-1/4 text-primary" animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
             <Code2 size={48} />
           </motion.div>
@@ -79,7 +81,7 @@ export function Hero() {
             </span>
           </motion.h1>
 
-          <div className="h-16 md:h-20 mb-6 flex items-center justify-center overflow-hidden">
+          <div className="h-16 md:h-20 mb-4 flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.h2
                 key={currentRoleIndex}
@@ -93,6 +95,23 @@ export function Hero() {
               </motion.h2>
             </AnimatePresence>
           </div>
+
+          {/* Terminal typewriter line */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <TerminalLine
+              lines={[
+                "$ whoami",
+                `> ${(about?.roles ? about.roles.split(",").map(r => r.trim()).join("  |  ") : "AI Engineer  |  ML Engineer  |  Open Source Contributor")}`,
+              ]}
+              startDelay={1400}
+              speed={32}
+            />
+          </motion.div>
 
           <motion.p
             className="text-lg md:text-xl lg:text-2xl mb-12 text-gray-400 max-w-2xl leading-relaxed"

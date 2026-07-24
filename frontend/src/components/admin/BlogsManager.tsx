@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { getAllBlogs, createBlog, updateBlog, deleteBlog, BlogPost } from "@/lib/api";
 import { Modal } from "./Modal";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
+import { FileUploadButton } from "./FileUploadButton";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -106,7 +107,13 @@ export function BlogsManager() {
           <AdminInput label="Date *" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
           <AdminTextarea label="Excerpt" value={form.excerpt || ""} onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} rows={2} placeholder="Brief summary of the post..." />
           <AdminTextarea label="Content (Markdown supported)" value={form.content || ""} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} rows={10} placeholder="# Your blog content here..." />
-          <AdminInput label="Featured Image URL" value={form.featured_image || ""} onChange={e => setForm(f => ({ ...f, featured_image: e.target.value }))} placeholder="https://..." />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Featured Image URL</label>
+              <FileUploadButton accept="image/*" label="Upload Image" onUploadSuccess={(url) => setForm(f => ({ ...f, featured_image: url }))} />
+            </div>
+            <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.featured_image || ""} onChange={e => setForm(f => ({ ...f, featured_image: e.target.value }))} placeholder="https://..." />
+          </div>
           <AdminInput label="Tags (comma-separated)" value={form.tags || ""} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="ml, python, tutorial" />
           <AdminInput label="Author" value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} />
           <div>

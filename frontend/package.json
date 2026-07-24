@@ -12,6 +12,7 @@
     "@contentful/rich-text-react-renderer": "^16.1.2",
     "@contentful/rich-text-types": "^17.2.1",
     "@hookform/resolvers": "^5.2.0",
+    "@huggingface/transformers": "^4.2.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
@@ -23,7 +24,9 @@
     "nodemailer": "^7.0.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-github-calendar": "^5.0.8",
     "react-hook-form": "^7.61.1",
+    "recharts": "^3.10.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.11"
   },
@@ -39,5 +42,9 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "onnxruntime-node@1.24.3": true,
+    "protobufjs@7.6.5": true
   }
 }

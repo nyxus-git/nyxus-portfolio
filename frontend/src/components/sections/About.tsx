@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getAbout, type About as AboutType } from "../../lib/api";
 import { User, Sparkles } from "lucide-react";
+import { StatCounterRow } from "@/components/ui/StatCounter";
 
 export function About() {
   const [about, setAbout] = useState<AboutType | null>(null);
@@ -93,6 +94,9 @@ export function About() {
                 </a>
               </div>
             )}
+
+            {/* Animated stat counters */}
+            <StatCounterRow />
           </div>
         </motion.div>
       </div>

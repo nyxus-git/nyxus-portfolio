@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Gauge, Code, Package, Terminal } from "lucide-react";
 import { getSkills, type Skill } from "../../lib/api";
+import { SkillRadar } from "@/components/ui/SkillRadar";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   "PROGRAMMING LANGUAGES": Code,
@@ -51,7 +52,14 @@ export function Skills() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Radar chart — spans full width on small screens, 1 column on large */}
+          <div className="lg:col-span-1">
+            <SkillRadar />
+          </div>
+
+          {/* Skill tag categories — span remaining 3 columns */}
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
           {categoryList.map(([name, skillList], catIndex) => {
             const Icon = CATEGORY_ICONS[name.toUpperCase()] || Gauge;
             
@@ -87,6 +95,7 @@ export function Skills() {
               </motion.div>
             );
           })}
+          </div>
         </div>
       </div>
     </section>
