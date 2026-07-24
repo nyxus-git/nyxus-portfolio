@@ -37,3 +37,6 @@ uvicorn==0.37.0
 uvloop==0.21.0
 watchfiles==1.1.1
 websockets==15.0.1
+SQLAlchemy==2.0.29
+psycopg2-binary==2.9.9
+python-jose[cryptography]==3.3.0
