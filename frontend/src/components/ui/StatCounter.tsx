@@ -73,15 +73,14 @@ interface StatCounterRowProps {
 }
 
 const DEFAULT_STATS: StatCounterProps[] = [
-  { target: 3, suffix: "+", label: "Years in AI/ML", duration: 1200 },
-  { target: 15, suffix: "+", label: "Projects Built", duration: 1400 },
-  { target: 5, suffix: "K+", label: "GitHub Contributions", duration: 1800 },
-  { target: 100, suffix: "K+", label: "Samples Trained", duration: 2000 },
+  { target: 8, suffix: "+", label: "Months Experience", duration: 1200 },
+  { target: 6, suffix: "+", label: "Projects Built", duration: 1400 },
+  { target: 1000, suffix: "+", label: "GitHub Contributions", duration: 1800 },
 ];
 
 export function StatCounterRow({ stats = DEFAULT_STATS }: StatCounterRowProps) {
   return (
-    <div className="mt-10 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+    <div className="mt-10 pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
       {stats.map((s, i) => (
         <SingleStat key={i} {...s} />
       ))}

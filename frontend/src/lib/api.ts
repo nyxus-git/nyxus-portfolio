@@ -1,5 +1,5 @@
 // Call our FastAPI backend which proxies to HuggingFace (avoids CORS)
-const BACKEND_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+const BACKEND_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "https://nyxus-backend.onrender.com/api";
 
 const API_BASE_URL = BACKEND_BASE;
 export async function adminLogin(username: string, password: string): Promise<string> {
