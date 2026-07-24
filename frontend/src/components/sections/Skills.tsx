@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Gauge, Code, Package, Terminal } from "lucide-react";
+import { Gauge, Code, Package, Terminal, Cloud } from "lucide-react";
 import { getSkills, type Skill } from "../../lib/api";
 import { SkillRadar } from "@/components/ui/SkillRadar";
 
@@ -10,6 +10,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   "PROGRAMMING LANGUAGES": Code,
   "FRAMEWORKS & LIBRARIES": Package,
   "TOOLS & TECHNOLOGIES": Terminal,
+  "CLOUD & MLOPS": Cloud,
 };
 
 export function Skills() {

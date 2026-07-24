@@ -11,6 +11,7 @@ const CATEGORIES = [
   "PROGRAMMING LANGUAGES",
   "FRAMEWORKS & LIBRARIES",
   "TOOLS & TECHNOLOGIES",
+  "CLOUD & MLOPS",
 ];
 
 const DEFAULT_FORM: Omit<Skill, "id"> = {
@@ -21,6 +22,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "PROGRAMMING LANGUAGES": "bg-lime-500/20 text-lime-400 border-lime-500/20",
   "FRAMEWORKS & LIBRARIES": "bg-cyan-500/20 text-cyan-400 border-cyan-500/20",
   "TOOLS & TECHNOLOGIES": "bg-purple-500/20 text-purple-400 border-purple-500/20",
+  "CLOUD & MLOPS": "bg-orange-500/20 text-orange-400 border-orange-500/20",
 };
 
 export function SkillsManager() {
