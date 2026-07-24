@@ -40,7 +40,12 @@ export function ExperienceManager() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete?")) return;
-    await deleteExperience(id); load();
+    try {
+      await deleteExperience(id);
+      load();
+    } catch (e) {
+      alert("Error deleting experience: " + e);
+    }
   }
 
   return (

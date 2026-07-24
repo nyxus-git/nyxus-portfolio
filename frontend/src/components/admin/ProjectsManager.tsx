@@ -63,8 +63,12 @@ export function ProjectsManager() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete this project?")) return;
-    await deleteProject(id);
-    load();
+    try {
+      await deleteProject(id);
+      load();
+    } catch (e) {
+      alert("Error deleting project: " + e);
+    }
   }
 
   return (

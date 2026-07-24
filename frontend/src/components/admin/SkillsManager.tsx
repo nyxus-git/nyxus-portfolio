@@ -52,7 +52,12 @@ export function SkillsManager() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete?")) return;
-    await deleteSkill(id); load();
+    try {
+      await deleteSkill(id);
+      load();
+    } catch (e) {
+      alert("Error deleting skill: " + e);
+    }
   }
 
   const filtered = filterCat === "All" ? items : items.filter(s => s.category === filterCat);

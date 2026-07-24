@@ -45,7 +45,12 @@ export function CertificationsManager() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete?")) return;
-    await deleteCertification(id); load();
+    try {
+      await deleteCertification(id);
+      load();
+    } catch (e) {
+      alert("Error deleting certification: " + e);
+    }
   }
 
   return (

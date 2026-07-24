@@ -46,7 +46,12 @@ export function BlogsManager() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete this blog post?")) return;
-    await deleteBlog(id); load();
+    try {
+      await deleteBlog(id);
+      load();
+    } catch (e) {
+      alert("Error deleting blog post: " + e);
+    }
   }
 
   return (
