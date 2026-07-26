@@ -31,7 +31,7 @@ async def upload_file(
         # Check if Cloudinary is configured
         if settings.cloudinary_cloud_name and settings.cloudinary_api_key and settings.cloudinary_api_secret:
             # Upload to Cloudinary
-            result = cloudinary.uploader.upload(file.file, folder="nyxus-portfolio")
+            result = cloudinary.uploader.upload(file.file, folder="nyxus-portfolio", resource_type="auto")
             return {"url": result.get("secure_url"), "filename": file.filename}
         else:
             # Fallback to local upload
