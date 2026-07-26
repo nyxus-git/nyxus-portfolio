@@ -35,7 +35,8 @@ async def upload_file(
             return {"url": result.get("secure_url"), "filename": file.filename}
         else:
             # Fallback to local upload
-            file_ext = file.filename.split(".")[-1] if "." in file.filename else "bin"
+            safe_filename = file.filename or "upload"
+            file_ext = safe_filename.split(".")[-1] if "." in safe_filename else "bin"
             unique_filename = f"{uuid4().hex}.{file_ext}"
             file_path = os.path.join(UPLOAD_DIR, unique_filename)
             
