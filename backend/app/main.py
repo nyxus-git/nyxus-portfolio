@@ -3,17 +3,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from .core.database import Base, engine, SessionLocal
+from .core.seed_data import ensure_database_schema, sync_canonical_projects
 from .models import project, experience, certification, blog, skill as skill_model
 from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
 import os
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+# Ensure all columns exist (Postgres / SQLite)
+ensure_database_schema(engine)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Seed the database with initial data if empty on startup."""
+    """Ensure database schema is up-to-date and seed canonical projects on startup."""
+    ensure_database_schema(engine)
     seed_database()
     yield
 
@@ -107,73 +111,8 @@ def seed_database():
             for s in skills_data:
                 db.add(Skill(**s))
 
-        # --- Projects ---
-        from .models.project import Project
-        if db.query(Project).count() == 0:
-            projects_data = [
-                {
-                    "title": "Sentiment Analysis Web App",
-                    "description": "A full-stack NLP web application that performs real-time sentiment analysis on user-entered text. Built with a Flask backend using a fine-tuned BERT model and a React frontend. Supports multi-class classification (positive, negative, neutral) with confidence scores and visual probability charts.",
-                    "tech_stack": ["Python", "Flask", "BERT", "HuggingFace", "React", "scikit-learn", "NLTK"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 1,
-                    "order_index": 0
-                },
-                {
-                    "title": "Image Classifier with CNN",
-                    "description": "Deep learning image classification system using a custom Convolutional Neural Network trained on CIFAR-10 and custom datasets. Achieves 94% accuracy. Includes a Streamlit web interface for uploading and classifying images with Grad-CAM visualizations to explain model decisions.",
-                    "tech_stack": ["Python", "TensorFlow", "Keras", "OpenCV", "Streamlit", "NumPy", "Matplotlib"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 1,
-                    "order_index": 1
-                },
-                {
-                    "title": "Stock Price Predictor (LSTM)",
-                    "description": "Time-series forecasting model using LSTM neural networks to predict stock prices up to 30 days ahead. Fetches live data via Yahoo Finance API, preprocesses with technical indicators (RSI, MACD, Bollinger Bands), and visualizes predictions with an interactive Plotly dashboard.",
-                    "tech_stack": ["Python", "TensorFlow", "LSTM", "Pandas", "yfinance", "Plotly", "Streamlit"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 1,
-                    "order_index": 2
-                },
-                {
-                    "title": "Face Detection & Recognition System",
-                    "description": "Real-time face detection and recognition system using OpenCV and MediaPipe. Features include multi-face tracking, facial landmark detection, emotion recognition, and attendance marking. Built as a desktop application with Tkinter GUI and SQLite storage for registered users.",
-                    "tech_stack": ["Python", "OpenCV", "MediaPipe", "DeepFace", "Tkinter", "SQLite", "NumPy"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 1,
-                    "order_index": 3
-                },
-                {
-                    "title": "ML Playground — Interactive Learning Platform",
-                    "description": "An educational web platform for learning machine learning concepts interactively. Users can train simple models (linear regression, decision trees, k-means) on toy datasets through a drag-and-drop interface, visualize decision boundaries in real time, and compare algorithm performance.",
-                    "tech_stack": ["React", "Python", "FastAPI", "scikit-learn", "D3.js", "TailwindCSS"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 1,
-                    "order_index": 4
-                },
-                {
-                    "title": "Portfolio Website (This Site!)",
-                    "description": "Production-ready developer portfolio with a Next.js frontend and FastAPI backend. Features an admin dashboard with JWT-protected CRUD operations for all portfolio sections, SQLite database, dark glassmorphism design, Framer Motion animations, and full contact form integration.",
-                    "tech_stack": ["Next.js", "TypeScript", "FastAPI", "Python", "SQLite", "SQLAlchemy", "TailwindCSS"],
-                    "github_url": "https://github.com/nyxus-git",
-                    "live_url": None,
-                    "image_url": None,
-                    "featured": 0,
-                    "order_index": 5
-                },
-            ]
-            for p in projects_data:
-                db.add(Project(**p))
+        # --- Projects (Auto Sync Canonical GenAI Projects) ---
+        sync_canonical_projects(db)
 
         # --- Experience ---
         from .models.experience import Experience
