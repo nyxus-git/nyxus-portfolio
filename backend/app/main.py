@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from .core.database import Base, engine, SessionLocal
 from .models import project, experience, certification, blog, skill as skill_model
 from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
@@ -9,7 +10,15 @@ import os
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Rohan Mane Portfolio API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Seed the database with initial data if empty on startup."""
+    seed_database()
+    yield
+
+
+app = FastAPI(title="Rohan Mane Portfolio API", version="1.0.0", lifespan=lifespan)
 
 # CORS
 app.add_middleware(
@@ -42,7 +51,6 @@ def read_root():
     return {"status": "ok", "message": "Rohan Mane Portfolio API"}
 
 
-@app.on_event("startup")
 def seed_database():
     """Seed the database with initial data if empty."""
     db = SessionLocal()
