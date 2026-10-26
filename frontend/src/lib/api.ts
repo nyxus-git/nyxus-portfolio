@@ -1,7 +1,25 @@
-// Call our FastAPI backend which proxies to HuggingFace (avoids CORS)
-const BACKEND_BASE = "https://nyxus-backend.onrender.com/api";
+const BACKEND_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.port === "3000")
+    ? "http://localhost:8000/api"
+    : process.env.NODE_ENV === "development"
+    ? "http://localhost:8000/api"
+    : "https://nyxus-backend.onrender.com/api");
 
 const API_BASE_URL = BACKEND_BASE;
+
+/** Converts a relative /uploads/ path to the full backend URL */
+export function getImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("/uploads/")) {
+    const backendOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
+    return `${backendOrigin}${url}`;
+  }
+  return url;
+}
 export async function adminLogin(username: string, password: string): Promise<string> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
@@ -24,12 +42,18 @@ function authHeaders(): HeadersInit {
 // ─── Project ─────────────────────────────────────────────────────────────────
 export interface Project {
   id: number;
+  slug?: string | null;
   title: string;
+  tagline?: string | null;
   description: string;
+  long_description?: string | null;
+  features?: string[];
+  architecture?: string | null;
   tech_stack: string[];
   github_url: string | null;
   live_url: string | null;
   image_url: string | null;
+  screenshots?: string[];
   featured: number;
   order_index: number;
 }
@@ -38,6 +62,24 @@ export async function getProjects(): Promise<Project[]> {
   const res = await fetch(`${API_BASE_URL}/projects/`, { cache: "no-store" });
   if (!res.ok) return [];
   return res.json();
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  const res = await fetch(`${API_BASE_URL}/projects/slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
+  if (res.ok) return res.json();
+  // Fallback to searching the full list in case of slug discrepancy or offline server
+  const all = await getProjects();
+  return all.find(p => p.slug === slug || String(p.id) === slug) || null;
+}
+
+export async function getProject(idOrSlug: string | number): Promise<Project | null> {
+  // If numeric, try by ID first
+  if (typeof idOrSlug === "number" || /^\d+$/.test(String(idOrSlug))) {
+    const res = await fetch(`${API_BASE_URL}/projects/${idOrSlug}`, { cache: "no-store" });
+    if (res.ok) return res.json();
+  }
+  // Try by slug
+  return getProjectBySlug(String(idOrSlug));
 }
 
 export async function createProject(data: Omit<Project, "id">): Promise<Project> {

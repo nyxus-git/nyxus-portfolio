@@ -14,6 +14,14 @@ def get_projects(db: Session = Depends(get_db)):
     return db.query(Project).order_by(Project.order_index).all()
 
 
+@router.get("/slug/{slug}", response_model=ProjectOut)
+def get_project_by_slug(slug: str, db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.slug == slug).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+
 @router.get("/{project_id}", response_model=ProjectOut)
 def get_project(project_id: int, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == project_id).first()
