@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { getProject, getProjects, getImageUrl, type Project } from "@/lib/api";
 import { Navbar } from "@/components/sections/Navbar";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -251,18 +252,21 @@ export default function ProjectDetailPage() {
 
               {/* Active Image Display */}
               <div
-                className="relative aspect-video w-full overflow-hidden bg-gray-950 flex items-center justify-center cursor-zoom-in group"
+                className="relative aspect-video w-full overflow-hidden bg-gray-950 cursor-zoom-in group"
                 onClick={() => setLightboxOpen(true)}
               >
                 {activeImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={getImageUrl(activeImageUrl) ?? activeImageUrl}
+                  <OptimizedImage
+                    src={activeImageUrl}
                     alt={`${project.title} Preview`}
-                    className="w-full h-full object-contain md:object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                    width={1400}
+                    fill
+                    priority
+                    className="transition-transform duration-500 group-hover:scale-[1.01]"
+                    objectFit="contain"
                   />
                 ) : (
-                  <div className="text-gray-600 font-mono text-sm">No preview available</div>
+                  <div className="text-gray-600 font-mono text-sm absolute inset-0 flex items-center justify-center">No preview available</div>
                 )}
 
                 {/* Left / Right Nav Arrows on Main Image */}
@@ -307,11 +311,11 @@ export default function ProjectDetailPage() {
                           : "border-white/10 opacity-60 hover:opacity-100"
                       }`}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={getImageUrl(img) ?? img}
+                      <OptimizedImage
+                        src={img}
                         alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        width={280}
+                        fill
                       />
                     </button>
                   ))}
@@ -606,7 +610,7 @@ export default function ProjectDetailPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={getImageUrl(activeImageUrl) ?? activeImageUrl}
-                alt={project.title}
+                alt={project?.title}
                 className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/10"
               />
             </div>

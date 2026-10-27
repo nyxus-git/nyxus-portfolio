@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { getAbout, type About as AboutType } from "../../lib/api";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { getAbout, getImageUrl, type About as AboutType } from "../../lib/api";
 import { User, Sparkles } from "lucide-react";
 import { StatCounterRow } from "@/components/ui/StatCounter";
 
@@ -47,19 +47,19 @@ export function About() {
           <div className="relative group flex-shrink-0">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-white/10 bg-black">
-              {about?.profile_image ? (
-                <Image
-                  src={about.profile_image}
-                  alt={about.name}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-full transition-transform duration-700 group-hover:scale-110"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                  <User size={64} className="text-gray-500" />
-                </div>
-              )}
+              <OptimizedImage
+                src={about?.profile_image ?? "/profile.jpeg"}
+                alt={about?.name ?? "Rohan Mane"}
+                width={512}
+                fill
+                priority
+                className="rounded-full transition-transform duration-700 group-hover:scale-110"
+                fallback={
+                  <div className="w-full h-full flex items-center justify-center bg-gray-900">
+                    <User size={64} className="text-gray-500" />
+                  </div>
+                }
+              />
             </div>
             
             {/* Floating badge */}

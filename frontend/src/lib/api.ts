@@ -11,14 +11,49 @@ const BACKEND_BASE =
 
 const API_BASE_URL = BACKEND_BASE;
 
-/** Converts a relative /uploads/ path to the full backend URL */
-export function getImageUrl(url: string | null | undefined): string | null {
+/**
+ * Hybrid image URL resolver.
+ * - /uploads/...  → proxied through the backend (admin uploads stored on Render/local)
+ * - res.cloudinary.com → injects f_auto,q_auto,w_<width> for instant WebP/AVIF + compression
+ * - anything else  → returned as-is (local /images/..., absolute https, etc.)
+ */
+export function getImageUrl(
+  url: string | null | undefined,
+  width = 900
+): string | null {
   if (!url) return null;
+
+  // Case 1: Backend local upload (fallback when Cloudinary not configured)
   if (url.startsWith("/uploads/")) {
     const backendOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
     return `${backendOrigin}${url}`;
   }
+
+  // Case 2: Cloudinary — inject transformation params if not already present
+  if (url.includes("res.cloudinary.com") && !url.includes("/f_auto")) {
+    return url.replace(
+      "/image/upload/",
+      `/image/upload/f_auto,q_auto,w_${width},c_limit/`
+    );
+  }
+
+  // Case 3: Local static file or any other URL — return as-is
   return url;
+}
+
+/**
+ * Returns a tiny 40px blurred LQIP placeholder for Cloudinary images.
+ * Only ~300 bytes — renders instantly as a blur before the real image loads.
+ */
+export function getBlurUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.includes("res.cloudinary.com") && !url.includes("/f_auto")) {
+    return url.replace(
+      "/image/upload/",
+      "/image/upload/f_auto,q_10,w_40,e_blur:1000/"
+    );
+  }
+  return null;
 }
 export async function adminLogin(username: string, password: string): Promise<string> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
