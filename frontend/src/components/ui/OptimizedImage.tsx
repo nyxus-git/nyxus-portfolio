@@ -12,20 +12,18 @@ interface OptimizedImageProps {
   fill?: boolean;
   className?: string;
   priority?: boolean;
-  /** Extra object-fit class when not fill. Defaults to object-cover */
+  /** Extra object-fit class. Defaults to cover */
   objectFit?: "cover" | "contain" | "fill" | "none";
-  /** Fallback JSX when src is empty */
+  /** Fallback JSX when src is empty or fails */
   fallback?: React.ReactNode;
 }
 
 /**
  * Hybrid-optimized image component:
- * - Cloudinary URLs → f_auto,q_auto,w_<width> (WebP/AVIF, compressed)
- * - Local /images/… or /profile.jpeg → served by Next.js edge CDN directly
- * - /uploads/… → proxied through backend
- * - Shows a blurred LQIP placeholder while loading (Cloudinary only)
- * - Smooth fade-in once fully loaded
- * - Falls back gracefully on error
+ * - Cloudinary URLs → f_auto,q_auto,w_<width> (WebP/AVIF, compressed, direct CDN via unoptimized)
+ * - Local /images/… or /profile.jpeg → served directly
+ * - Bulletproof sizing: absolute inset-0 when fill=true, avoiding CSS relative/absolute collisions
+ * - Graceful fallback: falls back to native <img> if NextImage fails
  */
 export function OptimizedImage({
   src,
@@ -38,6 +36,7 @@ export function OptimizedImage({
   fallback,
 }: OptimizedImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const [useFallbackImg, setUseFallbackImg] = useState(false);
   const [errored, setErrored] = useState(false);
 
   const resolvedSrc = getImageUrl(src, width);
@@ -48,68 +47,72 @@ export function OptimizedImage({
   }
 
   const fitClass =
-    fill ? "" : `object-${objectFit}`;
+    objectFit === "contain"
+      ? "object-contain"
+      : objectFit === "fill"
+      ? "object-fill"
+      : objectFit === "none"
+      ? "object-none"
+      : "object-cover";
+
+  // Container styling: strictly separate fill vs non-fill to prevent position: relative overriding position: absolute
+  const containerClass = fill
+    ? "absolute inset-0 w-full h-full overflow-hidden"
+    : "relative w-full h-full overflow-hidden";
 
   const isCloudinary = resolvedSrc.includes("res.cloudinary.com");
-  const isLocal = resolvedSrc.startsWith("/");
 
-  // Next.js <Image> works best with known domains; for local static files it's always fine.
-  // For external (Cloudinary), we use it with remotePatterns already set in next.config.ts.
-  if (isCloudinary || isLocal) {
+  // Fallback direct <img> in case Next.js optimizer fails or if user requested fallback
+  if (useFallbackImg) {
     return (
-      <div
-        className={`relative overflow-hidden ${fill ? "absolute inset-0" : ""}`}
-        style={fill ? undefined : { display: "contents" }}
-      >
-        {/* LQIP blur backdrop — only for Cloudinary */}
-        {blurSrc && !loaded && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={blurSrc}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-cover scale-110 blur-md"
-          />
-        )}
-
-        {/* Skeleton shimmer while loading */}
-        {!loaded && (
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 animate-pulse" />
-        )}
-
-        <NextImage
+      <div className={containerClass}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={resolvedSrc}
           alt={alt}
-          fill={fill}
-          priority={priority}
-          className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"} ${fitClass} ${className}`}
-          onLoad={() => setLoaded(true)}
+          className={`${fill ? "absolute inset-0 w-full h-full" : "w-full h-full"} ${fitClass} ${className}`}
           onError={() => setErrored(true)}
-          sizes={
-            fill
-              ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 900px"
-              : `${width}px`
-          }
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
         />
       </div>
     );
   }
 
-  // Fallback: plain img for /uploads/ proxied through backend
   return (
-    <div className={`relative overflow-hidden ${fill ? "absolute inset-0" : ""}`}>
-      {!loaded && (
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 animate-pulse" />
+    <div className={containerClass}>
+      {/* LQIP blur backdrop — only for Cloudinary */}
+      {blurSrc && !loaded && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={blurSrc}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-md pointer-events-none"
+        />
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+
+      {/* Subtle skeleton shimmer while loading */}
+      {!loaded && (
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-gray-800/60 to-gray-900/60 animate-pulse pointer-events-none" />
+      )}
+
+      <NextImage
         src={resolvedSrc}
         alt={alt}
-        className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"} ${fill ? "absolute inset-0 w-full h-full" : ""} object-${objectFit} ${className}`}
+        fill={fill}
+        width={fill ? undefined : width}
+        height={fill ? undefined : Math.round(width * 0.75)}
+        priority={priority}
+        unoptimized={isCloudinary}
+        className={`${fitClass} ${fill ? "w-full h-full" : ""} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-90"} ${className}`}
         onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
+        onError={() => setUseFallbackImg(true)}
+        sizes={
+          fill
+            ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 900px"
+            : `${width}px`
+        }
       />
     </div>
   );
