@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getProjects, getImageUrl, type Project } from "../../lib/api";
+import { getProjects, type Project } from "../../lib/api";
 import { ExternalLink, Github, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function BestProject() {
   const [featuredProject, setFeaturedProject] = useState<Project | null>(null);
@@ -127,11 +128,18 @@ export function BestProject() {
                 </div>
                 
                 {featuredProject.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={getImageUrl(featuredProject.image_url) ?? undefined} 
-                    alt={featuredProject.title} 
-                    className="absolute inset-0 w-full h-full object-cover pt-8 transition-transform duration-700 group-hover/mockup:scale-105"
+                  <OptimizedImage
+                    src={featuredProject.image_url}
+                    alt={featuredProject.title}
+                    width={1000}
+                    fill
+                    priority
+                    className="pt-8 transition-transform duration-700 group-hover/mockup:scale-105"
+                    fallback={
+                      <div className="absolute inset-0 pt-8 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+                        <Sparkles size={64} className="text-primary/30" />
+                      </div>
+                    }
                   />
                 ) : (
                   <div className="absolute inset-0 pt-8 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">

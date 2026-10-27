@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { Github, ExternalLink, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { getProjects, getImageUrl, type Project as ProjectType } from "../../lib/api";
+import { getProjects, type Project as ProjectType } from "../../lib/api";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { TiltCard } from "@/components/ui/TiltCard";
 
 export function Project() {
@@ -66,18 +67,16 @@ export function Project() {
                   {/* Image / Thumbnail */}
                   <Link
                     href={`/projects/${project.slug || project.id}`}
-                    className="block relative h-48 w-full overflow-hidden bg-gradient-to-br from-gray-900 to-black flex items-center justify-center border-b border-white/5 group/thumb"
+                    className="block relative h-48 w-full overflow-hidden bg-gradient-to-br from-gray-900 to-black border-b border-white/5 group/thumb"
                   >
-                    {project.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={getImageUrl(project.image_url) ?? project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover/thumb:scale-108 opacity-90 group-hover/thumb:opacity-100"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-grid-white/[0.05] pointer-events-none" />
-                    )}
+                    <OptimizedImage
+                      src={project.image_url}
+                      alt={project.title}
+                      width={700}
+                      fill
+                      className="transition-transform duration-700 group-hover/thumb:scale-105 opacity-90 group-hover/thumb:opacity-100"
+                      fallback={<div className="absolute inset-0 bg-grid-white/[0.05] pointer-events-none" />}
+                    />
 
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />

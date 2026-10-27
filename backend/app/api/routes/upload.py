@@ -30,8 +30,21 @@ async def upload_file(
     try:
         # Check if Cloudinary is configured
         if settings.cloudinary_cloud_name and settings.cloudinary_api_key and settings.cloudinary_api_secret:
-            # Upload to Cloudinary
-            result = cloudinary.uploader.upload(file.file, folder="nyxus-portfolio", resource_type="auto")
+            # Upload to Cloudinary with automatic optimisation:
+            # - f_auto  → serves WebP/AVIF to modern browsers, JPEG to old ones
+            # - q_auto  → Cloudinary picks the ideal quality level per image
+            # - w_1920,c_limit → caps max width at 1920px (never upscales)
+            # - strip_metadata → removes EXIF/GPS data, sheds ~15-30 KB per image
+            result = cloudinary.uploader.upload(
+                file.file,
+                folder="nyxus-portfolio",
+                resource_type="image",
+                transformation=[
+                    {"quality": "auto", "fetch_format": "auto"},
+                    {"width": 1920, "crop": "limit"},
+                ],
+                strip_metadata=True,
+            )
             return {"url": result.get("secure_url"), "filename": file.filename}
         else:
             # Fallback to local upload
