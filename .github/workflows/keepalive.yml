@@ -1,0 +1,21 @@
+name: Render Keepalive Ping
+
+on:
+  schedule:
+    # Runs every 14 minutes — Render free tier spins down after 15 min inactivity
+    - cron: "*/14 * * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://nyxus-backend.onrender.com/health)
+          echo "Backend responded with HTTP $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warning: Backend returned non-200 status: $STATUS"
+            exit 1
+          fi
+          echo "✅ Backend is alive and warm!"

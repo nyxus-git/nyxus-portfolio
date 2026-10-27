@@ -55,6 +55,27 @@ def read_root():
     return {"status": "ok", "message": "Rohan Mane Portfolio API"}
 
 
+@app.get("/health")
+def health_check():
+    """Lightweight keepalive endpoint — used by uptime cron jobs to prevent Render cold starts."""
+    return {"status": "ok"}
+
+
+@app.get("/api/ping")
+def ping_with_db_warmup():
+    """Ping + DB warmup — hits the database so the connection pool stays alive."""
+    from .core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        db.execute(__import__("sqlalchemy").text("SELECT 1"))
+        db_ok = True
+    except Exception:
+        db_ok = False
+    finally:
+        db.close()
+    return {"status": "ok", "db": "ok" if db_ok else "error"}
+
+
 def seed_database():
     """Seed the database with initial data if empty."""
     db = SessionLocal()

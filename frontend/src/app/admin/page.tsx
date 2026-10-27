@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, FolderKanban, Briefcase, Award, BookOpen,
-  Cpu, User, LogOut, Menu, X, ChevronRight, Terminal
+  Cpu, User, LogOut, Menu, X, ChevronRight, Terminal, Images
 } from "lucide-react";
 import { ProjectsManager } from "@/components/admin/ProjectsManager";
 import { ExperienceManager } from "@/components/admin/ExperienceManager";
@@ -13,11 +13,12 @@ import { CertificationsManager } from "@/components/admin/CertificationsManager"
 import { BlogsManager } from "@/components/admin/BlogsManager";
 import { SkillsManager } from "@/components/admin/SkillsManager";
 import { AboutManager } from "@/components/admin/AboutManager";
+import { MediaManager } from "@/components/admin/MediaManager";
 import {
   getProjects, getExperiences, getCertifications, getBlogs, getSkills
 } from "@/lib/api";
 
-type Section = "dashboard" | "projects" | "experience" | "certifications" | "blogs" | "skills" | "about";
+type Section = "dashboard" | "projects" | "experience" | "certifications" | "blogs" | "skills" | "about" | "media";
 
 const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "blogs", label: "Blog Posts", icon: BookOpen },
   { key: "skills", label: "Skills", icon: Cpu },
   { key: "about", label: "About & Links", icon: User },
+  { key: "media", label: "Media Library", icon: Images },
 ];
 
 export default function AdminPage() {
@@ -61,6 +63,7 @@ export default function AdminPage() {
       case "blogs": return <BlogsManager />;
       case "skills": return <SkillsManager />;
       case "about": return <AboutManager />;
+      case "media": return <MediaManager />;
     }
   };
 

@@ -255,7 +255,18 @@ export async function deleteBlog(id: number): Promise<void> {
 }
 
 // ─── File Upload ─────────────────────────────────────────────────────────────
-export async function uploadFile(file: File, token: string): Promise<{ url: string; filename: string }> {
+export interface UploadedImage {
+  url: string;
+  public_id: string;
+  filename: string;
+  width?: number;
+  height?: number;
+  bytes?: number;
+  created_at?: string;
+  format?: string;
+}
+
+export async function uploadFile(file: File, token: string): Promise<UploadedImage> {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -278,6 +289,27 @@ export async function uploadFile(file: File, token: string): Promise<{ url: stri
     data.url = API_BASE_URL.replace("/api", "") + data.url;
   }
   return data;
+}
+
+export async function listUploads(
+  token: string,
+  nextCursor?: string
+): Promise<{ images: UploadedImage[]; next_cursor?: string; source: string }> {
+  const params = new URLSearchParams({ max_results: "40" });
+  if (nextCursor) params.set("next_cursor", nextCursor);
+  const res = await fetch(`${API_BASE_URL}/upload/?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to list uploads");
+  return res.json();
+}
+
+export async function deleteUpload(publicId: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/upload/${encodeURIComponent(publicId)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to delete image");
 }
 
 // ─── Skills ───────────────────────────────────────────────────────────────────

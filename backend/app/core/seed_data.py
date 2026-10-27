@@ -308,9 +308,37 @@ def ensure_database_schema(engine):
 
 def sync_canonical_projects(db: Session):
     """
-    Ensures the 7 flagship GenAI projects are always present, up-to-date,
-    and have their Cloudinary URLs, screenshots, and architecture specs populated.
+    Ensures the 7 flagship GenAI projects are always present and up-to-date.
+
+    Safe rules:
+    - Text fields (title, description, tech_stack, features, architecture…) are
+      always kept in sync with CANONICAL_PROJECTS so editorial fixes propagate.
+    - image_url and screenshots are only written if the stored value is still
+      the default local path (/images/projects/…).  This means any Cloudinary
+      URL you've uploaded via the admin panel is NEVER overwritten on deploy.
     """
+    # Fields that are always synced (content/metadata)
+    ALWAYS_SYNC = {
+        "title", "slug", "tagline", "description", "long_description",
+        "features", "architecture", "tech_stack",
+        "github_url", "live_url", "featured", "order_index",
+    }
+    # Image fields — only overwrite if the stored value is still the local default
+    IMAGE_FIELDS = {"image_url", "screenshots"}
+
+    def _is_default_local(value) -> bool:
+        """Returns True if the value is still the original local static path."""
+        if value is None:
+            return True
+        if isinstance(value, str):
+            return value.startswith("/images/projects/")
+        if isinstance(value, list):
+            return all(
+                (v is None or (isinstance(v, str) and v.startswith("/images/projects/")))
+                for v in value
+            )
+        return False
+
     try:
         # Remove legacy demo placeholder projects that have no slug
         legacy_titles = [
@@ -333,12 +361,19 @@ def sync_canonical_projects(db: Session):
             if not existing:
                 db.add(Project(**p_data))
             else:
-                # Update attributes to keep canonical info, architecture, and Cloudinary URLs in sync
                 for key, value in p_data.items():
-                    setattr(existing, key, value)
+                    if key in ALWAYS_SYNC:
+                        setattr(existing, key, value)
+                    elif key in IMAGE_FIELDS:
+                        current = getattr(existing, key, None)
+                        if _is_default_local(current):
+                            # Still the default — safe to update from canonical
+                            setattr(existing, key, value)
+                        # else: custom Cloudinary URL is set — leave it alone
 
         db.commit()
         print(f"Synced {len(CANONICAL_PROJECTS)} canonical projects successfully.")
     except Exception as e:
         db.rollback()
         print(f"Error syncing canonical projects: {e}")
+
