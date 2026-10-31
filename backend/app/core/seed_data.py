@@ -287,6 +287,8 @@ def ensure_database_schema(engine):
                     conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS architecture TEXT;"))
                 if "screenshots" not in columns:
                     conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS screenshots JSON DEFAULT '[]'::json;"))
+                if "is_visible" not in columns:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_visible INTEGER DEFAULT 1;"))
                 conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_projects_slug ON projects (slug);"))
             else:
                 # SQLite
@@ -302,6 +304,8 @@ def ensure_database_schema(engine):
                     conn.execute(text("ALTER TABLE projects ADD COLUMN architecture TEXT;"))
                 if "screenshots" not in columns:
                     conn.execute(text("ALTER TABLE projects ADD COLUMN screenshots JSON DEFAULT '[]';"))
+                if "is_visible" not in columns:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN is_visible INTEGER DEFAULT 1;"))
     except Exception as e:
         print(f"Schema check error (non-fatal): {e}")
 

@@ -4,9 +4,9 @@ const BACKEND_BASE =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1" ||
     window.location.port === "3000")
-    ? "http://localhost:8000/api"
+    ? "http://localhost:8001/api"
     : process.env.NODE_ENV === "development"
-    ? "http://localhost:8000/api"
+    ? "http://localhost:8001/api"
     : "https://nyxus-backend.onrender.com/api");
 
 const API_BASE_URL = BACKEND_BASE;
@@ -91,11 +91,33 @@ export interface Project {
   screenshots?: string[];
   featured: number;
   order_index: number;
+  is_visible?: number; // 1 = public, 0 = hidden
 }
 
 export async function getProjects(): Promise<Project[]> {
   const res = await fetch(`${API_BASE_URL}/projects/`, { cache: "no-store" });
   if (!res.ok) return [];
+  return res.json();
+}
+
+export async function getAllProjectsAdmin(): Promise<Project[]> {
+  const res = await fetch(`${API_BASE_URL}/projects/admin/all`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    // Fallback to getProjects if offline or token issue
+    return getProjects();
+  }
+  return res.json();
+}
+
+export async function toggleProjectVisibility(id: number): Promise<Project> {
+  const res = await fetch(`${API_BASE_URL}/projects/${id}/visibility`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 

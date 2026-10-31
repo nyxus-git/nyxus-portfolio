@@ -18,5 +18,6 @@ class Project(Base):
     live_url = Column(String(500), nullable=True)
     image_url = Column(String(500), nullable=True)
     screenshots = Column(JSON, default=[])
-    featured = Column(Integer, default=0)  # 0=false, 1=true
+    featured = Column(Integer, default=0)   # 0=regular, 1=flagship
     order_index = Column(Integer, default=0)
+    is_visible = Column(Integer, default=1)  # 1=visible to public, 0=hidden

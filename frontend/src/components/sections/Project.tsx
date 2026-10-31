@@ -14,8 +14,8 @@ export function Project() {
 
   useEffect(() => {
     getProjects().then((data) => {
-      // Filter out the featured project since it's in BestProject
-      setProjects(data.filter(p => p.featured !== 1));
+      // Filter out the featured project since it's in BestProject, and exclude hidden ones
+      setProjects(data.filter((p) => p.featured !== 1 && p.is_visible !== 0));
       setLoading(false);
     });
   }, []);

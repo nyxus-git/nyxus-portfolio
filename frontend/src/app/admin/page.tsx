@@ -15,7 +15,7 @@ import { SkillsManager } from "@/components/admin/SkillsManager";
 import { AboutManager } from "@/components/admin/AboutManager";
 import { MediaManager } from "@/components/admin/MediaManager";
 import {
-  getProjects, getExperiences, getCertifications, getBlogs, getSkills
+  getAllProjectsAdmin, getExperiences, getCertifications, getBlogs, getSkills
 } from "@/lib/api";
 
 type Section = "dashboard" | "projects" | "experience" | "certifications" | "blogs" | "skills" | "about" | "media";
@@ -43,7 +43,7 @@ export default function AdminPage() {
 
     // Fetch stats
     Promise.all([
-      getProjects(), getExperiences(), getCertifications(), getBlogs(), getSkills()
+      getAllProjectsAdmin(), getExperiences(), getCertifications(), getBlogs(), getSkills()
     ]).then(([p, e, c, b, s]) => {
       setStats({ projects: p.length, experience: e.length, certifications: c.length, blogs: b.length, skills: s.length });
     });

@@ -1,9 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Github, ExternalLink, Star, Image as ImageIcon, X, Eye } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Github,
+  ExternalLink,
+  Star,
+  Image as ImageIcon,
+  X,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { getProjects, createProject, updateProject, deleteProject, getImageUrl, Project } from "@/lib/api";
+import {
+  getAllProjectsAdmin,
+  createProject,
+  updateProject,
+  deleteProject,
+  toggleProjectVisibility,
+  getImageUrl,
+  Project,
+} from "@/lib/api";
 import { Modal } from "./Modal";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
 import { FileUploadButton } from "./FileUploadButton";
@@ -24,6 +43,7 @@ const DEFAULT_FORM: Omit<Project, "id"> = {
   screenshots: [],
   featured: 0,
   order_index: 0,
+  is_visible: 1,
 };
 
 export function ProjectsManager() {
@@ -36,10 +56,12 @@ export function ProjectsManager() {
   const [featuresInput, setFeaturesInput] = useState("");
   const [newScreenshotUrl, setNewScreenshotUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
 
   const load = () => {
     setLoading(true);
-    getProjects().then((data) => {
+    getAllProjectsAdmin().then((data) => {
       setItems(data);
       setLoading(false);
     });
@@ -73,11 +95,35 @@ export function ProjectsManager() {
       screenshots: item.screenshots || [],
       featured: item.featured ?? 0,
       order_index: item.order_index ?? 0,
+      is_visible: item.is_visible ?? 1,
     });
     setTechInput((item.tech_stack || []).join(", "));
     setFeaturesInput((item.features || []).join("\n"));
     setNewScreenshotUrl("");
     setModalOpen(true);
+  }
+
+  async function handleToggleVisibility(item: Project) {
+    const currentVis = item.is_visible ?? 1;
+    const newVis = currentVis === 0 ? 1 : 0;
+
+    // Optimistic UI update
+    setItems((prev) =>
+      prev.map((p) => (p.id === item.id ? { ...p, is_visible: newVis } : p))
+    );
+    setTogglingId(item.id);
+
+    try {
+      await toggleProjectVisibility(item.id);
+    } catch (e) {
+      // Revert if failed
+      setItems((prev) =>
+        prev.map((p) => (p.id === item.id ? { ...p, is_visible: currentVis } : p))
+      );
+      alert("Failed to toggle project visibility: " + e);
+    } finally {
+      setTogglingId(null);
+    }
   }
 
   function addScreenshot(url: string) {
@@ -121,6 +167,7 @@ export function ProjectsManager() {
         .split("\n")
         .map((f) => f.trim())
         .filter(Boolean),
+      is_visible: form.is_visible ?? 1,
     };
 
     try {
@@ -148,142 +195,254 @@ export function ProjectsManager() {
     }
   }
 
+  const visibleCount = items.filter((p) => p.is_visible !== 0).length;
+  const hiddenCount = items.filter((p) => p.is_visible === 0).length;
+
+  const filteredItems = items.filter((item) => {
+    if (filter === "visible") return item.is_visible !== 0;
+    if (filter === "hidden") return item.is_visible === 0;
+    return true;
+  });
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-black text-white">Project Case Studies & Landing Pages</h2>
-          <p className="text-gray-500 text-sm">
-            {items.length} projects total • Full description, screenshots & architectures managed here
+          <h2 className="text-xl font-black text-white">Project Case Studies & Visibility</h2>
+          <p className="text-gray-400 text-sm mt-0.5">
+            {items.length} total •{" "}
+            <span className="text-emerald-400 font-semibold">{visibleCount} live on portfolio</span> •{" "}
+            <span className="text-amber-400 font-semibold">{hiddenCount} hidden</span>
           </p>
         </div>
         <button
           id="add-project-btn"
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all shadow-md shadow-lime-500/20"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all shadow-md shadow-lime-500/20 self-start sm:self-auto"
         >
           <Plus size={16} /> Add Project
         </button>
       </div>
 
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 mb-5">
+        <button
+          type="button"
+          onClick={() => setFilter("all")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            filter === "all"
+              ? "bg-white text-black shadow-sm"
+              : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          All ({items.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter("visible")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            filter === "visible"
+              ? "bg-emerald-500 text-black shadow-sm"
+              : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-emerald-400"
+          }`}
+        >
+          <Eye size={13} />
+          Live ({visibleCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter("hidden")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            filter === "hidden"
+              ? "bg-amber-500 text-black shadow-sm"
+              : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-amber-400"
+          }`}
+        >
+          <EyeOff size={13} />
+          Hidden ({hiddenCount})
+        </button>
+      </div>
+
       {loading ? (
         <div className="text-center py-12 text-gray-500">Loading projects...</div>
+      ) : filteredItems.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 bg-gray-900/50 rounded-2xl border border-white/5">
+          No projects found in this tab.
+        </div>
       ) : (
         <div className="space-y-3">
-          {items.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="bg-gray-900 border border-white/5 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center gap-4 hover:border-white/10 transition-all"
-            >
-              {/* Thumbnail */}
-              <div className="w-16 h-12 rounded-xl overflow-hidden bg-gray-800 border border-white/10 flex-shrink-0 relative">
-                {item.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={getImageUrl(item.image_url) ?? item.image_url}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-lime-400 font-bold">
-                    {item.title.charAt(0)}
+          {filteredItems.map((item, i) => {
+            const isVisible = item.is_visible !== 0;
+
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className={`bg-gray-900 border rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center gap-4 transition-all ${
+                  isVisible
+                    ? "border-white/5 hover:border-white/15"
+                    : "border-dashed border-amber-500/25 bg-amber-950/10 hover:border-amber-500/40"
+                }`}
+              >
+                {/* Thumbnail */}
+                <div className="w-16 h-12 rounded-xl overflow-hidden bg-gray-800 border border-white/10 flex-shrink-0 relative">
+                  {item.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={getImageUrl(item.image_url) ?? item.image_url}
+                      alt={item.title}
+                      className={`w-full h-full object-cover transition-opacity ${
+                        isVisible ? "opacity-100" : "opacity-60 grayscale-[40%]"
+                      }`}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-lime-400 font-bold">
+                      {item.title.charAt(0)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className={`font-bold text-base truncate ${isVisible ? "text-white" : "text-gray-300"}`}>
+                      {item.title}
+                    </h3>
+
+                    {/* Visibility status badge */}
+                    {isVisible ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        <Eye size={11} /> Live
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        <EyeOff size={11} /> Hidden
+                      </span>
+                    )}
+
+                    {item.featured === 1 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-400 border border-lime-500/30">
+                        <Star size={10} className="fill-lime-400" /> Flagship
+                      </span>
+                    )}
+                    {item.slug && (
+                      <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-0.5 rounded">
+                        /{item.slug}
+                      </span>
+                    )}
+                    <span className="text-xs font-mono text-gray-400">
+                      📸 {item.screenshots?.length || (item.image_url ? 1 : 0)} screens
+                    </span>
                   </div>
-                )}
-              </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-bold text-white text-base truncate">{item.title}</h3>
-                  {item.featured === 1 && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-400 border border-lime-500/30">
-                      <Star size={10} className="fill-lime-400" /> Flagship
-                    </span>
-                  )}
-                  {item.slug && (
-                    <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-0.5 rounded">
-                      /{item.slug}
-                    </span>
-                  )}
-                  <span className="text-xs font-mono text-gray-400">
-                    📸 {item.screenshots?.length || (item.image_url ? 1 : 0)} screens
-                  </span>
+                  <p className="text-gray-400 text-xs line-clamp-1 mb-2">
+                    {item.tagline || item.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1">
+                    {item.tech_stack?.slice(0, 5).map((t, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[11px] px-2 py-0.5 rounded-md bg-white/5 text-gray-300 border border-white/5"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                    {(item.tech_stack?.length || 0) > 5 && (
+                      <span className="text-[11px] px-1.5 py-0.5 rounded-md bg-white/5 text-gray-500">
+                        +{item.tech_stack.length - 5}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <p className="text-gray-400 text-xs line-clamp-1 mb-2">
-                  {item.tagline || item.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1">
-                  {item.tech_stack?.slice(0, 5).map((t, i) => (
+                {/* Actions & Toggle */}
+                <div className="flex items-center gap-2 flex-shrink-0 ml-auto w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
+                  {/* ON / OFF Toggle Button */}
+                  <button
+                    type="button"
+                    id={`toggle-visibility-${item.id}`}
+                    onClick={() => handleToggleVisibility(item)}
+                    disabled={togglingId === item.id}
+                    title={
+                      isVisible
+                        ? "Currently LIVE on portfolio. Click to Turn OFF (Hide)"
+                        : "Currently HIDDEN from portfolio. Click to Turn ON (Show)"
+                    }
+                    className={`relative inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+                      isVisible
+                        ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50"
+                        : "bg-gray-800/80 border-amber-500/30 text-amber-300 hover:bg-amber-500/15"
+                    }`}
+                  >
                     <span
-                      key={i}
-                      className="text-[11px] px-2 py-0.5 rounded-md bg-white/5 text-gray-300 border border-white/5"
+                      className={`w-8 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                        isVisible ? "bg-emerald-500" : "bg-gray-700"
+                      }`}
                     >
-                      {t}
+                      <span
+                        className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${
+                          isVisible ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      />
                     </span>
-                  ))}
-                  {(item.tech_stack?.length || 0) > 5 && (
-                    <span className="text-[11px] px-1.5 py-0.5 rounded-md bg-white/5 text-gray-500">
-                      +{item.tech_stack.length - 5}
+                    <span className="text-[11px] tracking-wide font-mono">
+                      {isVisible ? "SHOW" : "HIDE"}
                     </span>
+                  </button>
+
+                  {/* View Landing Page Link */}
+                  <Link
+                    href={`/projects/${item.slug || item.id}`}
+                    target="_blank"
+                    title="View Landing Page"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-medium"
+                  >
+                    <Eye size={14} className="text-primary" />
+                    <span className="hidden lg:inline">Preview</span>
+                  </Link>
+
+                  {item.github_url && (
+                    <a
+                      href={item.github_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="GitHub Repository"
+                      className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                    >
+                      <Github size={14} />
+                    </a>
                   )}
+                  {item.live_url && (
+                    <a
+                      href={item.live_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Live Demo"
+                      className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => openEdit(item)}
+                    title="Edit Project"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    title="Delete Project"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 transition-all"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-                {/* View Landing Page Link */}
-                <Link
-                  href={`/projects/${item.slug || item.id}`}
-                  target="_blank"
-                  title="View Landing Page"
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-medium"
-                >
-                  <Eye size={14} className="text-primary" />
-                  <span className="hidden sm:inline">Landing Page</span>
-                </Link>
-
-                {item.github_url && (
-                  <a
-                    href={item.github_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="GitHub Repository"
-                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
-                  >
-                    <Github size={14} />
-                  </a>
-                )}
-                {item.live_url && (
-                  <a
-                    href={item.live_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Live Demo"
-                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
-                  >
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-                <button
-                  onClick={() => openEdit(item)}
-                  title="Edit Project"
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"
-                >
-                  <Pencil size={14} />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  title="Delete Project"
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 transition-all"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -469,7 +628,25 @@ export function ProjectsManager() {
             </div>
           </div>
 
-          <div className="flex gap-4 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            <div>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                Portfolio Visibility
+              </label>
+              <select
+                value={form.is_visible ?? 1}
+                onChange={(e) => setForm((f) => ({ ...f, is_visible: Number(e.target.value) }))}
+                className="w-full px-4 py-2.5 bg-gray-800 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
+              >
+                <option value={1} className="bg-gray-900">
+                  🟢 Show to Public (ON)
+                </option>
+                <option value={0} className="bg-gray-900">
+                  🟡 Hide from Public (OFF)
+                </option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                 Featured Flagship
@@ -477,7 +654,7 @@ export function ProjectsManager() {
               <select
                 value={form.featured}
                 onChange={(e) => setForm((f) => ({ ...f, featured: Number(e.target.value) }))}
-                className="px-4 py-2.5 bg-gray-800 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
               >
                 <option value={0} className="bg-gray-900">
                   No (Regular Project)
@@ -487,12 +664,12 @@ export function ProjectsManager() {
                 </option>
               </select>
             </div>
+
             <AdminInput
               label="Sort Order"
               type="number"
               value={form.order_index}
               onChange={(e) => setForm((f) => ({ ...f, order_index: Number(e.target.value) }))}
-              className="w-24"
             />
           </div>
 

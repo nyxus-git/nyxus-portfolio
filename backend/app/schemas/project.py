@@ -17,6 +17,7 @@ class ProjectBase(BaseModel):
     screenshots: List[str] = []
     featured: int = 0
     order_index: int = 0
+    is_visible: int = 1  # 1 = shown publicly, 0 = hidden
 
 
 class ProjectCreate(ProjectBase):

@@ -13,8 +13,8 @@ export function BestProject() {
 
   useEffect(() => {
     getProjects().then((data) => {
-      // Find the first featured project
-      const best = data.find((p) => p.featured === 1);
+      // Find the first featured project that is visible
+      const best = data.find((p) => p.featured === 1 && p.is_visible !== 0);
       if (best) setFeaturedProject(best);
     });
   }, []);
