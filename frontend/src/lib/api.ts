@@ -4,9 +4,9 @@ const BACKEND_BASE =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1" ||
     window.location.port === "3000")
-    ? "http://localhost:8001/api"
+    ? "http://localhost:8000/api"
     : process.env.NODE_ENV === "development"
-    ? "http://localhost:8001/api"
+    ? "http://localhost:8000/api"
     : "https://nyxus-backend.onrender.com/api");
 
 const API_BASE_URL = BACKEND_BASE;
