@@ -85,7 +85,7 @@ def toggle_project_visibility(
     db_project = db.query(Project).filter(Project.id == project_id).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
-    db_project.is_visible = 0 if db_project.is_visible else 1
+    setattr(db_project, "is_visible", 0 if db_project.is_visible else 1)
     db.commit()
     db.refresh(db_project)
     return db_project
