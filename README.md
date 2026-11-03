@@ -1,7 +1,6 @@
 # Rohan Mane - Portfolio
 
-A modern, glassmorphic portfolio website built with Next.js, Tailwind CSS, and Framer Motion, featuring dynamic content management via Contentful.
-
+A modern, glassmorphic portfolio website built with Next.js, Tailwind CSS, and Framer Motion, 
 ## 🚀 Tech Stack
 
 -   **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
