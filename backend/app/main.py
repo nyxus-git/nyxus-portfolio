@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from .core.database import Base, engine, SessionLocal
-from .core.seed_data import ensure_database_schema, sync_canonical_projects
+from .core.seed_data import ensure_database_schema, sync_canonical_projects, sync_canonical_experiences
 from .models import project, experience, certification, blog, skill as skill_model
 from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
 import os
@@ -135,40 +135,8 @@ def seed_database():
         # --- Projects (Auto Sync Canonical GenAI Projects) ---
         sync_canonical_projects(db)
 
-        # --- Experience ---
-        from .models.experience import Experience
-        if db.query(Experience).count() == 0:
-            exp_data = [
-                {
-                    "job_title": "Machine Learning Intern",
-                    "company_name": "DIAT-DRDO (Defence Institute of Advanced Technology)",
-                    "location": "Pune, Maharashtra",
-                    "start_date": "2024-06-01",
-                    "end_date": "2024-08-31",
-                    "description": "Worked on computer vision and signal processing projects for defence applications. Developed a real-time object detection pipeline using YOLOv8 achieving 89% mAP on custom datasets. Implemented signal denoising algorithms using wavelet transforms in Python. Contributed to a research paper on radar signal classification using ML techniques.",
-                    "order_index": 0
-                },
-                {
-                    "job_title": "Open Source Contributor",
-                    "company_name": "Various Open Source Projects (GitHub)",
-                    "location": "Remote",
-                    "start_date": "2022-01-01",
-                    "end_date": None,
-                    "description": "Active contributor to open source ML and Linux projects on GitHub. Submitted PRs for bug fixes and feature additions to scikit-learn utilities and Arch Linux community packages. Maintain personal open source tools for Arch Linux configuration automation with 100+ stars.",
-                    "order_index": 1
-                },
-                {
-                    "job_title": "Freelance Web Developer",
-                    "company_name": "Self-Employed",
-                    "location": "Remote",
-                    "start_date": "2023-01-01",
-                    "end_date": None,
-                    "description": "Designed and developed full-stack web applications for small businesses and startups. Built REST APIs with FastAPI and Flask, integrated AI features (chatbots, recommendation systems), and deployed on cloud platforms. Worked with 5+ clients delivering scalable solutions.",
-                    "order_index": 2
-                }
-            ]
-            for e in exp_data:
-                db.add(Experience(**e))
+        # --- Experience (Auto Sync Canonical Experiences & Company Projects) ---
+        sync_canonical_experiences(db)
 
         # --- Certifications ---
         from .models.certification import Certification

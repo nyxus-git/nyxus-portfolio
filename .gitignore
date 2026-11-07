@@ -141,3 +141,4 @@ node_modules/
 # Debug scripts
 debug-*.js
 list-content-types.js
+*.db

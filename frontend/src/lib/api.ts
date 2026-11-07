@@ -157,14 +157,30 @@ export async function deleteProject(id: number): Promise<void> {
 }
 
 // ─── Experience ───────────────────────────────────────────────────────────────
+export interface CompanyProject {
+  name: string;
+  tagline?: string | null;
+  description?: string | null;
+  role?: string | null;
+  live_url?: string | null;
+  github_url?: string | null;
+  impact: string[];
+  tech_stack: string[];
+}
+
 export interface Experience {
   id: number;
   job_title: string;
   company_name: string;
+  company_url?: string | null;
+  role_type?: string | null;
   location: string | null;
   start_date: string;
   end_date: string | null;
   description: string | null;
+  highlights?: string[];
+  skills?: string[];
+  projects?: CompanyProject[];
   order_index: number;
 }
 

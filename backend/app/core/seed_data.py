@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 from sqlalchemy import text, inspect
 from sqlalchemy.orm import Session
 from ..models.project import Project
+from ..models.experience import Experience
 
 CANONICAL_PROJECTS: List[Dict[str, Any]] = [
     {
@@ -267,45 +268,72 @@ def ensure_database_schema(engine):
     """
     try:
         insp = inspect(engine)
-        if "projects" not in insp.get_table_names():
-            return
-
-        columns = [c["name"] for c in insp.get_columns("projects")]
+        table_names = insp.get_table_names()
         dialect = engine.dialect.name
 
         with engine.begin() as conn:
-            if dialect == "postgresql":
-                if "slug" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS slug VARCHAR(255);"))
-                if "tagline" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS tagline VARCHAR(255);"))
-                if "long_description" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS long_description TEXT;"))
-                if "features" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS features JSON DEFAULT '[]'::json;"))
-                if "architecture" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS architecture TEXT;"))
-                if "screenshots" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS screenshots JSON DEFAULT '[]'::json;"))
-                if "is_visible" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_visible INTEGER DEFAULT 1;"))
-                conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_projects_slug ON projects (slug);"))
-            else:
-                # SQLite
-                if "slug" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN slug VARCHAR(255);"))
-                if "tagline" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN tagline VARCHAR(255);"))
-                if "long_description" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN long_description TEXT;"))
-                if "features" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN features JSON DEFAULT '[]';"))
-                if "architecture" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN architecture TEXT;"))
-                if "screenshots" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN screenshots JSON DEFAULT '[]';"))
-                if "is_visible" not in columns:
-                    conn.execute(text("ALTER TABLE projects ADD COLUMN is_visible INTEGER DEFAULT 1;"))
+            # 1. Projects Table Migration
+            if "projects" in table_names:
+                columns = [c["name"] for c in insp.get_columns("projects")]
+                if dialect == "postgresql":
+                    if "slug" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS slug VARCHAR(255);"))
+                    if "tagline" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS tagline VARCHAR(255);"))
+                    if "long_description" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS long_description TEXT;"))
+                    if "features" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS features JSON DEFAULT '[]'::json;"))
+                    if "architecture" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS architecture TEXT;"))
+                    if "screenshots" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS screenshots JSON DEFAULT '[]'::json;"))
+                    if "is_visible" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_visible INTEGER DEFAULT 1;"))
+                    conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_projects_slug ON projects (slug);"))
+                else:
+                    # SQLite
+                    if "slug" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN slug VARCHAR(255);"))
+                    if "tagline" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN tagline VARCHAR(255);"))
+                    if "long_description" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN long_description TEXT;"))
+                    if "features" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN features JSON DEFAULT '[]';"))
+                    if "architecture" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN architecture TEXT;"))
+                    if "screenshots" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN screenshots JSON DEFAULT '[]';"))
+                    if "is_visible" not in columns:
+                        conn.execute(text("ALTER TABLE projects ADD COLUMN is_visible INTEGER DEFAULT 1;"))
+
+            # 2. Experiences Table Migration
+            if "experiences" in table_names:
+                exp_columns = [c["name"] for c in insp.get_columns("experiences")]
+                if dialect == "postgresql":
+                    if "company_url" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN IF NOT EXISTS company_url VARCHAR(500);"))
+                    if "role_type" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN IF NOT EXISTS role_type VARCHAR(100);"))
+                    if "highlights" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN IF NOT EXISTS highlights JSON DEFAULT '[]'::json;"))
+                    if "skills" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN IF NOT EXISTS skills JSON DEFAULT '[]'::json;"))
+                    if "projects" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN IF NOT EXISTS projects JSON DEFAULT '[]'::json;"))
+                else:
+                    # SQLite
+                    if "company_url" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN company_url VARCHAR(500);"))
+                    if "role_type" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN role_type VARCHAR(100);"))
+                    if "highlights" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN highlights JSON DEFAULT '[]';"))
+                    if "skills" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN skills JSON DEFAULT '[]';"))
+                    if "projects" not in exp_columns:
+                        conn.execute(text("ALTER TABLE experiences ADD COLUMN projects JSON DEFAULT '[]';"))
     except Exception as e:
         print(f"Schema check error (non-fatal): {e}")
 
@@ -380,4 +408,178 @@ def sync_canonical_projects(db: Session):
     except Exception as e:
         db.rollback()
         print(f"Error syncing canonical projects: {e}")
+
+
+CANONICAL_EXPERIENCES: List[Dict[str, Any]] = [
+    {
+        "job_title": "Junior ML Engineer",
+        "company_name": "Sampro License India Pvt. Ltd.",
+        "company_url": "https://smartresume.samprolicense.com",
+        "role_type": "Full-Time",
+        "location": "Wakad, Pune",
+        "start_date": "Dec 2025",
+        "end_date": "Present",
+        "description": "Architecting and maintaining 4+ production AI applications, microservices, and end-to-end LLM inference pipelines with enterprise-grade latency and reliability.",
+        "highlights": [
+            "Architected and deployed 4+ production AI systems on Microsoft Azure utilizing Docker and GitHub Actions CI/CD.",
+            "Engineered 10+ high-performance REST APIs in FastAPI and Flask for real-time AI inference, document parsing, and analytics.",
+            "Constructed custom RAG pipelines and computer vision proctoring systems operating under 200ms latency."
+        ],
+        "skills": ["Python", "FastAPI", "React", "TypeScript", "LangChain", "OpenAI API", "Docker", "Microsoft Azure", "OpenCV", "PostgreSQL"],
+        "projects": [
+            {
+                "name": "SmartResume",
+                "tagline": "AI ATS Optimization & Structured Resume Extraction Platform",
+                "description": "Enterprise resume intelligence platform that converts multi-format resumes into structured JSON schemas, scores ATS compatibility against job descriptions, and recommends contextual section improvements.",
+                "role": "Lead AI / Full Stack Developer",
+                "live_url": "https://smartresume.samprolicense.com",
+                "github_url": None,
+                "impact": [
+                    "Engineered structured JSON schema extraction pipeline with sub-2s latency using modern LLM function calling.",
+                    "Implemented semantic ATS keyword matching algorithm comparing applicant experience to target job requirements.",
+                    "Built automated Cover Letter generator producing contextual letters tailored to specific roles.",
+                    "Containerized and deployed to Azure App Services with automated CI/CD workflows."
+                ],
+                "tech_stack": ["Python", "FastAPI", "React", "TypeScript", "LangChain", "OpenAI API", "Docker", "Azure"]
+            },
+            {
+                "name": "KnowledgeHub AI Chatbot & Aptitude Platform",
+                "tagline": "RAG-Powered Assessment & Computer-Vision Proctoring System",
+                "description": "Intelligent domain knowledge retrieval engine and examination platform equipped with automated computer-vision anti-cheat proctoring.",
+                "role": "AI Engineer",
+                "live_url": "https://smartresume.samprolicense.com",
+                "github_url": None,
+                "impact": [
+                    "Engineered RAG pipeline with dense vector indexing delivering precise aptitude question explanations.",
+                    "Developed real-time computer vision proctoring with face tracking and window tab-switch detection via OpenCV.",
+                    "Constructed dynamic quiz generation APIs with automated scoring and performance telemetry."
+                ],
+                "tech_stack": ["FastAPI", "OpenCV", "LangChain", "React", "TypeScript", "PostgreSQL", "Azure"]
+            },
+            {
+                "name": "SmartResume Conversational Agent & Telegram Bot",
+                "tagline": "Multi-Turn Interactive Career Coach & Workflow Automation Bot",
+                "description": "Conversational assistant designed to conduct interactive interviews with candidates to gather accomplishments, draft missing bullet points, and dispatch job application alerts.",
+                "role": "AI / Backend Developer",
+                "live_url": None,
+                "github_url": None,
+                "impact": [
+                    "Developed multi-turn conversational state machine guiding candidates through iterative resume refinement.",
+                    "Integrated Telegram Bot API for automated alert dispatching and candidate lead collection.",
+                    "Engineered asynchronous queue handling with Celery and Redis for background generation tasks."
+                ],
+                "tech_stack": ["Python", "FastAPI", "Telegram Bot API", "LangChain", "Redis", "PostgreSQL"]
+            },
+            {
+                "name": "Navya English School App",
+                "tagline": "Digital Academic Portal & Attendance Management System",
+                "description": "Full-stack institutional management portal for student attendance tracking, academic gradebook evaluation, and parent communication.",
+                "role": "Full Stack Developer",
+                "live_url": None,
+                "github_url": None,
+                "impact": [
+                    "Implemented role-based access control (RBAC) supporting administrators, teachers, and student parents.",
+                    "Designed real-time attendance logging system with automated monthly report card generation.",
+                    "Constructed responsive UI with Tailwind CSS and React."
+                ],
+                "tech_stack": ["React", "TypeScript", "FastAPI", "PostgreSQL", "Tailwind CSS"]
+            }
+        ],
+        "order_index": 0
+    },
+    {
+        "job_title": "Research & Development Intern",
+        "company_name": "DIAT, DRDO (Defence Institute of Advanced Technology)",
+        "company_url": "https://diat.ac.in",
+        "role_type": "Research Internship",
+        "location": "Khadakwasla, Pune",
+        "start_date": "Feb 2024",
+        "end_date": "Aug 2024",
+        "description": "Conducted low-level hardware security research focusing on Trusted Platform Module (TPM) verification, boot integrity, and hardware-backed cryptographic trust architectures.",
+        "highlights": [
+            "Implemented boot-level secure cryptographic hash computation utilizing physical TPM 2.0 hardware.",
+            "Authored a custom Assembly-based secure bootloader enabling direct bare-metal interaction with TPM PCR registers.",
+            "Engineered OS-independent hardware-backed trust validation workflows."
+        ],
+        "skills": ["C / C++", "x86 / x86_64 Assembly", "TPM 2.0", "Hardware Security", "Linux Kernel", "Cryptography"],
+        "projects": [
+            {
+                "name": "TPM 2.0 Hardware-Backed Secure Bootloader",
+                "tagline": "Bare-Metal Cryptographic Integrity Verification System",
+                "description": "Custom low-level bootloader executing in 16-bit real mode and transition to 32/64-bit protected mode, querying TPM hardware to measure system binaries before handing control to the OS.",
+                "role": "R&D Systems Researcher",
+                "live_url": None,
+                "github_url": None,
+                "impact": [
+                    "Interfaced directly with TPM 2.0 MMIO space using bare-metal assembly.",
+                    "Measured and extended PCR registers to ensure zero tampering across firmware stages.",
+                    "Engineered fail-safe cryptographic reboot triggers on unauthorized binary mutations."
+                ],
+                "tech_stack": ["x86 Assembly", "C", "TPM 2.0", "QEMU", "GDB", "GRUB Architecture"]
+            }
+        ],
+        "order_index": 1
+    },
+    {
+        "job_title": "Internship Trainee",
+        "company_name": "Kasnet Technologies",
+        "company_url": None,
+        "role_type": "Internship",
+        "location": "Baramati, Pune",
+        "start_date": "Aug 2021",
+        "end_date": "Sep 2021",
+        "description": "Developed full-stack web applications and institutional software solutions.",
+        "highlights": [
+            "Independently engineered and deployed an automated Attendance Management System.",
+            "Constructed responsive dashboards with vanilla JavaScript, Python, and relational database schemas."
+        ],
+        "skills": ["Python", "JavaScript", "SQL", "HTML5", "CSS3"],
+        "projects": [
+            {
+                "name": "Institutional Attendance Management System",
+                "tagline": "Automated Attendance & Staff Reporting Platform",
+                "description": "End-to-end attendance tracker logging employee / student check-in timestamps with real-time exportable CSV telemetry.",
+                "role": "Software Developer Trainee",
+                "live_url": None,
+                "github_url": None,
+                "impact": [
+                    "Built full-stack CRUD application automating daily check-in workflows.",
+                    "Designed normalized relational schema reducing duplicate entries by 100%."
+                ],
+                "tech_stack": ["Python", "JavaScript", "SQLite", "Bootstrap"]
+            }
+        ],
+        "order_index": 2
+    }
+]
+
+
+def sync_canonical_experiences(db: Session):
+    """
+    Ensures work experiences are up to date with rich project and impact dossiers.
+    """
+    try:
+        # Check if legacy experiences exist (e.g. Freelance Web Developer) and clean up
+        legacy_titles = ["Freelance Web Developer", "Open Source Contributor"]
+        for lt in legacy_titles:
+            db.query(Experience).filter(Experience.job_title == lt).delete(synchronize_session=False)
+
+        for exp_data in CANONICAL_EXPERIENCES:
+            existing = db.query(Experience).filter(
+                (Experience.company_name == exp_data["company_name"]) |
+                (Experience.job_title == exp_data["job_title"])
+            ).first()
+
+            if not existing:
+                db.add(Experience(**exp_data))
+            else:
+                for key, value in exp_data.items():
+                    setattr(existing, key, value)
+
+        db.commit()
+        print(f"Synced {len(CANONICAL_EXPERIENCES)} canonical experiences successfully.")
+    except Exception as e:
+        db.rollback()
+        print(f"Error syncing canonical experiences: {e}")
+
 
