@@ -190,6 +190,12 @@ export async function getExperiences(): Promise<Experience[]> {
   return res.json();
 }
 
+export async function getExperience(id: number | string): Promise<Experience | null> {
+  const res = await fetch(`${API_BASE_URL}/experience/${id}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export async function createExperience(data: Omit<Experience, "id">): Promise<Experience> {
   const res = await fetch(`${API_BASE_URL}/experience/`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
