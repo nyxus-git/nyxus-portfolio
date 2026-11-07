@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, field_validator
+from typing import Optional, List, Any
 
 
 class CompanyProject(BaseModel):
@@ -9,8 +9,13 @@ class CompanyProject(BaseModel):
     role: Optional[str] = None
     live_url: Optional[str] = None
     github_url: Optional[str] = None
-    impact: List[str] = []
-    tech_stack: List[str] = []
+    impact: Optional[List[str]] = []
+    tech_stack: Optional[List[str]] = []
+
+    @field_validator("impact", "tech_stack", mode="before")
+    @classmethod
+    def default_impact_stack(cls, v):
+        return v if v is not None else []
 
 
 class ExperienceBase(BaseModel):
@@ -22,10 +27,15 @@ class ExperienceBase(BaseModel):
     start_date: str
     end_date: Optional[str] = None
     description: Optional[str] = None
-    highlights: List[str] = []
-    skills: List[str] = []
-    projects: List[CompanyProject] = []
+    highlights: Optional[List[str]] = []
+    skills: Optional[List[str]] = []
+    projects: Optional[List[CompanyProject]] = []
     order_index: int = 0
+
+    @field_validator("highlights", "skills", "projects", mode="before")
+    @classmethod
+    def default_empty_list(cls, v):
+        return v if v is not None else []
 
 
 class ExperienceCreate(ExperienceBase):
