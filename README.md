@@ -30,7 +30,7 @@ cd frontend
 npm install
 \`\`\`
 
-Create a `.env.local` file in the `frontend` directory:
+Create a `.env.local` file in the `frontend` directory
 
 \`\`\`env
 NEXT_PUBLIC_CONTENTFUL_SPACE_ID=your_space_id
