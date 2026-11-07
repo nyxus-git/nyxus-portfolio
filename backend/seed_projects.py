@@ -32,7 +32,7 @@ PROJECTS = [
         "architecture": "Next.js 15 (Static Export) → Cloudflare Pages → FastAPI + Caddy → PostgreSQL 16 + pgvector → Cloudflare R2",
         "tech_stack": ["Python", "FastAPI", "PostgreSQL", "pgvector", "Google Gemini API", "Next.js 15", "Cloudflare R2", "Caddy", "PyMuPDF", "Tesseract OCR", "SQLAlchemy", "Alembic"],
         "github_url": "https://github.com/nyxus-git/DocMind",
-        "live_url": "",
+        "live_url": "https://docmind.rohanmane.dev",
         "image_url": "/uploads/docmind.jpg",
         "screenshots": ["/uploads/docmind_rag.jpg"],
         "featured": 1,

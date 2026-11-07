@@ -76,7 +76,7 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
             "TailwindCSS"
         ],
         "github_url": "https://github.com/nyxus-git/DocMind",
-        "live_url": "https://docmind-ai.vercel.app",
+        "live_url": "https://docmind.rohanmane.dev",
         "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039915/nyxus-portfolio/projects/docmind_cover.jpg",
         "screenshots": [
             "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039915/nyxus-portfolio/projects/docmind_cover.jpg",
