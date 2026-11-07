@@ -39,6 +39,11 @@ export default function ExperienceDetailPage() {
   const [allExperiences, setAllExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [expandedImpacts, setExpandedImpacts] = useState<Record<number, boolean>>({});
+
+  const toggleImpact = (idx: number) => {
+    setExpandedImpacts((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -345,12 +350,23 @@ export default function ExperienceDetailPage() {
                       <div className="text-xs font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">
                         Key Engineering Contributions:
                       </div>
-                      {proj.impact.map((bullet, bIdx) => (
+                      {(expandedImpacts[pIdx] ? proj.impact : proj.impact.slice(0, 2)).map((bullet, bIdx) => (
                         <div key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-300">
                           <span className="text-primary font-bold mt-0.5">›</span>
                           <span className="leading-relaxed">{bullet}</span>
                         </div>
                       ))}
+                      {proj.impact.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleImpact(pIdx)}
+                          className="text-[11px] font-mono text-primary hover:underline inline-flex items-center gap-1 pt-1"
+                        >
+                          {expandedImpacts[pIdx]
+                            ? "Show Less Impact ▴"
+                            : `+${proj.impact.length - 2} More Impact Points ▾`}
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -417,3 +433,4 @@ export default function ExperienceDetailPage() {
     </main>
   );
 }
+

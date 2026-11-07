@@ -11,6 +11,11 @@ import { TiltCard } from "@/components/ui/TiltCard";
 export function Project() {
   const [projects, setProjects] = useState<ProjectType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState<Record<number, boolean>>({});
+
+  const toggleDescription = (id: number) => {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -97,9 +102,28 @@ export function Project() {
                         />
                       </h3>
                     </Link>
-                    <p className="text-gray-400 text-sm mb-5 flex-grow line-clamp-3 leading-relaxed">
-                      {project.description}
-                    </p>
+                    <div className="mb-4 flex-grow">
+                      <p
+                        className={`text-gray-400 text-xs sm:text-sm leading-relaxed ${
+                          !expandedIds[project.id] ? "line-clamp-2 sm:line-clamp-3" : ""
+                        }`}
+                      >
+                        {project.description}
+                      </p>
+                      {project.description && project.description.length > 95 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleDescription(project.id);
+                          }}
+                          className="text-[11px] font-mono text-primary hover:underline mt-1 inline-flex items-center gap-0.5"
+                        >
+                          {expandedIds[project.id] ? "Show Less ▴" : "Read More ▾"}
+                        </button>
+                      )}
+                    </div>
 
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {project.tech_stack?.slice(0, 4).map((tech, i) => (

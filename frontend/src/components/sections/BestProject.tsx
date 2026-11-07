@@ -10,6 +10,7 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function BestProject() {
   const [featuredProject, setFeaturedProject] = useState<Project | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     getProjects().then((data) => {
@@ -66,10 +67,23 @@ export function BestProject() {
                 </h3>
               </Link>
               
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 shadow-inner">
-                <p className="text-gray-300 text-lg leading-relaxed">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 shadow-inner">
+                <p
+                  className={`text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed ${
+                    !expanded ? "line-clamp-3 sm:line-clamp-none" : ""
+                  }`}
+                >
                   {featuredProject.description}
                 </p>
+                {featuredProject.description && featuredProject.description.length > 140 && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(!expanded)}
+                    className="sm:hidden text-xs text-primary font-mono inline-flex items-center gap-1 hover:underline mt-2 pt-1 border-t border-white/5 w-full"
+                  >
+                    {expanded ? "Show Less ▴" : "Read Full Overview ▾"}
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2 mb-8">
