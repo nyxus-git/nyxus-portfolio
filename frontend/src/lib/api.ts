@@ -12,47 +12,53 @@ const BACKEND_BASE =
 const API_BASE_URL = BACKEND_BASE;
 
 /**
- * Hybrid image URL resolver.
- * - /uploads/...  → proxied through the backend (admin uploads stored on Render/local)
- * - res.cloudinary.com → injects f_auto,q_auto,w_<width> for instant WebP/AVIF + compression
- * - anything else  → returned as-is (local /images/..., absolute https, etc.)
+ * Image URL resolver.
+ * - Legacy Cloudinary URLs → automatically mapped to local /images/... path
+ * - /uploads/...  → /images/uploads/...
+ * - /images/... or any relative path → returned as-is (served by Next.js static files)
+ * - Absolute URLs (https://...) → returned as-is
  */
 export function getImageUrl(
   url: string | null | undefined,
-  width = 900
+  _width = 900
 ): string | null {
   if (!url) return null;
 
-  // Case 1: Backend local upload (fallback when Cloudinary not configured)
+  // Safety net: Map residual Cloudinary URLs to local paths
+  if (url.includes("res.cloudinary.com")) {
+    const filename = url.split("/").pop() || "";
+    const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+    const projectWebpNames = [
+      "nyxai_cover", "nyxai_voice", "docmind_cover", "docmind_rag",
+      "voicecanvas_cover", "voicecanvas_editor", "codesage_cover", "codesage_ast",
+      "chronoai_cover", "chronoai_meeting", "morphlens_cover", "morphlens_analytics",
+      "dreamforge_cover", "dreamforge_viewport"
+    ];
+    if (projectWebpNames.includes(nameWithoutExt)) {
+      return `/images/projects/${nameWithoutExt}.webp`;
+    }
+    if (["ml_roadmap.jpg", "arch_linux.png", "neural_net.png"].includes(filename)) {
+      return `/images/blogs/${filename}`;
+    }
+    if (filename.includes("profile")) {
+      return "/profile.jpeg";
+    }
+    return `/images/uploads/${filename}`;
+  }
+
+  // Legacy compat: old /uploads/... path mapped to /images/uploads/...
   if (url.startsWith("/uploads/")) {
-    const backendOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
-    return `${backendOrigin}${url}`;
+    return url.replace("/uploads/", "/images/uploads/");
   }
 
-  // Case 2: Cloudinary — inject transformation params if not already present
-  if (url.includes("res.cloudinary.com") && !url.includes("/f_auto")) {
-    return url.replace(
-      "/image/upload/",
-      `/image/upload/f_auto,q_auto,w_${width},c_limit/`
-    );
-  }
-
-  // Case 3: Local static file or any other URL — return as-is
+  // Local static file (/images/...) or any other URL — return as-is
   return url;
 }
 
 /**
- * Returns a tiny 40px blurred LQIP placeholder for Cloudinary images.
- * Only ~300 bytes — renders instantly as a blur before the real image loads.
+ * Always returns null — no LQIP blur placeholders in local-static mode.
  */
-export function getBlurUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.includes("res.cloudinary.com") && !url.includes("/f_auto")) {
-    return url.replace(
-      "/image/upload/",
-      "/image/upload/f_auto,q_10,w_40,e_blur:1000/"
-    );
-  }
+export function getBlurUrl(_url: string | null | undefined): string | null {
   return null;
 }
 export async function adminLogin(username: string, password: string): Promise<string> {
@@ -310,9 +316,16 @@ export interface UploadedImage {
   format?: string;
 }
 
-export async function uploadFile(file: File, token: string): Promise<UploadedImage> {
+export async function uploadFile(
+  file: File,
+  token: string,
+  replaceUrl?: string | null
+): Promise<UploadedImage> {
   const formData = new FormData();
   formData.append("file", file);
+  if (replaceUrl) {
+    formData.append("replace_url", replaceUrl);
+  }
 
   const res = await fetch(`${API_BASE_URL}/upload/`, {
     method: "POST",
@@ -328,10 +341,8 @@ export async function uploadFile(file: File, token: string): Promise<UploadedIma
   }
   
   const data = await res.json();
-  // Adjust the URL if the backend is on a different origin in development
-  if (data.url.startsWith("/")) {
-    data.url = API_BASE_URL.replace("/api", "") + data.url;
-  }
+  // Backend now returns a Next.js-served path like /images/uploads/<filename>
+  // No URL adjustment needed.
   return data;
 }
 

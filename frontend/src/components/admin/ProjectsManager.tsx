@@ -539,6 +539,7 @@ export function ProjectsManager() {
               <FileUploadButton
                 accept="image/*"
                 label="Upload Cover Image"
+                previousUrl={form.image_url}
                 onUploadSuccess={(url) => setForm((f) => ({ ...f, image_url: url }))}
               />
             </div>

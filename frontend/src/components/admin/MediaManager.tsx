@@ -22,7 +22,7 @@ export function MediaManager() {
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [source, setSource] = useState<"cloudinary" | "local" | "">("");
+  const [source, setSource] = useState<"local" | "">("");
   const [error, setError] = useState<string | null>(null);
 
   // Upload
@@ -54,7 +54,7 @@ export function MediaManager() {
       const res = await listUploads(token, cursor);
       setImages((prev) => cursor ? [...prev, ...res.images] : res.images);
       setNextCursor(res.next_cursor);
-      setSource(res.source as "cloudinary" | "local");
+      setSource(res.source as "local");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load images");
     } finally {
@@ -127,16 +127,8 @@ export function MediaManager() {
             <ImageIcon className="w-5 h-5 text-lime-400" />
             Media Library
             {source && (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-mono ml-1 ${
-                source === "cloudinary"
-                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-              }`}>
-                {source === "cloudinary" ? (
-                  <span className="flex items-center gap-1"><CloudUpload size={10} /> Cloudinary</span>
-                ) : (
-                  <span className="flex items-center gap-1"><HardDrive size={10} /> Local</span>
-                )}
+              <span className="text-xs px-2 py-0.5 rounded-full font-mono ml-1 bg-gray-500/20 text-gray-400 border border-gray-500/30">
+                <span className="flex items-center gap-1"><HardDrive size={10} /> Local</span>
               </span>
             )}
           </h2>
@@ -399,7 +391,7 @@ export function MediaManager() {
               </div>
               <h3 className="text-white font-bold text-lg mb-1">Delete Image?</h3>
               <p className="text-gray-400 text-sm mb-1">
-                This will permanently delete the image from {source === "cloudinary" ? "Cloudinary" : "the server"}.
+                This will permanently delete the image from the server.
               </p>
               <p className="text-gray-600 text-xs font-mono mb-6 truncate">{deleteTarget.filename}</p>
               <div className="flex gap-3">

@@ -67,7 +67,7 @@ export function AboutManager() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profile Image URL</label>
-                <FileUploadButton accept="image/*" label="Upload Image" onUploadSuccess={(url) => setForm(f => ({ ...f, profile_image: url }))} />
+                <FileUploadButton accept="image/*" label="Upload Image" previousUrl={form.profile_image} onUploadSuccess={(url) => setForm(f => ({ ...f, profile_image: url }))} />
               </div>
               <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.profile_image || ""} onChange={e => setForm(f => ({ ...f, profile_image: e.target.value }))} placeholder="/profile.jpeg" />
             </div>
@@ -106,7 +106,7 @@ export function AboutManager() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Resume URL</label>
-                <FileUploadButton accept=".pdf,.doc,.docx" label="Upload Resume" onUploadSuccess={(url) => setForm(f => ({ ...f, resume_url: url }))} />
+                <FileUploadButton accept=".pdf,.doc,.docx" label="Upload Resume" previousUrl={form.resume_url} onUploadSuccess={(url) => setForm(f => ({ ...f, resume_url: url }))} />
               </div>
               <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.resume_url || ""} onChange={e => setForm(f => ({ ...f, resume_url: e.target.value }))} placeholder="/Rohan_Resume.pdf" />
             </div>

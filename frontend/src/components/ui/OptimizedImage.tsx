@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import NextImage from "next/image";
-import { getImageUrl, getBlurUrl } from "@/lib/api";
+import { getImageUrl } from "@/lib/api";
 
 interface OptimizedImageProps {
   src: string | null | undefined;
   alt: string;
-  /** pixel width to request from Cloudinary (default 900) */
+  /** pixel width hint (default 900) */
   width?: number;
   fill?: boolean;
   className?: string;
@@ -19,10 +19,10 @@ interface OptimizedImageProps {
 }
 
 /**
- * Hybrid-optimized image component:
- * - Cloudinary URLs → f_auto,q_auto,w_<width> (WebP/AVIF, compressed, direct CDN via unoptimized)
- * - Local /images/… or /profile.jpeg → served directly
- * - Bulletproof sizing: absolute inset-0 when fill=true, avoiding CSS relative/absolute collisions
+ * Optimized image component:
+ * - Local /images/… paths → served directly by Next.js static files
+ * - Bulletproof sizing: absolute inset-0 when fill=true
+ * - Skeleton shimmer while loading
  * - Graceful fallback: falls back to native <img> if NextImage fails
  */
 export function OptimizedImage({
@@ -40,7 +40,6 @@ export function OptimizedImage({
   const [errored, setErrored] = useState(false);
 
   const resolvedSrc = getImageUrl(src, width);
-  const blurSrc = getBlurUrl(src);
 
   if (!resolvedSrc || errored) {
     return <>{fallback ?? null}</>;
@@ -55,14 +54,12 @@ export function OptimizedImage({
       ? "object-none"
       : "object-cover";
 
-  // Container styling: strictly separate fill vs non-fill to prevent position: relative overriding position: absolute
+  // Container styling: strictly separate fill vs non-fill
   const containerClass = fill
     ? "absolute inset-0 w-full h-full overflow-hidden"
     : "relative w-full h-full overflow-hidden";
 
-  const isCloudinary = resolvedSrc.includes("res.cloudinary.com");
-
-  // Fallback direct <img> in case Next.js optimizer fails or if user requested fallback
+  // Fallback direct <img> in case Next.js optimizer fails
   if (useFallbackImg) {
     return (
       <div className={containerClass}>
@@ -81,17 +78,6 @@ export function OptimizedImage({
 
   return (
     <div className={containerClass}>
-      {/* LQIP blur backdrop — only for Cloudinary */}
-      {blurSrc && !loaded && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={blurSrc}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover scale-110 blur-md pointer-events-none"
-        />
-      )}
-
       {/* Subtle skeleton shimmer while loading */}
       {!loaded && (
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-gray-800/60 to-gray-900/60 animate-pulse pointer-events-none" />
@@ -104,7 +90,6 @@ export function OptimizedImage({
         width={fill ? undefined : width}
         height={fill ? undefined : Math.round(width * 0.75)}
         priority={priority}
-        unoptimized={isCloudinary}
         className={`${fitClass} ${fill ? "w-full h-full" : ""} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-90"} ${className}`}
         onLoad={() => setLoaded(true)}
         onError={() => setUseFallbackImg(true)}

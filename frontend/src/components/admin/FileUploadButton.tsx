@@ -4,11 +4,17 @@ import { uploadFile } from "@/lib/api";
 
 interface FileUploadButtonProps {
   onUploadSuccess: (url: string) => void;
+  previousUrl?: string | null;
   label?: string;
   accept?: string;
 }
 
-export function FileUploadButton({ onUploadSuccess, label = "Upload", accept = "*" }: FileUploadButtonProps) {
+export function FileUploadButton({
+  onUploadSuccess,
+  previousUrl,
+  label = "Upload",
+  accept = "*",
+}: FileUploadButtonProps) {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -19,12 +25,12 @@ export function FileUploadButton({ onUploadSuccess, label = "Upload", accept = "
 
     setUploading(true);
     setSuccess(false);
-    
+
     try {
       const token = localStorage.getItem("admin_token");
       if (!token) throw new Error("Not authenticated");
-      
-      const result = await uploadFile(file, token);
+
+      const result = await uploadFile(file, token, previousUrl);
       onUploadSuccess(result.url);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);

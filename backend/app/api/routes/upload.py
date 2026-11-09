@@ -1,77 +1,73 @@
 import os
+import re
 import shutil
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from ...core.deps import get_current_admin
-from ...core.config import settings
 from uuid import uuid4
 
 router = APIRouter()
 
-# Configure Cloudinary
-def _cloudinary_configured() -> bool:
-    return bool(
-        settings.cloudinary_cloud_name
-        and settings.cloudinary_api_key
-        and settings.cloudinary_api_secret
-    )
+# Resolve the frontend public uploads directory relative to this file's location.
+# This file is at: backend/app/api/routes/upload.py
+# Going up 4 dirs reaches the project root, then into frontend/public/images/uploads.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR = os.path.normpath(os.path.join(_THIS_DIR, "../../../../frontend/public/images/uploads"))
 
-if _cloudinary_configured():
-    cloudinary.config(
-        cloud_name=settings.cloudinary_cloud_name,
-        api_key=settings.cloudinary_api_key,
-        api_secret=settings.cloudinary_api_secret,
-    )
-
-# Fallback for local uploads
-UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-# ── POST /api/upload/  – upload a new file ────────────────────────────────────
+def _safe_filename(original: str) -> str:
+    """Return a sanitized version of the original filename."""
+    name, _, ext = original.rpartition(".")
+    name = re.sub(r"[^\w\-]", "_", name)
+    ext = re.sub(r"[^\w]", "", ext).lower()
+    if not name:
+        name = uuid4().hex
+    if not ext:
+        ext = "bin"
+    return f"{name}.{ext}"
+
+
+# ── POST /api/upload/  – upload a new file, optionally replacing an old one ──
 @router.post("/")
 async def upload_file(
     file: UploadFile = File(...),
+    replace_url: str | None = Form(None),
     _: str = Depends(get_current_admin),
 ):
     try:
-        if _cloudinary_configured():
-            result = cloudinary.uploader.upload(
-                file.file,
-                folder="nyxus-portfolio",
-                resource_type="image",
-                transformation=[
-                    {"quality": "auto", "fetch_format": "auto"},
-                    {"width": 1920, "crop": "limit"},
-                ],
-                strip_metadata=True,
-            )
-            return {
-                "url": result.get("secure_url"),
-                "public_id": result.get("public_id"),
-                "filename": file.filename,
-                "width": result.get("width"),
-                "height": result.get("height"),
-                "bytes": result.get("bytes"),
-                "created_at": result.get("created_at"),
-            }
-        else:
-            safe_filename = file.filename or "upload"
-            file_ext = safe_filename.split(".")[-1] if "." in safe_filename else "bin"
-            unique_filename = f"{uuid4().hex}.{file_ext}"
-            file_path = os.path.join(UPLOAD_DIR, unique_filename)
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-            stat = os.stat(file_path)
-            return {
-                "url": f"/uploads/{unique_filename}",
-                "public_id": unique_filename,
-                "filename": file.filename,
-                "bytes": stat.st_size,
-            }
+        # If replace_url was provided, remove the previous file from uploads if present
+        if replace_url:
+            old_filename = os.path.basename(replace_url.strip())
+            if old_filename:
+                old_file_path = os.path.join(UPLOAD_DIR, old_filename)
+                if os.path.exists(old_file_path) and os.path.isfile(old_file_path):
+                    try:
+                        os.remove(old_file_path)
+                    except Exception:
+                        pass
+
+        original_name = file.filename or "upload"
+        filename = _safe_filename(original_name)
+
+        # Ensure unique name to prevent accidental overwrites
+        file_path = os.path.join(UPLOAD_DIR, filename)
+        if os.path.exists(file_path):
+            prefix = uuid4().hex[:8]
+            filename = f"{prefix}_{filename}"
+            file_path = os.path.join(UPLOAD_DIR, filename)
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        stat = os.stat(file_path)
+        return {
+            "url": f"/images/uploads/{filename}",
+            "public_id": filename,
+            "filename": filename,
+            "bytes": stat.st_size,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}")
 
@@ -80,57 +76,26 @@ async def upload_file(
 @router.get("/")
 async def list_uploads(
     _: str = Depends(get_current_admin),
-    next_cursor: str | None = Query(None),
-    max_results: int = Query(30, le=100),
+    max_results: int = Query(40, le=200),
 ):
-    """Return a paginated list of uploaded images from Cloudinary or the local upload dir."""
+    """Return a list of uploaded images from the frontend public uploads directory."""
     try:
-        if _cloudinary_configured():
-            kwargs: dict = {
-                "type": "upload",
-                "prefix": "nyxus-portfolio/",
-                "max_results": max_results,
-                "resource_type": "image",
-            }
-            if next_cursor:
-                kwargs["next_cursor"] = next_cursor
-
-            result = cloudinary.api.resources(**kwargs)
-            images = [
-                {
-                    "url": r.get("secure_url"),
-                    "public_id": r.get("public_id"),
-                    "filename": r.get("public_id", "").split("/")[-1],
-                    "width": r.get("width"),
-                    "height": r.get("height"),
-                    "bytes": r.get("bytes"),
-                    "created_at": r.get("created_at"),
-                    "format": r.get("format"),
-                }
-                for r in result.get("resources", [])
-            ]
-            return {
-                "images": images,
-                "next_cursor": result.get("next_cursor"),
-                "source": "cloudinary",
-            }
-        else:
-            # Local fallback
-            files = []
-            for fname in sorted(os.listdir(UPLOAD_DIR), reverse=True):
+        files = []
+        if os.path.isdir(UPLOAD_DIR):
+            for fname in sorted(os.listdir(UPLOAD_DIR), reverse=True)[:max_results]:
                 fpath = os.path.join(UPLOAD_DIR, fname)
                 if os.path.isfile(fpath):
                     stat = os.stat(fpath)
                     files.append(
                         {
-                            "url": f"/uploads/{fname}",
+                            "url": f"/images/uploads/{fname}",
                             "public_id": fname,
                             "filename": fname,
                             "bytes": stat.st_size,
                             "created_at": None,
                         }
                     )
-            return {"images": files, "next_cursor": None, "source": "local"}
+        return {"images": files, "next_cursor": None, "source": "local"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not list uploads: {str(e)}")
 
@@ -141,20 +106,14 @@ async def delete_upload(
     public_id: str,
     _: str = Depends(get_current_admin),
 ):
-    """Delete an image by its Cloudinary public_id (or local filename)."""
+    """Delete an image by its filename from the frontend public uploads directory."""
     try:
-        if _cloudinary_configured():
-            result = cloudinary.uploader.destroy(public_id, resource_type="image")
-            if result.get("result") not in ("ok", "not found"):
-                raise HTTPException(status_code=500, detail=f"Cloudinary delete failed: {result}")
-            return {"deleted": public_id}
-        else:
-            file_path = os.path.join(UPLOAD_DIR, public_id)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            return {"deleted": public_id}
+        filename = os.path.basename(public_id)
+        file_path = os.path.join(UPLOAD_DIR, filename)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            os.remove(file_path)
+        return {"deleted": public_id}
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not delete file: {str(e)}")
-

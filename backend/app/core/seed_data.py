@@ -42,10 +42,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/NyxAI",
         "live_url": "https://nyxai-demo.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039910/nyxus-portfolio/projects/nyxai_cover.jpg",
+        "image_url": "/images/projects/nyxai_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039910/nyxus-portfolio/projects/nyxai_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039912/nyxus-portfolio/projects/nyxai_voice.jpg"
+            "/images/projects/nyxai_cover.webp",
+            "/images/projects/nyxai_voice.webp"
         ],
         "featured": 1,
         "order_index": 0
@@ -77,10 +77,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/DocMind",
         "live_url": "https://docmind.rohanmane.dev",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039915/nyxus-portfolio/projects/docmind_cover.jpg",
+        "image_url": "/images/projects/docmind_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039915/nyxus-portfolio/projects/docmind_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039917/nyxus-portfolio/projects/docmind_rag.jpg"
+            "/images/projects/docmind_cover.webp",
+            "/images/projects/docmind_rag.webp"
         ],
         "featured": 0,
         "order_index": 1
@@ -112,10 +112,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/VoiceCanvas",
         "live_url": "https://voicecanvas.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039918/nyxus-portfolio/projects/voicecanvas_cover.jpg",
+        "image_url": "/images/projects/voicecanvas_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039918/nyxus-portfolio/projects/voicecanvas_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039922/nyxus-portfolio/projects/voicecanvas_editor.jpg"
+            "/images/projects/voicecanvas_cover.webp",
+            "/images/projects/voicecanvas_editor.webp"
         ],
         "featured": 0,
         "order_index": 2
@@ -146,10 +146,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/CodeSage",
         "live_url": "https://codesage-agent.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039924/nyxus-portfolio/projects/codesage_cover.jpg",
+        "image_url": "/images/projects/codesage_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039924/nyxus-portfolio/projects/codesage_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039925/nyxus-portfolio/projects/codesage_ast.jpg"
+            "/images/projects/codesage_cover.webp",
+            "/images/projects/codesage_ast.webp"
         ],
         "featured": 0,
         "order_index": 3
@@ -181,10 +181,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/ChronoAI",
         "live_url": "https://chronoai.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039926/nyxus-portfolio/projects/chronoai_cover.jpg",
+        "image_url": "/images/projects/chronoai_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039926/nyxus-portfolio/projects/chronoai_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039927/nyxus-portfolio/projects/chronoai_meeting.jpg"
+            "/images/projects/chronoai_cover.webp",
+            "/images/projects/chronoai_meeting.webp"
         ],
         "featured": 0,
         "order_index": 4
@@ -216,10 +216,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/MorphLens",
         "live_url": "https://morphlens.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039929/nyxus-portfolio/projects/morphlens_cover.jpg",
+        "image_url": "/images/projects/morphlens_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039929/nyxus-portfolio/projects/morphlens_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039930/nyxus-portfolio/projects/morphlens_analytics.jpg"
+            "/images/projects/morphlens_cover.webp",
+            "/images/projects/morphlens_analytics.webp"
         ],
         "featured": 0,
         "order_index": 5
@@ -250,10 +250,10 @@ CANONICAL_PROJECTS: List[Dict[str, Any]] = [
         ],
         "github_url": "https://github.com/nyxus-git/DreamForge",
         "live_url": "https://dreamforge-3d.vercel.app",
-        "image_url": "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039932/nyxus-portfolio/projects/dreamforge_cover.jpg",
+        "image_url": "/images/projects/dreamforge_cover.webp",
         "screenshots": [
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039932/nyxus-portfolio/projects/dreamforge_cover.jpg",
-            "https://res.cloudinary.com/dwhxaluma/image/upload/v1793039933/nyxus-portfolio/projects/dreamforge_viewport.jpg"
+            "/images/projects/dreamforge_cover.webp",
+            "/images/projects/dreamforge_viewport.webp"
         ],
         "featured": 0,
         "order_index": 6
@@ -346,7 +346,7 @@ def sync_canonical_projects(db: Session):
     - Text fields (title, description, tech_stack, features, architecture…) are
       always kept in sync with CANONICAL_PROJECTS so editorial fixes propagate.
     - image_url and screenshots are only written if the stored value is still
-      the default local path (/images/projects/…).  This means any Cloudinary
+      the default local path (/images/projects/…).  This means any custom
       URL you've uploaded via the admin panel is NEVER overwritten on deploy.
     """
     # Fields that are always synced (content/metadata)
@@ -359,14 +359,14 @@ def sync_canonical_projects(db: Session):
     IMAGE_FIELDS = {"image_url", "screenshots"}
 
     def _is_default_local(value) -> bool:
-        """Returns True if the value is still the original local static path."""
+        """Returns True if the value is still the original local static path or legacy cloudinary."""
         if value is None:
             return True
         if isinstance(value, str):
-            return value.startswith("/images/projects/")
+            return value.startswith("/images/projects/") or "cloudinary" in value
         if isinstance(value, list):
             return all(
-                (v is None or (isinstance(v, str) and v.startswith("/images/projects/")))
+                (v is None or (isinstance(v, str) and (v.startswith("/images/projects/") or "cloudinary" in v)))
                 for v in value
             )
         return False
@@ -401,7 +401,7 @@ def sync_canonical_projects(db: Session):
                         if _is_default_local(current):
                             # Still the default — safe to update from canonical
                             setattr(existing, key, value)
-                        # else: custom Cloudinary URL is set — leave it alone
+                        # else: custom uploaded URL is set — leave it alone
 
         db.commit()
         print(f"Synced {len(CANONICAL_PROJECTS)} canonical projects successfully.")

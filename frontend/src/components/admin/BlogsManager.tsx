@@ -110,7 +110,7 @@ export function BlogsManager() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Featured Image URL</label>
-              <FileUploadButton accept="image/*" label="Upload Image" onUploadSuccess={(url) => setForm(f => ({ ...f, featured_image: url }))} />
+              <FileUploadButton accept="image/*" label="Upload Image" previousUrl={form.featured_image} onUploadSuccess={(url) => setForm(f => ({ ...f, featured_image: url }))} />
             </div>
             <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.featured_image || ""} onChange={e => setForm(f => ({ ...f, featured_image: e.target.value }))} placeholder="https://..." />
           </div>

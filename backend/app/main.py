@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from .core.database import Base, engine, SessionLocal
 from .core.seed_data import ensure_database_schema, sync_canonical_projects, sync_canonical_experiences
 from .models import project, experience, certification, blog, skill as skill_model
 from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
-import os
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -43,11 +41,17 @@ app.include_router(profile.router, prefix="/api", tags=["profile"])
 app.include_router(demo.router, prefix="/api/demo", tags=["demo"])
 app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 
-# Mount static files for uploads
-UPLOAD_DIR = "uploads"
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
-app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+# Static files mounts for local development & fallback serving
+import os
+from fastapi.staticfiles import StaticFiles
+
+PUBLIC_IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../frontend/public/images"))
+if os.path.exists(PUBLIC_IMAGES_DIR):
+    app.mount("/images", StaticFiles(directory=PUBLIC_IMAGES_DIR), name="images")
+
+UPLOADS_DIR = os.path.join(PUBLIC_IMAGES_DIR, "uploads")
+if os.path.exists(UPLOADS_DIR):
+    app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="legacy_uploads")
 
 
 @app.get("/")
