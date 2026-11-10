@@ -8,6 +8,7 @@ interface StatCounterProps {
   prefix?: string;
   label: string;
   duration?: number; // ms
+  formatValue?: (count: number) => string;
 }
 
 function useCountUp(target: number, duration: number, triggered: boolean) {
@@ -34,7 +35,27 @@ function useCountUp(target: number, duration: number, triggered: boolean) {
   return count;
 }
 
-function SingleStat({ target, suffix = "+", prefix = "", label, duration = 1800 }: StatCounterProps) {
+function formatMonthsAsYearMonth(totalMonths: number): string {
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  if (years === 0) {
+    return `${months} ${months === 1 ? "Month" : "Months"}`;
+  }
+  const yearPart = `${years} ${years === 1 ? "Year" : "Years"}`;
+  if (months === 0) {
+    return yearPart;
+  }
+  return `${yearPart} ${months} ${months === 1 ? "Month" : "Months"}`;
+}
+
+function SingleStat({
+  target,
+  suffix = "+",
+  prefix = "",
+  label,
+  duration = 1800,
+  formatValue,
+}: StatCounterProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [triggered, setTriggered] = useState(false);
 
@@ -55,11 +76,18 @@ function SingleStat({ target, suffix = "+", prefix = "", label, duration = 1800 
   }, []);
 
   const count = useCountUp(target, duration, triggered);
+  const displayValue = formatValue ? formatValue(count) : `${prefix}${count}${suffix}`;
 
   return (
     <div ref={ref} className="flex flex-col items-center gap-1 group">
-      <div className="text-3xl md:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent">
-        {prefix}{count}{suffix}
+      <div
+        className={`min-h-[2.5rem] flex items-center justify-center text-center font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent ${
+          formatValue
+            ? "text-xl sm:text-2xl xl:text-[1.7rem] leading-tight"
+            : "text-3xl md:text-4xl"
+        }`}
+      >
+        {displayValue}
       </div>
       <div className="text-xs md:text-sm text-gray-400 font-medium text-center uppercase tracking-widest">
         {label}
@@ -73,7 +101,13 @@ interface StatCounterRowProps {
 }
 
 const DEFAULT_STATS: StatCounterProps[] = [
-  { target: 8, suffix: "+", label: "Months Experience", duration: 1200 },
+  {
+    target: 17,
+    suffix: "",
+    label: "Total Experience",
+    duration: 1200,
+    formatValue: formatMonthsAsYearMonth,
+  },
   { target: 6, suffix: "+", label: "Projects Built", duration: 1400 },
   { target: 1000, suffix: "+", label: "GitHub Contributions", duration: 1800 },
 ];
