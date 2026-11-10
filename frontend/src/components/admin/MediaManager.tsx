@@ -236,6 +236,7 @@ export function MediaManager() {
                   src={getImageUrl(img.url, 400) || img.url}
                   alt={img.filename}
                   fill
+                  unoptimized
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 />
@@ -315,6 +316,7 @@ export function MediaManager() {
                   src={getImageUrl(lightbox.url, 1200) || lightbox.url}
                   alt={lightbox.filename}
                   fill
+                  unoptimized
                   className="object-contain"
                   sizes="(max-width: 768px) 100vw, 768px"
                 />

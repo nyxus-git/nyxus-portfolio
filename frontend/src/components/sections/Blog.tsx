@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getBlogs, type BlogPost } from "../../lib/api";
+import { getBlogs, getImageUrl, type BlogPost } from "../../lib/api";
 import { Calendar, User, ArrowRight } from "lucide-react";
 
 export function Blog() {
@@ -49,7 +49,11 @@ export function Blog() {
               <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
                 {blog.featured_image ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={blog.featured_image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
+                  <img
+                    src={getImageUrl(blog.featured_image) ?? blog.featured_image}
+                    alt={blog.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                  />
                 ) : (
                   <div className="absolute inset-0 bg-grid-white/[0.05]" />
                 )}

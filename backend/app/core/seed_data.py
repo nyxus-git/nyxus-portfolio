@@ -359,12 +359,14 @@ def sync_canonical_projects(db: Session):
     IMAGE_FIELDS = {"image_url", "screenshots"}
 
     def _is_default_local(value) -> bool:
-        """Returns True if the value is still the original local static path or legacy cloudinary."""
+        """Returns True if the value is unset, a default local static path, or legacy cloudinary."""
         if value is None:
             return True
         if isinstance(value, str):
             return value.startswith("/images/projects/") or "cloudinary" in value
         if isinstance(value, list):
+            if len(value) == 0:
+                return False
             return all(
                 (v is None or (isinstance(v, str) and (v.startswith("/images/projects/") or "cloudinary" in v)))
                 for v in value

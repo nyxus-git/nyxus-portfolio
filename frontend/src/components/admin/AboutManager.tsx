@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Save, User } from "lucide-react";
 import { motion } from "framer-motion";
-import { getAbout, updateAbout, About } from "@/lib/api";
+import { getAbout, updateAbout, getImageUrl, About } from "@/lib/api";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
 import { FileUploadButton } from "./FileUploadButton";
 
@@ -16,6 +16,7 @@ export function AboutManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [tempUploads, setTempUploads] = useState<string[]>([]);
 
   useEffect(() => {
     getAbout().then(data => {
@@ -31,6 +32,7 @@ export function AboutManager() {
     setSaving(true);
     try {
       await updateAbout(form);
+      setTempUploads([]);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
@@ -67,9 +69,28 @@ export function AboutManager() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profile Image URL</label>
-                <FileUploadButton accept="image/*" label="Upload Image" previousUrl={form.profile_image} onUploadSuccess={(url) => setForm(f => ({ ...f, profile_image: url }))} />
+                <FileUploadButton
+                  accept="image/*"
+                  label="Upload Image"
+                  previousUrl={form.profile_image && tempUploads.includes(form.profile_image) ? form.profile_image : null}
+                  onUploadSuccess={(url) => {
+                    const prevTemp = form.profile_image && tempUploads.includes(form.profile_image) ? form.profile_image : null;
+                    setTempUploads(prev => [...prev.filter(u => u !== prevTemp), url]);
+                    setForm(f => ({ ...f, profile_image: url }));
+                  }}
+                />
               </div>
               <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.profile_image || ""} onChange={e => setForm(f => ({ ...f, profile_image: e.target.value }))} placeholder="/profile.jpeg" />
+              {form.profile_image && (
+                <div className="mt-2 w-14 h-14 rounded-full overflow-hidden border border-white/10 bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getImageUrl(form.profile_image) ?? form.profile_image}
+                    alt="Profile Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div className="md:col-span-2">
               <AdminInput label="Tagline" value={form.tagline || ""} onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))} placeholder="Building intelligent systems that make a real impact" />
@@ -106,7 +127,16 @@ export function AboutManager() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Resume URL</label>
-                <FileUploadButton accept=".pdf,.doc,.docx" label="Upload Resume" previousUrl={form.resume_url} onUploadSuccess={(url) => setForm(f => ({ ...f, resume_url: url }))} />
+                <FileUploadButton
+                  accept=".pdf,.doc,.docx"
+                  label="Upload Resume"
+                  previousUrl={form.resume_url && tempUploads.includes(form.resume_url) ? form.resume_url : null}
+                  onUploadSuccess={(url) => {
+                    const prevTemp = form.resume_url && tempUploads.includes(form.resume_url) ? form.resume_url : null;
+                    setTempUploads(prev => [...prev.filter(u => u !== prevTemp), url]);
+                    setForm(f => ({ ...f, resume_url: url }));
+                  }}
+                />
               </div>
               <input type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all" value={form.resume_url || ""} onChange={e => setForm(f => ({ ...f, resume_url: e.target.value }))} placeholder="/Rohan_Resume.pdf" />
             </div>

@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Any, List
 from ...core.database import get_db
 from ...core.deps import get_current_admin
+from ...core.media import delete_unused_images
 from ...models.skill import Skill, About
 from ...schemas.skill import SkillCreate, SkillUpdate, SkillOut, AboutCreate, AboutUpdate, AboutOut
 
@@ -57,14 +58,21 @@ def get_about(db: Session = Depends(get_db)):
 
 @router.put("/about", response_model=AboutOut)
 def update_about(about: AboutUpdate, db: Session = Depends(get_db), _: str = Depends(get_current_admin)):
+    old_assets: list[Any] = []
     db_about = db.query(About).first()
     if not db_about:
         # Create if doesn't exist
         db_about = About(**about.model_dump())
         db.add(db_about)
     else:
+        old_assets = [
+            getattr(db_about, "profile_image", None),
+            getattr(db_about, "resume_url", None),
+        ]
         for key, value in about.model_dump().items():
             setattr(db_about, key, value)
     db.commit()
     db.refresh(db_about)
+    if old_assets:
+        delete_unused_images(db, old_assets)
     return db_about

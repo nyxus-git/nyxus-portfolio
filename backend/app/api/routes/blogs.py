@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from ...core.database import get_db
 from ...core.deps import get_current_admin
+from ...core.media import delete_unused_images
 from ...models.blog import Blog
 from ...schemas.blog import BlogCreate, BlogUpdate, BlogOut
 
@@ -53,10 +54,12 @@ def update_blog(
     db_blog = db.query(Blog).filter(Blog.id == blog_id).first()
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
+    old_image = getattr(db_blog, "featured_image", None)
     for key, value in blog.model_dump().items():
         setattr(db_blog, key, value)
     db.commit()
     db.refresh(db_blog)
+    delete_unused_images(db, [old_image])
     return db_blog
 
 
@@ -69,6 +72,8 @@ def delete_blog(
     db_blog = db.query(Blog).filter(Blog.id == blog_id).first()
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
+    old_image = getattr(db_blog, "featured_image", None)
     db.delete(db_blog)
     db.commit()
+    delete_unused_images(db, [old_image])
     return {"message": "Blog deleted successfully"}

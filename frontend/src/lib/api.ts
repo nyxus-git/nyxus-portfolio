@@ -24,7 +24,7 @@ export function getImageUrl(
 ): string | null {
   if (!url) return null;
 
-  // Safety net: Map residual Cloudinary URLs to local paths
+  // Legacy compat: map known seeded Cloudinary URLs to local static paths
   if (url.includes("res.cloudinary.com")) {
     const filename = url.split("/").pop() || "";
     const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
@@ -43,7 +43,10 @@ export function getImageUrl(
     if (filename.includes("profile")) {
       return "/profile.jpeg";
     }
-    return `/images/uploads/${filename}`;
+    if (["yz3mvks64tidtjsxmiki.png", "bujxvn5q3le3umo6ysju.png", "zq3jxhewh181z4btqzug.png"].includes(filename)) {
+      return `/images/uploads/${filename}`;
+    }
+    return url;
   }
 
   // Legacy compat: old /uploads/... path mapped to /images/uploads/...

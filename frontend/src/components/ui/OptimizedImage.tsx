@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NextImage from "next/image";
 import { getImageUrl } from "@/lib/api";
 
@@ -40,6 +40,12 @@ export function OptimizedImage({
   const [errored, setErrored] = useState(false);
 
   const resolvedSrc = getImageUrl(src, width);
+
+  useEffect(() => {
+    setLoaded(false);
+    setUseFallbackImg(false);
+    setErrored(false);
+  }, [resolvedSrc]);
 
   if (!resolvedSrc || errored) {
     return <>{fallback ?? null}</>;
@@ -90,6 +96,7 @@ export function OptimizedImage({
         width={fill ? undefined : width}
         height={fill ? undefined : Math.round(width * 0.75)}
         priority={priority}
+        unoptimized={resolvedSrc.startsWith("/images/uploads/")}
         className={`${fitClass} ${fill ? "w-full h-full" : ""} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-90"} ${className}`}
         onLoad={() => setLoaded(true)}
         onError={() => setUseFallbackImg(true)}

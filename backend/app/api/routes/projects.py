@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Any, List
 from ...core.database import get_db
 from ...core.deps import get_current_admin
+from ...core.media import delete_unused_images
 from ...models.project import Project
 from ...schemas.project import ProjectCreate, ProjectUpdate, ProjectOut
 
@@ -68,10 +69,14 @@ def update_project(
     db_project = db.query(Project).filter(Project.id == project_id).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
+    old_images: list[Any] = [getattr(db_project, "image_url", None)] + list(
+        getattr(db_project, "screenshots", None) or []
+    )
     for key, value in project.model_dump().items():
         setattr(db_project, key, value)
     db.commit()
     db.refresh(db_project)
+    delete_unused_images(db, old_images)
     return db_project
 
 
@@ -85,7 +90,7 @@ def toggle_project_visibility(
     db_project = db.query(Project).filter(Project.id == project_id).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
-    setattr(db_project, "is_visible", 0 if db_project.is_visible else 1)
+    setattr(db_project, "is_visible", 0 if getattr(db_project, "is_visible", 1) else 1)
     db.commit()
     db.refresh(db_project)
     return db_project
@@ -100,6 +105,10 @@ def delete_project(
     db_project = db.query(Project).filter(Project.id == project_id).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
+    old_images: list[Any] = [getattr(db_project, "image_url", None)] + list(
+        getattr(db_project, "screenshots", None) or []
+    )
     db.delete(db_project)
     db.commit()
+    delete_unused_images(db, old_images)
     return {"message": "Project deleted successfully"}

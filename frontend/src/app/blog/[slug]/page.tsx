@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getBlogBySlug, BlogPost } from "../../../lib/api";
+import { getBlogBySlug, getImageUrl, BlogPost } from "../../../lib/api";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import { Navbar } from "../../../components/sections/Navbar";
 
@@ -105,7 +105,11 @@ export default function BlogPostPage() {
           {post.featured_image && (
             <div className="relative w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden mb-12 shadow-2xl border border-white/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
+              <img
+                src={getImageUrl(post.featured_image) ?? post.featured_image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
             </div>
           )}
 

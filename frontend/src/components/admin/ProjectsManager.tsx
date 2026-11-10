@@ -19,6 +19,7 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  deleteUpload,
   toggleProjectVisibility,
   getImageUrl,
   Project,
@@ -58,6 +59,7 @@ export function ProjectsManager() {
   const [saving, setSaving] = useState(false);
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [tempUploads, setTempUploads] = useState<string[]>([]);
 
   const load = () => {
     setLoading(true);
@@ -75,6 +77,7 @@ export function ProjectsManager() {
     setTechInput("");
     setFeaturesInput("");
     setNewScreenshotUrl("");
+    setTempUploads([]);
     setModalOpen(true);
   }
 
@@ -100,7 +103,19 @@ export function ProjectsManager() {
     setTechInput((item.tech_stack || []).join(", "));
     setFeaturesInput((item.features || []).join("\n"));
     setNewScreenshotUrl("");
+    setTempUploads([]);
     setModalOpen(true);
+  }
+
+  function closeModalWithoutSave() {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") || "" : "";
+    if (token && tempUploads.length > 0) {
+      tempUploads.forEach((url) => {
+        deleteUpload(url, token).catch(() => {});
+      });
+    }
+    setTempUploads([]);
+    setModalOpen(false);
   }
 
   async function handleToggleVisibility(item: Project) {
@@ -136,10 +151,22 @@ export function ProjectsManager() {
   }
 
   function removeScreenshot(index: number) {
+    const target = (form.screenshots || [])[index];
+    const nextScreenshots = (form.screenshots || []).filter((_, i) => i !== index);
     setForm((f) => ({
       ...f,
-      screenshots: (f.screenshots || []).filter((_, i) => i !== index),
+      screenshots: nextScreenshots,
     }));
+    if (
+      target &&
+      tempUploads.includes(target) &&
+      target !== form.image_url &&
+      !nextScreenshots.includes(target)
+    ) {
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") || "" : "";
+      if (token) deleteUpload(target, token).catch(() => {});
+      setTempUploads((prev) => prev.filter((u) => u !== target));
+    }
   }
 
   async function handleSave() {
@@ -176,6 +203,7 @@ export function ProjectsManager() {
       } else {
         await createProject(payload);
       }
+      setTempUploads([]);
       setModalOpen(false);
       load();
     } catch (e) {
@@ -449,7 +477,7 @@ export function ProjectsManager() {
       {/* Edit / Create Modal */}
       <Modal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModalWithoutSave}
         title={editItem ? `Edit Project: ${editItem.title}` : "Add New Project"}
       >
         <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
@@ -539,8 +567,12 @@ export function ProjectsManager() {
               <FileUploadButton
                 accept="image/*"
                 label="Upload Cover Image"
-                previousUrl={form.image_url}
-                onUploadSuccess={(url) => setForm((f) => ({ ...f, image_url: url }))}
+                previousUrl={form.image_url && tempUploads.includes(form.image_url) ? form.image_url : null}
+                onUploadSuccess={(url) => {
+                  const prevTemp = form.image_url && tempUploads.includes(form.image_url) ? form.image_url : null;
+                  setTempUploads((prev) => [...prev.filter((u) => u !== prevTemp), url]);
+                  setForm((f) => ({ ...f, image_url: url }));
+                }}
               />
             </div>
             <input
@@ -548,16 +580,36 @@ export function ProjectsManager() {
               className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-lime-500/50"
               value={form.image_url || ""}
               onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-              placeholder="/uploads/example.jpg or https://..."
+              placeholder="/images/uploads/example.jpg"
             />
             {form.image_url && (
-              <div className="relative w-28 aspect-video rounded-lg overflow-hidden border border-white/10 mt-2">
+              <div className="relative group w-28 aspect-video rounded-lg overflow-hidden border border-white/10 mt-2 bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={getImageUrl(form.image_url) ?? form.image_url}
                   alt="Cover Preview"
                   className="w-full h-full object-cover"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = form.image_url;
+                    if (
+                      target &&
+                      tempUploads.includes(target) &&
+                      !(form.screenshots || []).includes(target)
+                    ) {
+                      const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") || "" : "";
+                      if (token) deleteUpload(target, token).catch(() => {});
+                      setTempUploads((prev) => prev.filter((u) => u !== target));
+                    }
+                    setForm((f) => ({ ...f, image_url: "" }));
+                  }}
+                  title="Remove Cover Image"
+                  className="absolute top-1 right-1 p-1 rounded-full bg-red-600/90 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X size={11} />
+                </button>
               </div>
             )}
           </div>
@@ -576,7 +628,10 @@ export function ProjectsManager() {
               <FileUploadButton
                 accept="image/*"
                 label="Upload Screenshot"
-                onUploadSuccess={(url) => addScreenshot(url)}
+                onUploadSuccess={(url) => {
+                  setTempUploads((prev) => [...prev, url]);
+                  addScreenshot(url);
+                }}
               />
             </div>
 
@@ -617,7 +672,7 @@ export function ProjectsManager() {
                 className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-lime-500/50"
                 value={newScreenshotUrl}
                 onChange={(e) => setNewScreenshotUrl(e.target.value)}
-                placeholder="Or paste screenshot URL (/uploads/... or https://...)"
+                placeholder="Or paste screenshot URL (/images/uploads/...)"
               />
               <button
                 type="button"
@@ -677,7 +732,7 @@ export function ProjectsManager() {
           <div className="flex gap-3 pt-3 border-t border-white/10">
             <button
               type="button"
-              onClick={() => setModalOpen(false)}
+              onClick={closeModalWithoutSave}
               className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 text-xs font-bold transition-all"
             >
               Cancel

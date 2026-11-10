@@ -44,14 +44,13 @@ app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 # Static files mounts for local development & fallback serving
 import os
 from fastapi.staticfiles import StaticFiles
+from .core.media import PUBLIC_IMAGES_DIR, UPLOAD_DIR
 
-PUBLIC_IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../frontend/public/images"))
 if os.path.exists(PUBLIC_IMAGES_DIR):
     app.mount("/images", StaticFiles(directory=PUBLIC_IMAGES_DIR), name="images")
 
-UPLOADS_DIR = os.path.join(PUBLIC_IMAGES_DIR, "uploads")
-if os.path.exists(UPLOADS_DIR):
-    app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="legacy_uploads")
+if os.path.exists(UPLOAD_DIR):
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="legacy_uploads")
 
 
 @app.get("/")
