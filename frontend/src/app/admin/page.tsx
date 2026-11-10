@@ -15,7 +15,7 @@ import { SkillsManager } from "@/components/admin/SkillsManager";
 import { AboutManager } from "@/components/admin/AboutManager";
 import { MediaManager } from "@/components/admin/MediaManager";
 import {
-  getAllProjectsAdmin, getExperiences, getCertifications, getBlogs, getSkills
+  getAllProjectsAdmin, getExperiences, getCertifications, getAllBlogs, getSkills, verifyAdminToken
 } from "@/lib/api";
 
 type Section = "dashboard" | "projects" | "experience" | "certifications" | "blogs" | "skills" | "about" | "media";
@@ -41,11 +41,16 @@ export default function AdminPage() {
     const token = localStorage.getItem("admin_token");
     if (!token) { router.push("/admin/login"); return; }
 
-    // Fetch stats
-    Promise.all([
-      getAllProjectsAdmin(), getExperiences(), getCertifications(), getBlogs(), getSkills()
-    ]).then(([p, e, c, b, s]) => {
-      setStats({ projects: p.length, experience: e.length, certifications: c.length, blogs: b.length, skills: s.length });
+    verifyAdminToken().then((valid) => {
+      if (!valid) {
+        router.replace("/admin/login?expired=1");
+        return;
+      }
+      Promise.all([
+        getAllProjectsAdmin(), getExperiences(), getCertifications(), getAllBlogs(), getSkills()
+      ]).then(([p, e, c, b, s]) => {
+        setStats({ projects: p.length, experience: e.length, certifications: c.length, blogs: b.length, skills: s.length });
+      }).catch(() => {});
     });
   }, [router]);
 

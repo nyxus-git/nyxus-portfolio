@@ -48,10 +48,14 @@ export function BlogsManager() {
 
   const load = () => {
     setLoading(true);
-    getAllBlogs().then((data) => {
-      setItems(data);
-      setLoading(false);
-    });
+    getAllBlogs()
+      .then((data) => {
+        setItems(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
   useEffect(load, []);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { adminLogin } from "@/lib/api";
@@ -13,6 +13,16 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [expiredNotice, setExpiredNotice] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("expired") === "1") {
+        setExpiredNotice(true);
+      }
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,6 +62,12 @@ export default function AdminLoginPage() {
             <h1 className="text-2xl font-black text-white tracking-tight">Admin Panel</h1>
             <p className="text-gray-500 text-sm mt-1 font-mono">nyxus-portfolio/admin</p>
           </div>
+
+          {expiredNotice && !error && (
+            <div className="mb-6 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm text-center">
+              Session expired. Please sign in again.
+            </div>
+          )}
 
           {error && (
             <motion.div

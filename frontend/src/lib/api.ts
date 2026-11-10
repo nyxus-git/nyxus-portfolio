@@ -83,6 +83,40 @@ function authHeaders(): HeadersInit {
   };
 }
 
+function handleAuthError(res: Response): void {
+  if ((res.status === 401 || res.status === 403) && typeof window !== "undefined") {
+    localStorage.removeItem("admin_token");
+    if (!window.location.pathname.startsWith("/admin/login")) {
+      window.location.href = "/admin/login?expired=1";
+    }
+  }
+}
+
+export async function verifyAdminToken(): Promise<boolean> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+  if (!token) return false;
+  try {
+    let res = await fetch(`${API_BASE_URL}/auth/verify`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (res.status === 404) {
+      // Compat fallback if backend hasn't restarted with /auth/verify yet
+      res = await fetch(`${API_BASE_URL}/projects/admin/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+    }
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem("admin_token");
+      return false;
+    }
+    return res.ok;
+  } catch {
+    return true;
+  }
+}
+
 // ─── Project ─────────────────────────────────────────────────────────────────
 export interface Project {
   id: number;
@@ -115,8 +149,8 @@ export async function getAllProjectsAdmin(): Promise<Project[]> {
     cache: "no-store",
   });
   if (!res.ok) {
-    // Fallback to getProjects if offline or token issue
-    return getProjects();
+    handleAuthError(res);
+    throw new Error(`Failed to fetch admin projects (${res.status})`);
   }
   return res.json();
 }
@@ -126,7 +160,10 @@ export async function toggleProjectVisibility(id: number): Promise<Project> {
     method: "PATCH",
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(await res.text());
+  }
   return res.json();
 }
 
@@ -280,7 +317,10 @@ export async function getBlogs(): Promise<BlogPost[]> {
 
 export async function getAllBlogs(): Promise<BlogPost[]> {
   const res = await fetch(`${API_BASE_URL}/blogs/all`, { headers: authHeaders(), cache: "no-store" });
-  if (!res.ok) return [];
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(`Failed to fetch blogs (${res.status})`);
+  }
   return res.json();
 }
 
@@ -339,6 +379,7 @@ export async function uploadFile(
   });
   
   if (!res.ok) {
+    handleAuthError(res);
     const errorData = await res.json().catch(() => null);
     throw new Error(errorData?.detail || "Failed to upload file");
   }
@@ -358,7 +399,10 @@ export async function listUploads(
   const res = await fetch(`${API_BASE_URL}/upload/?${params}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to list uploads");
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error("Failed to list uploads");
+  }
   return res.json();
 }
 
@@ -367,7 +411,10 @@ export async function deleteUpload(publicId: string, token: string): Promise<voi
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete image");
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error("Failed to delete image");
+  }
 }
 
 // ─── Skills ───────────────────────────────────────────────────────────────────

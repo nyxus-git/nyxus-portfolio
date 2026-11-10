@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     admin_password: str = "nyxus@admin2024"
     secret_key: str = "nyxus-super-secret-key-change-in-production-2024"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60 * 24  # 24 hours
+    access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
     
     model_config = {"env_file": ".env", "extra": "ignore"}
 

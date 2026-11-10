@@ -63,10 +63,14 @@ export function ProjectsManager() {
 
   const load = () => {
     setLoading(true);
-    getAllProjectsAdmin().then((data) => {
-      setItems(data);
-      setLoading(false);
-    });
+    getAllProjectsAdmin()
+      .then((data) => {
+        setItems(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
