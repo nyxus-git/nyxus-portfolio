@@ -1,3 +1,4 @@
+import mimetypes
 import os
 from typing import Any, Iterable, Optional
 from urllib.parse import urlparse
@@ -5,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..models.project import Project
 from ..models.blog import Blog
 from ..models.skill import About
+from ..models.media import UploadedMedia
 
 # This file is at: backend/app/core/media.py
 # Going up 3 dirs reaches the repo root, then into frontend/public/images.
@@ -66,18 +68,67 @@ def resolve_local_image_path(url: Any) -> Optional[str]:
     return candidate
 
 
-def delete_local_image(url: Any) -> bool:
-    """Delete a local image file on disk if it lives inside frontend/public/images/{uploads,projects,blogs}."""
+def filename_exists(db: Session, filename: str) -> bool:
+    """Return True if filename exists on disk in UPLOAD_DIR or in UploadedMedia DB."""
+    if os.path.exists(os.path.join(UPLOAD_DIR, filename)):
+        return True
+    return db.query(UploadedMedia.id).filter(UploadedMedia.filename == filename).first() is not None
+
+
+def save_uploaded_media(
+    db: Session,
+    filename: str,
+    content_type: str,
+    data: bytes,
+) -> None:
+    """Persist uploaded bytes to local UPLOAD_DIR and to UploadedMedia in the DB."""
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    with open(file_path, "wb") as buffer:
+        buffer.write(data)
+
+    existing = db.query(UploadedMedia).filter(UploadedMedia.filename == filename).first()
+    if existing:
+        setattr(existing, "content_type", content_type or "application/octet-stream")
+        setattr(existing, "data", data)
+        setattr(existing, "bytes", len(data))
+    else:
+        db.add(
+            UploadedMedia(
+                filename=filename,
+                content_type=content_type or "application/octet-stream",
+                data=data,
+                bytes=len(data),
+            )
+        )
+    db.commit()
+
+
+def delete_local_image(url: Any, db: Optional[Session] = None) -> bool:
+    """Delete a local image file on disk (and from UploadedMedia DB if applicable)."""
+    removed_any = False
+    rel = extract_local_image_relpath(url)
     filepath = resolve_local_image_path(url)
-    if not filepath:
-        return False
-    if os.path.exists(filepath) and os.path.isfile(filepath):
+
+    if filepath and os.path.exists(filepath) and os.path.isfile(filepath):
         try:
             os.remove(filepath)
-            return True
+            removed_any = True
         except Exception:
-            return False
-    return False
+            pass
+
+    if db is not None and rel and rel.startswith("uploads/"):
+        fname = os.path.basename(rel)
+        deleted_rows = (
+            db.query(UploadedMedia)
+            .filter(UploadedMedia.filename == fname)
+            .delete(synchronize_session=False)
+        )
+        if deleted_rows:
+            db.commit()
+            removed_any = True
+
+    return removed_any
 
 
 def _collect_all_referenced_relpaths(db: Session) -> set[str]:
@@ -144,7 +195,58 @@ def delete_unused_images(db: Session, candidate_urls: Iterable[Any]) -> list[str
     for url in candidates:
         rel = extract_local_image_relpath(url)
         if rel and rel not in referenced:
-            if delete_local_image(url):
+            if delete_local_image(url, db=db):
                 deleted.append(rel)
     return deleted
 
+
+def sync_media_storage(db: Session) -> None:
+    """
+    Synchronize persistent UploadedMedia rows in the DB with local UPLOAD_DIR:
+    1. Restore any DB-stored upload missing from disk (survives git pulls / rebuilds).
+    2. Backfill any upload file on disk that is referenced by Projects/Blogs/About into DB.
+    """
+    try:
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        existing_db_names: set[str] = set()
+
+        for row in db.query(UploadedMedia).all():
+            fname = str(getattr(row, "filename", ""))
+            if not fname:
+                continue
+            existing_db_names.add(fname)
+            fpath = os.path.join(UPLOAD_DIR, os.path.basename(fname))
+            if not os.path.exists(fpath):
+                raw_bytes = getattr(row, "data", b"")
+                if isinstance(raw_bytes, (bytes, bytearray)) and len(raw_bytes) > 0:
+                    with open(fpath, "wb") as f:
+                        f.write(raw_bytes)
+
+        # Backfill referenced upload files that only exist on disk (e.g. uploaded prior to DB sync)
+        referenced = _collect_all_referenced_relpaths(db)
+        added = 0
+        for rel in referenced:
+            if not rel.startswith("uploads/"):
+                continue
+            fname = os.path.basename(rel)
+            if fname in existing_db_names:
+                continue
+            fpath = os.path.join(UPLOAD_DIR, fname)
+            if os.path.exists(fpath) and os.path.isfile(fpath):
+                with open(fpath, "rb") as f:
+                    raw = f.read()
+                ctype, _ = mimetypes.guess_type(fpath)
+                db.add(
+                    UploadedMedia(
+                        filename=fname,
+                        content_type=ctype or "application/octet-stream",
+                        data=raw,
+                        bytes=len(raw),
+                    )
+                )
+                added += 1
+        if added:
+            db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Media storage sync warning: {e}")

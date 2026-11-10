@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .core.database import Base, engine, SessionLocal
 from .core.seed_data import ensure_database_schema, sync_canonical_projects, sync_canonical_experiences
-from .models import project, experience, certification, blog, skill as skill_model
+from .core.media import PUBLIC_IMAGES_DIR, UPLOAD_DIR, sync_media_storage
+from .models import project, experience, certification, blog, skill as skill_model, media as media_model
 from .api.routes import auth, projects, experience as exp_routes, certifications, blogs, profile, demo, upload
 
 # Create tables
@@ -41,10 +42,50 @@ app.include_router(profile.router, prefix="/api", tags=["profile"])
 app.include_router(demo.router, prefix="/api/demo", tags=["demo"])
 app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 
-# Static files mounts for local development & fallback serving
+# Persistent DB-backed fallback serving for uploaded images + static mounts
 import os
+from fastapi import Depends, HTTPException, Response
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from .core.media import PUBLIC_IMAGES_DIR, UPLOAD_DIR
+from sqlalchemy.orm import Session
+from .core.database import get_db
+
+
+def _serve_uploaded_file(filename: str, db: Session):
+    safe_name = os.path.basename(filename)
+    if not safe_name or safe_name != filename or safe_name in (".", ".."):
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    filepath = os.path.join(UPLOAD_DIR, safe_name)
+    cache_headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+    if os.path.exists(filepath) and os.path.isfile(filepath):
+        return FileResponse(filepath, headers=cache_headers)
+
+    # Restore on-demand from NeonDB UploadedMedia if missing on disk
+    row = db.query(media_model.UploadedMedia).filter(
+        media_model.UploadedMedia.filename == safe_name
+    ).first()
+    if row:
+        raw_bytes = getattr(row, "data", b"")
+        if isinstance(raw_bytes, (bytes, bytearray)) and len(raw_bytes) > 0:
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+            with open(filepath, "wb") as f:
+                f.write(raw_bytes)
+            ctype = str(getattr(row, "content_type", None) or "application/octet-stream")
+            return Response(content=bytes(raw_bytes), media_type=ctype, headers=cache_headers)
+
+    raise HTTPException(status_code=404, detail="Image not found")
+
+
+@app.get("/images/uploads/{filename}")
+def serve_image_upload(filename: str, db: Session = Depends(get_db)):
+    return _serve_uploaded_file(filename, db)
+
+
+@app.get("/uploads/{filename}")
+def serve_legacy_upload(filename: str, db: Session = Depends(get_db)):
+    return _serve_uploaded_file(filename, db)
+
 
 if os.path.exists(PUBLIC_IMAGES_DIR):
     app.mount("/images", StaticFiles(directory=PUBLIC_IMAGES_DIR), name="images")
@@ -140,6 +181,9 @@ def seed_database():
 
         # --- Experience (Auto Sync Canonical Experiences & Company Projects) ---
         sync_canonical_experiences(db)
+
+        # --- Uploaded Media (Restore DB-persisted uploads to disk & backfill referenced disk files) ---
+        sync_media_storage(db)
 
         # --- Certifications ---
         from .models.certification import Certification

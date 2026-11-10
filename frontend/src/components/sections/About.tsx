@@ -48,7 +48,7 @@ export function About() {
             <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-white/10 bg-black">
               <OptimizedImage
-                src={about?.profile_image ?? "/profile.jpeg"}
+                src={about?.profile_image || "/profile.jpeg"}
                 alt={about?.name ?? "Rohan Mane"}
                 width={512}
                 fill
