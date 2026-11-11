@@ -7,6 +7,7 @@ import { ExternalLink, Github, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 export function BestProject() {
   const [featuredProject, setFeaturedProject] = useState<Project | null>(null);
@@ -14,7 +15,6 @@ export function BestProject() {
 
   useEffect(() => {
     getProjects().then((data) => {
-      // Find the first featured project that is visible
       const best = data.find((p) => p.featured === 1 && p.is_visible !== 0);
       if (best) setFeaturedProject(best);
     });
@@ -25,51 +25,54 @@ export function BestProject() {
   const projectUrl = `/projects/${featuredProject.slug || featuredProject.id}`;
 
   return (
-    <section id="best-project" className="relative py-24 md:py-32 overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
-            <Sparkles size={16} />
-            <span>Featured Work</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 mb-6 tracking-tight">
-            Flagship Project
-          </h2>
-        </motion.div>
+    <section id="best-project" className="relative py-24 md:py-32 px-4 overflow-hidden">
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <SectionHeader
+          number="01"
+          badge="Featured Work"
+          icon={Sparkles}
+          title="Flagship Project"
+          subtitle="Production architecture spotlight — engineered from system pipeline to user interface."
+        />
 
-        <TiltCard tiltAmount={40} className="max-w-6xl mx-auto relative group">
-          {/* Animated Glow Behind the Project */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-          
-          <div className="relative glass-panel rounded-3xl p-6 md:p-10 flex flex-col lg:flex-row gap-10 items-center overflow-hidden border border-white/[0.08]">
-            
-            {/* Background Texture inside card */}
-            <div className="absolute inset-0 bg-grid-white/[0.02] [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-            
-            {/* Project Info */}
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
+        <TiltCard tiltAmount={32} className="mx-auto relative group">
+          {/* Outer Violet-Magenta Aura */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/35 via-primary/35 to-accent/35 rounded-[2rem] blur-2xl opacity-35 group-hover:opacity-65 transition duration-700 pointer-events-none" />
+
+          <div className="relative glass-panel rounded-[2rem] p-6 md:p-10 lg:p-12 flex flex-col lg:flex-row gap-10 items-center overflow-hidden">
+            {/* Subtle architectural grid */}
+            <div className="absolute inset-0 bg-grid-white opacity-40 [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none" />
+
+            {/* Left Column: Narrative & Stack */}
+            <motion.div
+              initial={{ opacity: 0, x: -25 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
               className="w-full lg:w-1/2 flex flex-col z-10"
             >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-[0.2em] bg-accent/15 text-accent border border-accent/30">
+                  Spotlight
+                </span>
+                <span className="text-[11px] font-mono text-gray-500">
+                  /{featuredProject.slug || "flagship"}
+                </span>
+              </div>
+
               <Link href={projectUrl} className="group/title block">
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight group-hover/title:text-primary transition-colors flex items-center gap-3">
+                <h3 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight group-hover/title:text-primary transition-colors flex items-center gap-3 tracking-tight">
                   <span>{featuredProject.title}</span>
-                  <ArrowRight size={24} className="opacity-0 -translate-x-2 group-hover/title:opacity-100 group-hover/title:translate-x-0 transition-all text-primary hidden sm:inline" />
+                  <ArrowRight
+                    size={22}
+                    className="opacity-0 -translate-x-2 group-hover/title:opacity-100 group-hover/title:translate-x-0 transition-all text-accent hidden sm:inline"
+                  />
                 </h3>
               </Link>
-              
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 shadow-inner">
+
+              <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-4 sm:p-6 mb-6">
                 <p
-                  className={`text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed ${
+                  className={`text-gray-300 text-sm sm:text-base leading-relaxed ${
                     !expanded ? "line-clamp-3 sm:line-clamp-none" : ""
                   }`}
                 >
@@ -79,7 +82,7 @@ export function BestProject() {
                   <button
                     type="button"
                     onClick={() => setExpanded(!expanded)}
-                    className="sm:hidden text-xs text-primary font-mono inline-flex items-center gap-1 hover:underline mt-2 pt-1 border-t border-white/5 w-full"
+                    className="sm:hidden text-xs text-primary font-mono inline-flex items-center gap-1 hover:underline mt-2 pt-2 border-t border-white/[0.06] w-full"
                   >
                     {expanded ? "Show Less ▴" : "Read Full Overview ▾"}
                   </button>
@@ -90,7 +93,7 @@ export function BestProject() {
                 {featuredProject.tech_stack.map((tech, i) => (
                   <span
                     key={i}
-                    className="px-4 py-1.5 rounded-full text-sm font-medium bg-secondary/50 text-gray-200 border border-white/10 backdrop-blur-md"
+                    className="px-3.5 py-1.5 rounded-full text-xs font-mono font-medium bg-white/[0.04] text-gray-200 border border-white/10 hover:border-primary/40 hover:text-primary transition-colors"
                   >
                     {tech}
                   </span>
@@ -100,47 +103,52 @@ export function BestProject() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href={projectUrl}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-black font-bold text-sm hover:bg-primary/90 transition-all hover-trigger shadow-lg shadow-primary/20"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full btn-primary text-sm hover-trigger"
                 >
-                  <Sparkles size={16} />
-                  <span>Case Study & Architecture</span>
+                  <Sparkles size={15} />
+                  <span>Case Study &amp; Architecture</span>
                 </Link>
                 <Link
                   href={featuredProject.github_url || "https://github.com/nyxus-git/NyxAI"}
                   target="_blank"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-gray-200 transition-colors hover-trigger shadow-lg shadow-white/10"
+                  className="flex items-center gap-2 px-5 py-3 rounded-full bg-white text-gray-950 font-bold text-sm hover:bg-gray-200 transition-colors hover-trigger"
                 >
-                  <Github size={16} />
+                  <Github size={15} />
                   <span>Code</span>
                 </Link>
                 <Link
                   href={featuredProject.live_url || "https://nyxai-demo.vercel.app"}
                   target="_blank"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 text-white font-medium text-sm border border-white/20 hover:bg-white/20 transition-colors hover-trigger backdrop-blur-md"
+                  className="flex items-center gap-2 px-5 py-3 rounded-full bg-white/[0.06] text-white font-semibold text-sm border border-white/15 hover:border-primary/45 hover:bg-primary/10 transition-all hover-trigger"
                 >
-                  <ExternalLink size={16} />
+                  <ExternalLink size={15} />
                   <span>Live Demo</span>
                 </Link>
               </div>
             </motion.div>
 
-            {/* Project Image Mockup / Visual */}
-            <motion.div 
-              initial={{ opacity: 0, x: 30 }}
+            {/* Right Column: Viewport Mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: 25 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.7, delay: 0.25 }}
               className="w-full lg:w-1/2 relative z-10 hover-trigger"
             >
-              <Link href={projectUrl} className="block relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl group/mockup">
-                {/* Mac window controls mockup */}
-                <div className="absolute top-0 left-0 right-0 h-8 bg-gray-900/80 backdrop-blur border-b border-white/10 flex items-center px-4 gap-2 z-20">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                  <span className="text-[11px] font-mono text-gray-500 ml-2 hidden sm:inline">nyxai.arch • click to view case study</span>
+              <Link
+                href={projectUrl}
+                className="block relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-primary/20 bg-[#05040c] shadow-2xl group/mockup"
+              >
+                {/* Studio Window Top Bar */}
+                <div className="absolute top-0 left-0 right-0 h-9 bg-[#0e0c1d]/90 backdrop-blur-md border-b border-white/10 flex items-center px-4 gap-2 z-20">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-violet-400/80" />
+                  <span className="text-[11px] font-mono text-gray-400 ml-2 hidden sm:inline truncate">
+                    {featuredProject.slug || "flagship"}.arch · inspect blueprint →
+                  </span>
                 </div>
-                
+
                 {featuredProject.image_url ? (
                   <OptimizedImage
                     src={featuredProject.image_url}
@@ -148,22 +156,20 @@ export function BestProject() {
                     width={1000}
                     fill
                     priority
-                    className="pt-8 transition-transform duration-700 group-hover/mockup:scale-105"
+                    className="pt-9 transition-transform duration-700 group-hover/mockup:scale-105"
                     fallback={
-                      <div className="absolute inset-0 pt-8 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+                      <div className="absolute inset-0 pt-9 flex items-center justify-center bg-gradient-to-br from-[#0e0c1c] to-[#04040a]">
                         <Sparkles size={64} className="text-primary/30" />
                       </div>
                     }
                   />
                 ) : (
-                  <div className="absolute inset-0 pt-8 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+                  <div className="absolute inset-0 pt-9 flex items-center justify-center bg-gradient-to-br from-[#0e0c1c] to-[#04040a]">
                     <Sparkles size={64} className="text-primary/30" />
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
                   </div>
                 )}
               </Link>
             </motion.div>
-
           </div>
         </TiltCard>
       </div>

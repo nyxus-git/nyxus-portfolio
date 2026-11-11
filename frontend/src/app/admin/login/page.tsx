@@ -40,11 +40,11 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#04040a] flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-950" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-lime-500/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.12),transparent_65%)]" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" />
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -53,11 +53,11 @@ export default function AdminLoginPage() {
         className="relative z-10 w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-gray-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="glass-panel rounded-3xl p-8 shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-lime-500/20 border border-lime-500/30 flex items-center justify-center">
-              <Terminal className="w-8 h-8 text-lime-400" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center">
+              <Terminal className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">Admin Panel</h1>
             <p className="text-gray-500 text-sm mt-1 font-mono">nyxus-portfolio/admin</p>
@@ -92,7 +92,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="admin"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-lime-500/50 focus:ring-1 focus:ring-lime-500/30 transition-all font-mono text-sm"
+                  className="w-full pl-10 pr-4 py-3 bg-[#070612]/80 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/35 transition-all font-mono text-sm"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••"
                   required
-                  className="w-full pl-10 pr-12 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-lime-500/50 focus:ring-1 focus:ring-lime-500/30 transition-all font-mono text-sm"
+                  className="w-full pl-10 pr-12 py-3 bg-[#070612]/80 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/35 transition-all font-mono text-sm"
                 />
                 <button
                   type="button"
@@ -125,11 +125,11 @@ export default function AdminLoginPage() {
               id="admin-login-btn"
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-black text-sm uppercase tracking-widest transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-lime-500/20 hover:shadow-lime-500/30"
+              className="w-full py-3 rounded-full btn-primary text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Authenticating...
                 </span>
               ) : (

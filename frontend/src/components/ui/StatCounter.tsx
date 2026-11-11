@@ -7,7 +7,7 @@ interface StatCounterProps {
   suffix?: string;
   prefix?: string;
   label: string;
-  duration?: number; // ms
+  duration?: number;
   formatValue?: (count: number) => string;
 }
 
@@ -23,7 +23,6 @@ function useCountUp(target: number, duration: number, triggered: boolean) {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.round(startValue + (target - startValue) * eased));
       if (progress < 1) requestAnimationFrame(step);
@@ -69,7 +68,7 @@ function SingleStat({
           observer.disconnect();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.4 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -79,17 +78,20 @@ function SingleStat({
   const displayValue = formatValue ? formatValue(count) : `${prefix}${count}${suffix}`;
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-1 group">
+    <div
+      ref={ref}
+      className="rounded-2xl bg-white/[0.025] border border-white/[0.07] hover:border-primary/40 p-4 flex flex-col items-center justify-center gap-1.5 transition-all group"
+    >
       <div
-        className={`min-h-[2.5rem] flex items-center justify-center text-center font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent ${
+        className={`min-h-[2.25rem] flex items-center justify-center text-center font-black tracking-tight text-gradient-accent ${
           formatValue
-            ? "text-xl sm:text-2xl xl:text-[1.7rem] leading-tight"
+            ? "text-xl sm:text-2xl leading-tight"
             : "text-3xl md:text-4xl"
         }`}
       >
         {displayValue}
       </div>
-      <div className="text-xs md:text-sm text-gray-400 font-medium text-center uppercase tracking-widest">
+      <div className="text-[11px] text-gray-400 font-mono text-center uppercase tracking-[0.16em]">
         {label}
       </div>
     </div>
@@ -114,7 +116,7 @@ const DEFAULT_STATS: StatCounterProps[] = [
 
 export function StatCounterRow({ stats = DEFAULT_STATS }: StatCounterRowProps) {
   return (
-    <div className="mt-10 pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+    <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
       {stats.map((s, i) => (
         <SingleStat key={i} {...s} />
       ))}

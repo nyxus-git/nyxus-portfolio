@@ -124,7 +124,7 @@ export function MediaManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-lime-400" />
+            <ImageIcon className="w-5 h-5 text-primary" />
             Media Library
             {source && (
               <span className="text-xs px-2 py-0.5 rounded-full font-mono ml-1 bg-gray-500/20 text-gray-400 border border-gray-500/30">
@@ -153,8 +153,8 @@ export function MediaManager() {
         onClick={() => !uploading && fileInputRef.current?.click()}
         className={`relative rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer
           ${dragging
-            ? "border-lime-400 bg-lime-500/10 scale-[1.01]"
-            : "border-white/10 hover:border-lime-500/40 hover:bg-lime-500/5"
+            ? "border-primary bg-primary/10 scale-[1.01]"
+            : "border-white/10 hover:border-primary/45 hover:bg-primary/5"
           }`}
       >
         <input
@@ -172,11 +172,11 @@ export function MediaManager() {
         <div className="flex flex-col items-center justify-center py-10 gap-3">
           {uploading ? (
             <>
-              <Loader2 className="w-8 h-8 text-lime-400 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
               <div className="text-center space-y-1">
                 {uploadProgress.map((msg, i) => (
                   <p key={i} className={`text-xs font-mono ${
-                    msg.startsWith("✓") ? "text-lime-400" :
+                    msg.startsWith("✓") ? "text-primary" :
                     msg.startsWith("✗") ? "text-red-400" : "text-gray-400"
                   }`}>{msg}</p>
                 ))}
@@ -185,8 +185,8 @@ export function MediaManager() {
           ) : (
             <>
               <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all
-                ${dragging ? "bg-lime-500/20 border-lime-500/40" : "bg-white/5 border-white/10"}`}>
-                <Upload className={`w-6 h-6 ${dragging ? "text-lime-400" : "text-gray-500"}`} />
+                ${dragging ? "bg-primary/20 border-primary/40" : "bg-white/5 border-white/10"}`}>
+                <Upload className={`w-6 h-6 ${dragging ? "text-primary" : "text-gray-500"}`} />
               </div>
               <div className="text-center">
                 <p className="text-white font-semibold text-sm">
@@ -230,7 +230,7 @@ export function MediaManager() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: Math.min(i * 0.02, 0.4) }}
-                className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/5 hover:border-lime-500/30 transition-all"
+                className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/5 hover:border-primary/40 transition-all"
               >
                 <Image
                   src={getImageUrl(img.url, 400) || img.url}
@@ -264,7 +264,7 @@ export function MediaManager() {
                     onClick={() => copyUrl(img)}
                     className={`w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all
                       ${copiedId === img.public_id
-                        ? "bg-lime-500/30 text-lime-300"
+                        ? "bg-primary/30 text-purple-200"
                         : "bg-white/10 backdrop-blur hover:bg-white/25 text-white"
                       }`}
                   >
@@ -286,7 +286,7 @@ export function MediaManager() {
           <button
             onClick={() => load(nextCursor)}
             disabled={loadingMore}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-lime-500/10 hover:border-lime-500/20 text-gray-400 hover:text-lime-400 transition-all text-sm font-medium disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-primary/15 hover:border-primary/30 text-gray-400 hover:text-primary transition-all text-sm font-medium disabled:opacity-50"
           >
             {loadingMore ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} />}
             Load more
@@ -352,7 +352,7 @@ export function MediaManager() {
                     onClick={() => copyUrl(lightbox)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap
                       ${copiedId === lightbox.public_id
-                        ? "bg-lime-500/20 text-lime-300 border border-lime-500/30"
+                        ? "bg-primary/20 text-purple-200 border border-primary/35"
                         : "bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300"
                       }`}
                   >

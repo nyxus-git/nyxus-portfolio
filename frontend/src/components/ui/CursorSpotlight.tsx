@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 /**
- * CursorSpotlight — a soft radial neon glow that follows the cursor.
+ * CursorSpotlight — a soft radial violet/magenta glow that follows the cursor.
  * Renders as a fixed overlay (pointer-events: none) so it doesn't block interactions.
  * Hidden on touch devices.
  */
@@ -13,7 +13,6 @@ export function CursorSpotlight() {
   const posRef = useRef({ x: -9999, y: -9999 });
 
   useEffect(() => {
-    // Only activate on pointer devices (desktop)
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const onMouseMove = (e: MouseEvent) => {
@@ -27,7 +26,6 @@ export function CursorSpotlight() {
     window.addEventListener("mousemove", onMouseMove);
     document.documentElement.addEventListener("mouseleave", onMouseLeave);
 
-    // RAF loop to smoothly update CSS custom properties
     const animate = () => {
       if (overlayRef.current) {
         overlayRef.current.style.setProperty("--x", `${posRef.current.x}px`);
@@ -52,10 +50,10 @@ export function CursorSpotlight() {
       className="fixed inset-0 pointer-events-none z-30 hidden md:block"
       style={{
         background: `radial-gradient(
-          600px circle at var(--x, -9999px) var(--y, -9999px),
-          rgba(163, 230, 53, 0.055),
-          rgba(34, 211, 238, 0.025) 35%,
-          transparent 65%
+          620px circle at var(--x, -9999px) var(--y, -9999px),
+          rgba(168, 85, 247, 0.075),
+          rgba(236, 72, 153, 0.03) 35%,
+          transparent 68%
         )`,
       }}
     />

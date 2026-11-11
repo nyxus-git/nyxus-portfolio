@@ -250,7 +250,7 @@ export function ProjectsManager() {
         <button
           id="add-project-btn"
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all shadow-md shadow-lime-500/20 self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl btn-primary text-sm transition-all self-start sm:self-auto"
         >
           <Plus size={16} /> Add Project
         </button>
@@ -330,7 +330,7 @@ export function ProjectsManager() {
                       }`}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-lime-400 font-bold">
+                    <div className="w-full h-full flex items-center justify-center text-primary font-bold">
                       {item.title.charAt(0)}
                     </div>
                   )}
@@ -354,8 +354,8 @@ export function ProjectsManager() {
                     )}
 
                     {item.featured === 1 && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-400 border border-lime-500/30">
-                        <Star size={10} className="fill-lime-400" /> Flagship
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/35">
+                        <Star size={10} className="fill-primary" /> Flagship
                       </span>
                     )}
                     {item.slug && (
@@ -460,7 +460,7 @@ export function ProjectsManager() {
                   <button
                     onClick={() => openEdit(item)}
                     title="Edit Project"
-                    className="p-2.5 rounded-xl bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all"
                   >
                     <Pencil size={14} />
                   </button>
@@ -565,7 +565,7 @@ export function ProjectsManager() {
           <div className="p-4 rounded-xl bg-gray-800/40 border border-white/5 space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                <ImageIcon size={14} className="text-lime-400" />
+                <ImageIcon size={14} className="text-primary" />
                 <span>Primary Cover Image</span>
               </label>
               <FileUploadButton
@@ -581,7 +581,7 @@ export function ProjectsManager() {
             </div>
             <input
               type="text"
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-lime-500/50"
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-primary/50"
               value={form.image_url || ""}
               onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
               placeholder="/images/uploads/example.jpg"
@@ -673,7 +673,7 @@ export function ProjectsManager() {
             <div className="flex gap-2 pt-2">
               <input
                 type="text"
-                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-lime-500/50"
+                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-primary/50"
                 value={newScreenshotUrl}
                 onChange={(e) => setNewScreenshotUrl(e.target.value)}
                 placeholder="Or paste screenshot URL (/images/uploads/...)"
@@ -745,7 +745,7 @@ export function ProjectsManager() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-xs font-black transition-all disabled:opacity-50 shadow-md shadow-lime-500/20"
+              className="flex-1 py-3 rounded-xl btn-primary text-xs font-black transition-all disabled:opacity-50"
             >
               {saving ? "Saving Changes..." : editItem ? "Update Project" : "Create Project"}
             </button>

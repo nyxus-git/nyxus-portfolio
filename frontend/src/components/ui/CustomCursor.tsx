@@ -9,7 +9,6 @@ export function CustomCursor() {
   const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
-    // Check if device has touch capability (mobile)
     if (window.matchMedia("(pointer: coarse)").matches) {
       setIsMobile(true);
       return;
@@ -23,7 +22,6 @@ export function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      // Check if hovering over interactive elements
       if (
         target.tagName.toLowerCase() === "a" ||
         target.tagName.toLowerCase() === "button" ||
@@ -55,14 +53,14 @@ export function CustomCursor() {
       scale: 1,
       opacity: 1,
       backgroundColor: "transparent",
-      border: "2px solid rgba(163, 230, 53, 0.5)", // Uses primary hue roughly (lime/primary)
+      border: "1.5px solid rgba(168, 85, 247, 0.55)",
     },
     hover: {
       x: mousePosition.x - 24,
       y: mousePosition.y - 24,
       scale: 1.5,
-      opacity: 0.3,
-      backgroundColor: "rgba(163, 230, 53, 1)",
+      opacity: 0.25,
+      backgroundColor: "rgba(236, 72, 153, 1)",
       border: "none",
     },
   };
@@ -76,7 +74,7 @@ export function CustomCursor() {
         transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
       />
       <motion.div
-        className="fixed top-0 left-0 w-1.5 h-1.5 bg-primary rounded-full pointer-events-none z-[100] shadow-[0_0_8px_rgba(163,230,53,0.8)]"
+        className="fixed top-0 left-0 w-1.5 h-1.5 bg-primary rounded-full pointer-events-none z-[100] shadow-[0_0_10px_rgba(168,85,247,0.9)]"
         animate={{
           x: mousePosition.x - 3,
           y: mousePosition.y - 3,

@@ -2,65 +2,49 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { GitBranch } from "lucide-react";
+import { GitBranch, ArrowUpRight } from "lucide-react";
 import { GitHubCalendar } from "react-github-calendar";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
-// Custom theme matching neon lime + cyan palette
+// Custom Electric Violet heatmap theme
 const calendarTheme = {
   dark: [
-    "rgba(255,255,255,0.04)",  // 0 contributions
-    "rgba(163,230,53,0.25)",   // 1-9
-    "rgba(163,230,53,0.50)",   // 10-19
-    "rgba(163,230,53,0.75)",   // 20-29
-    "rgba(163,230,53,1.00)",   // 30+
+    "rgba(255,255,255,0.045)",
+    "rgba(168,85,247,0.28)",
+    "rgba(168,85,247,0.52)",
+    "rgba(192,132,252,0.78)",
+    "rgba(236,72,153,0.95)",
   ],
 };
 
-const LEGEND_COLORS = [
-  "rgba(255,255,255,0.04)",
-  "rgba(163,230,53,0.25)",
-  "rgba(163,230,53,0.50)",
-  "rgba(163,230,53,0.75)",
-  "rgba(163,230,53,1)",
-];
+const LEGEND_COLORS = calendarTheme.dark;
 
 export function GitHubActivity() {
-  // Gate render to client-only to prevent SSR hydration mismatch
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
   return (
-    <section id="github-activity" className="py-24 px-4 relative overflow-hidden">
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px] mix-blend-screen -translate-y-1/2 pointer-events-none" />
+    <section id="github-activity" className="py-24 md:py-32 px-4 relative overflow-hidden">
+      <div className="section-divider mb-24" />
+      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[130px] -translate-y-1/2 pointer-events-none" />
 
       <div className="container mx-auto max-w-6xl relative z-10">
-        {/* Section header */}
-        <motion.div
-          className="mb-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-sm font-medium mb-4">
-            <GitBranch size={16} className="text-primary" />
-            <span>Open Source Activity</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 tracking-tight">
-            GitHub Contributions
-          </h2>
-          <p className="text-gray-400 mt-3 text-lg">Consistent coding. Every day counts.</p>
-        </motion.div>
+        <SectionHeader
+          number="07"
+          badge="Open Source"
+          icon={GitBranch}
+          title="GitHub Contributions"
+          subtitle="Consistent shipping across AI frameworks, tooling, and full-stack open source."
+        />
 
-        {/* Heatmap card */}
         <motion.div
-          className="glass-card p-8 rounded-3xl overflow-x-auto"
-          initial={{ opacity: 0, y: 30 }}
+          className="glass-card glass-card-hover p-6 md:p-10 rounded-3xl overflow-x-auto"
+          initial={{ opacity: 0, y: 26 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
+          transition={{ duration: 0.65, delay: 0.1 }}
         >
-          <div className="min-w-[600px]">
+          <div className="min-w-[600px] flex justify-center">
             {mounted ? (
               <GitHubCalendar
                 username="nyxus-git"
@@ -74,28 +58,28 @@ export function GitHubActivity() {
                   totalCount: "{{count}} contributions in the last year",
                 }}
                 style={{
-                  color: "rgba(255,255,255,0.5)",
+                  color: "rgba(255,255,255,0.55)",
                   fontFamily: "inherit",
                 }}
               />
             ) : (
-              <div className="h-32 w-full bg-white/5 rounded-xl animate-pulse" />
+              <div className="h-32 w-full bg-white/5 rounded-2xl animate-pulse" />
             )}
           </div>
 
-          {/* Legend + CTA row */}
-          <div className="mt-6 flex items-center justify-between flex-wrap gap-4">
+          <div className="mt-8 pt-6 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-4">
             <a
               href="https://github.com/nyxus-git"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-semibold hover:bg-primary/20 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/30 hover:border-primary/60 text-primary hover:text-white hover:bg-primary/20 text-xs sm:text-sm font-semibold transition-all"
             >
               <GitBranch size={14} />
-              View GitHub Profile
+              <span>View GitHub Profile</span>
+              <ArrowUpRight size={14} />
             </a>
 
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
               <span>Less</span>
               {LEGEND_COLORS.map((color, i) => (
                 <div

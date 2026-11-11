@@ -124,7 +124,7 @@ export function BlogsManager() {
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl btn-primary text-sm transition-all"
         >
           <Plus size={16} /> New Post
         </button>
@@ -140,11 +140,11 @@ export function BlogsManager() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="bg-gray-900 border border-white/5 rounded-2xl p-5 flex items-start gap-4 hover:border-white/10 transition-all"
+              className="glass-card rounded-2xl p-5 flex items-start gap-4 hover:border-primary/30 transition-all"
             >
               <div
                 className={`w-2 h-full min-h-[40px] rounded-full flex-shrink-0 ${
-                  item.published === 1 ? "bg-lime-400" : "bg-gray-600"
+                  item.published === 1 ? "bg-primary" : "bg-gray-600"
                 }`}
               />
               {item.featured_image && (
@@ -186,7 +186,7 @@ export function BlogsManager() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => openEdit(item)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"
+                  className="p-2 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all"
                 >
                   <Pencil size={14} />
                 </button>
@@ -252,7 +252,7 @@ export function BlogsManager() {
           <div className="p-4 rounded-xl bg-gray-800/40 border border-white/5 space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                <ImageIcon size={14} className="text-lime-400" />
+                <ImageIcon size={14} className="text-primary" />
                 <span>Featured Image</span>
               </label>
               <FileUploadButton
@@ -275,7 +275,7 @@ export function BlogsManager() {
             </div>
             <input
               type="text"
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-lime-500/50 outline-none transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary/50 outline-none transition-all"
               value={form.featured_image || ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, featured_image: e.target.value }))
@@ -355,7 +355,7 @@ export function BlogsManager() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-sm font-black disabled:opacity-50"
+              className="flex-1 py-3 rounded-xl btn-primary text-sm font-black disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Post"}
             </button>

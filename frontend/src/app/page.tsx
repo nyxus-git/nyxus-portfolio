@@ -14,6 +14,7 @@ import { Education } from "@/components/sections/Education";
 import { Certification } from "@/components/sections/Certification";
 import { Blog } from "@/components/sections/Blog";
 import { ContactForm } from "@/components/sections/ContactForm";
+import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
   return (
@@ -31,6 +32,7 @@ export default function Home() {
       <Certification />
       <Blog />
       <ContactForm />
+      <Footer />
     </main>
   );
 }

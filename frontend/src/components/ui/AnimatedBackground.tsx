@@ -1,20 +1,21 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 
 export function AnimatedBackground() {
-    return (
-        <div className="fixed inset-0 w-full h-full -z-50 overflow-hidden bg-gray-950 pointer-events-none">
-            {/* Soft gradient base */}
-            <div className="absolute inset-0 bg-gradient-radial from-gray-900 to-black opacity-80" />
+  return (
+    <div className="fixed inset-0 w-full h-full -z-50 overflow-hidden bg-[#04040a] pointer-events-none">
+      {/* Subtle radial depth gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(124,58,237,0.14),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_90%,rgba(236,72,153,0.08),transparent_70%)]" />
 
-            {/* Animated glowing orbs */}
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-lime-500/20 rounded-full blur-3xl animate-blob" />
-            <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-            <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+      {/* Subtle architectural grid */}
+      <div className="absolute inset-0 bg-grid-white opacity-70 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]" />
 
-            {/* Overlay Mesh/Noise if needed (can add texture later) */}
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
-        </div>
-    );
+      {/* Animated aurora orbs */}
+      <div className="absolute -top-24 left-[12%] w-[460px] h-[460px] bg-violet-600/15 rounded-full blur-[130px] animate-aurora" />
+      <div className="absolute top-[30%] right-[8%] w-[420px] h-[420px] bg-fuchsia-600/12 rounded-full blur-[130px] animate-aurora animation-delay-2000" />
+      <div className="absolute bottom-[5%] left-[30%] w-[500px] h-[500px] bg-indigo-600/12 rounded-full blur-[140px] animate-aurora animation-delay-4000" />
+    </div>
+  );
 }

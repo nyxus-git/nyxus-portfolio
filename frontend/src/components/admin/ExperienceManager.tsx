@@ -173,7 +173,7 @@ export function ExperienceManager() {
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all shadow-[0_0_15px_rgba(163,230,53,0.2)]"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl btn-primary text-sm transition-all"
         >
           <Plus size={16} /> Add Experience
         </button>
@@ -193,7 +193,7 @@ export function ExperienceManager() {
                 transition={{ delay: i * 0.05 }}
                 className="bg-gray-900 border border-white/5 rounded-2xl p-5 flex items-start gap-4 hover:border-white/10 transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-lime-500/10 border border-lime-500/20 flex items-center justify-center flex-shrink-0 text-lime-400 font-black text-xs font-mono">
+                <div className="w-12 h-12 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center flex-shrink-0 text-primary font-black text-xs font-mono">
                   {item.start_date.slice(0, 4)}
                 </div>
 
@@ -207,7 +207,7 @@ export function ExperienceManager() {
                     )}
                   </div>
 
-                  <p className="text-lime-400 text-sm font-semibold mt-0.5">{item.company_name}</p>
+                  <p className="text-primary text-sm font-semibold mt-0.5">{item.company_name}</p>
 
                   <div className="flex items-center gap-3 text-gray-500 text-xs mt-1.5 font-mono flex-wrap">
                     {item.location && (
@@ -235,7 +235,7 @@ export function ExperienceManager() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEdit(item)}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"
+                    className="p-2 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all"
                     title="Edit"
                   >
                     <Pencil size={15} />
@@ -348,7 +348,7 @@ export function ExperienceManager() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                  <Laptop size={15} className="text-lime-400" />
+                  <Laptop size={15} className="text-primary" />
                   Company Projects & Deliverables ({form.projects?.length || 0})
                 </h3>
                 <p className="text-xs text-gray-500">
@@ -358,7 +358,7 @@ export function ExperienceManager() {
               <button
                 type="button"
                 onClick={handleAddProject}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-lime-500/20 text-lime-400 border border-lime-500/30 text-xs font-bold hover:bg-lime-500/30 transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 text-xs font-bold hover:bg-primary/30 transition-all"
               >
                 <Plus size={13} /> Add Project
               </button>
@@ -376,12 +376,12 @@ export function ExperienceManager() {
                       <button
                         type="button"
                         onClick={() => setActiveProjectIdx(isExpanded ? null : pIdx)}
-                        className="flex items-center gap-2 text-left font-bold text-sm text-white hover:text-lime-400 transition-colors"
+                        className="flex items-center gap-2 text-left font-bold text-sm text-white hover:text-primary transition-colors"
                       >
                         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         <span>{proj.name || `Project #${pIdx + 1} (Untitled)`}</span>
                         {proj.live_url && (
-                          <span className="text-[10px] font-mono text-lime-400 px-1.5 py-0.5 rounded bg-lime-500/10">
+                          <span className="text-[10px] font-mono text-primary px-1.5 py-0.5 rounded bg-primary/15">
                             Live
                           </span>
                         )}
@@ -499,7 +499,7 @@ export function ExperienceManager() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-sm font-black disabled:opacity-50 transition-all shadow-[0_0_15px_rgba(163,230,53,0.3)]"
+              className="flex-1 py-3 rounded-xl btn-primary text-sm font-black disabled:opacity-50 transition-all"
             >
               {saving ? "Saving Experience..." : "Save Experience"}
             </button>

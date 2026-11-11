@@ -60,7 +60,7 @@ export function CertificationsManager() {
           <h2 className="text-xl font-black text-white">Certifications</h2>
           <p className="text-gray-500 text-sm">{items.length} certifications</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all">
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl btn-primary text-sm transition-all">
           <Plus size={16} /> Add Certification
         </button>
       </div>
@@ -83,7 +83,7 @@ export function CertificationsManager() {
                 </div>
                 <div className="flex gap-1">
                   {item.credential_url && <a href={item.credential_url} target="_blank" rel="noreferrer" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 transition-all"><ExternalLink size={12} /></a>}
-                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"><Pencil size={12} /></button>
+                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all"><Pencil size={12} /></button>
                   <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 transition-all"><Trash2 size={12} /></button>
                 </div>
               </div>
@@ -107,7 +107,7 @@ export function CertificationsManager() {
           <AdminInput label="Skills (comma-separated)" value={skillInput} onChange={e => setSkillInput(e.target.value)} placeholder="Python, TensorFlow, NLP..." />
           <div className="flex gap-3 pt-2">
             <button onClick={() => setModalOpen(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-gray-400 text-sm font-bold">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="flex-1 py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-sm font-black disabled:opacity-50">
+            <button onClick={handleSave} disabled={saving} className="flex-1 py-3 rounded-xl btn-primary text-sm font-black disabled:opacity-50">
               {saving ? "Saving..." : "Save"}
             </button>
           </div>

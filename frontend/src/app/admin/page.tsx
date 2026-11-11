@@ -73,7 +73,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex">
+    <div className="min-h-screen bg-[#04040a] flex">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/60 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -82,15 +82,15 @@ export default function AdminPage() {
       {/* Sidebar */}
       <aside className={`
         fixed lg:relative z-30 lg:z-auto h-full lg:h-screen
-        w-64 bg-gray-900 border-r border-white/5 flex flex-col
+        w-64 bg-[#090814] border-r border-white/[0.06] flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-white/5">
+        <div className="p-6 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-lime-500/20 border border-lime-500/30 flex items-center justify-center">
-              <Terminal className="w-5 h-5 text-lime-400" />
+            <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
+              <Terminal className="w-5 h-5 text-primary" />
             </div>
             <div>
               <p className="font-black text-white text-sm">Nyxus Admin</p>
@@ -108,22 +108,22 @@ export default function AdminPage() {
               onClick={() => { setActive(item.key); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium group ${
                 active === item.key
-                  ? "bg-lime-500/20 text-lime-400 border border-lime-500/30"
+                  ? "bg-primary/15 text-primary border border-primary/30"
                   : "text-gray-400 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <item.icon className={`w-4 h-4 ${active === item.key ? "text-lime-400" : "text-gray-500 group-hover:text-gray-300"}`} />
+              <item.icon className={`w-4 h-4 ${active === item.key ? "text-primary" : "text-gray-500 group-hover:text-gray-300"}`} />
               {item.label}
-              {active === item.key && <ChevronRight className="w-3 h-3 ml-auto text-lime-400" />}
+              {active === item.key && <ChevronRight className="w-3 h-3 ml-auto text-primary" />}
             </button>
           ))}
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-white/[0.06]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-all text-sm font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all text-sm font-medium"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -141,7 +141,7 @@ export default function AdminPage() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         {/* Top bar */}
-        <header className="h-16 bg-gray-900/50 backdrop-blur border-b border-white/5 flex items-center px-6 gap-4 sticky top-0 z-10">
+        <header className="h-16 bg-[#090814]/80 backdrop-blur-xl border-b border-white/[0.06] flex items-center px-6 gap-4 sticky top-0 z-10">
           <button
             className="lg:hidden text-gray-400 hover:text-white transition-colors"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -154,7 +154,7 @@ export default function AdminPage() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-xs text-gray-500 font-mono">admin</span>
           </div>
         </header>
@@ -181,25 +181,25 @@ export default function AdminPage() {
 // ─── Dashboard Overview ───────────────────────────────────────────────────────
 function DashboardOverview({ stats, onNavigate }: { stats: Record<string, number>; onNavigate: (s: Section) => void }) {
   const cards = [
-    { key: "projects", label: "Projects", count: stats.projects, icon: FolderKanban, color: "lime", section: "projects" as Section },
-    { key: "experience", label: "Experience", count: stats.experience, icon: Briefcase, color: "cyan", section: "experience" as Section },
+    { key: "projects", label: "Projects", count: stats.projects, icon: FolderKanban, color: "violet", section: "projects" as Section },
+    { key: "experience", label: "Experience", count: stats.experience, icon: Briefcase, color: "pink", section: "experience" as Section },
     { key: "certifications", label: "Certifications", count: stats.certifications, icon: Award, color: "purple", section: "certifications" as Section },
-    { key: "blogs", label: "Blog Posts", count: stats.blogs, icon: BookOpen, color: "orange", section: "blogs" as Section },
-    { key: "skills", label: "Skills", count: stats.skills, icon: Cpu, color: "emerald", section: "skills" as Section },
+    { key: "blogs", label: "Blog Posts", count: stats.blogs, icon: BookOpen, color: "indigo", section: "blogs" as Section },
+    { key: "skills", label: "Skills", count: stats.skills, icon: Cpu, color: "fuchsia", section: "skills" as Section },
   ];
 
   const colorMap: Record<string, string> = {
-    lime: "bg-lime-500/20 border-lime-500/30 text-lime-400",
-    cyan: "bg-cyan-500/20 border-cyan-500/30 text-cyan-400",
+    violet: "bg-violet-500/20 border-violet-500/30 text-violet-400",
+    pink: "bg-pink-500/20 border-pink-500/30 text-pink-400",
     purple: "bg-purple-500/20 border-purple-500/30 text-purple-400",
-    orange: "bg-orange-500/20 border-orange-500/30 text-orange-400",
-    emerald: "bg-emerald-500/20 border-emerald-500/30 text-emerald-400",
+    indigo: "bg-indigo-500/20 border-indigo-500/30 text-indigo-400",
+    fuchsia: "bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-400",
   };
 
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-2xl font-black text-white mb-1">Welcome back! 👋</h2>
+        <h2 className="text-2xl font-black text-white mb-1">Welcome back!</h2>
         <p className="text-gray-500 text-sm">Manage your portfolio content from here.</p>
       </div>
 
@@ -211,7 +211,7 @@ function DashboardOverview({ stats, onNavigate }: { stats: Record<string, number
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onNavigate(card.section)}
-            className="bg-gray-900 border border-white/5 rounded-2xl p-5 text-left hover:border-white/15 transition-all group"
+            className="glass-card glass-card-hover rounded-2xl p-5 text-left group"
           >
             <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 ${colorMap[card.color]}`}>
               <card.icon className="w-5 h-5" />
@@ -222,14 +222,14 @@ function DashboardOverview({ stats, onNavigate }: { stats: Record<string, number
         ))}
       </div>
 
-      <div className="bg-gray-900 border border-white/5 rounded-2xl p-6">
+      <div className="glass-card rounded-2xl p-6">
         <h3 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {NAV_ITEMS.filter(n => n.key !== "dashboard").map((item) => (
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
-              className="flex items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-lime-500/10 hover:border-lime-500/20 border border-white/5 transition-all text-sm text-gray-400 hover:text-lime-400"
+              className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-primary/15 hover:border-primary/30 border border-white/[0.06] transition-all text-sm text-gray-300 hover:text-primary"
             >
               <item.icon className="w-4 h-4" />
               {item.label}

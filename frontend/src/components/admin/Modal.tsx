@@ -27,7 +27,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.3 }}
-            className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border border-white/10 rounded-2xl shadow-2xl"
+            className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0b0a17] border border-primary/20 rounded-2xl shadow-2xl"
           >
             <div className="flex items-center justify-between p-6 border-b border-white/5">
               <h2 className="font-black text-white">{title}</h2>

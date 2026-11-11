@@ -19,10 +19,10 @@ const DEFAULT_FORM: Omit<Skill, "id"> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  "PROGRAMMING LANGUAGES": "bg-lime-500/20 text-lime-400 border-lime-500/20",
-  "FRAMEWORKS & LIBRARIES": "bg-cyan-500/20 text-cyan-400 border-cyan-500/20",
-  "TOOLS & TECHNOLOGIES": "bg-purple-500/20 text-purple-400 border-purple-500/20",
-  "CLOUD & MLOPS": "bg-orange-500/20 text-orange-400 border-orange-500/20",
+  "PROGRAMMING LANGUAGES": "bg-violet-500/20 text-violet-300 border-violet-500/25",
+  "FRAMEWORKS & LIBRARIES": "bg-pink-500/20 text-pink-300 border-pink-500/25",
+  "TOOLS & TECHNOLOGIES": "bg-purple-500/20 text-purple-300 border-purple-500/25",
+  "CLOUD & MLOPS": "bg-indigo-500/20 text-indigo-300 border-indigo-500/25",
 };
 
 export function SkillsManager() {
@@ -71,7 +71,7 @@ export function SkillsManager() {
           <h2 className="text-xl font-black text-white">Skills</h2>
           <p className="text-gray-500 text-sm">{items.length} skills across {CATEGORIES.length} categories</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all">
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl btn-primary text-sm transition-all">
           <Plus size={16} /> Add Skill
         </button>
       </div>
@@ -81,7 +81,7 @@ export function SkillsManager() {
         {["All", ...CATEGORIES].map(cat => (
           <button key={cat} onClick={() => setFilterCat(cat)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-              filterCat === cat ? "bg-lime-500/20 text-lime-400 border-lime-500/30" : "bg-white/5 text-gray-400 border-white/5 hover:border-white/15"
+              filterCat === cat ? "bg-primary/20 text-primary border-primary/35" : "bg-white/5 text-gray-400 border-white/5 hover:border-white/15"
             }`}
           >
             {cat === "All" ? "All" : cat.split(" ")[0]}
@@ -93,7 +93,7 @@ export function SkillsManager() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((item, i) => (
             <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-              className="bg-gray-900 border border-white/5 rounded-xl p-4 hover:border-white/10 transition-all">
+              className="glass-card rounded-xl p-4 hover:border-primary/30 transition-all">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-white text-sm">{item.name}</h3>
@@ -102,13 +102,13 @@ export function SkillsManager() {
                   </span>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg bg-white/5 hover:bg-lime-500/20 hover:text-lime-400 text-gray-400 transition-all"><Pencil size={12} /></button>
+                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all"><Pencil size={12} /></button>
                   <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 transition-all"><Trash2 size={12} /></button>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-lime-400 rounded-full transition-all" style={{ width: `${item.level}%` }} />
+                  <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${item.level}%` }} />
                 </div>
                 <span className="text-xs text-gray-500 font-mono w-8">{item.level}%</span>
               </div>
@@ -126,17 +126,17 @@ export function SkillsManager() {
           />
           <div>
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-              Proficiency Level: <span className="text-lime-400">{form.level}%</span>
+              Proficiency Level: <span className="text-primary">{form.level}%</span>
             </label>
             <input type="range" min={0} max={100} value={form.level}
               onChange={e => setForm(f => ({ ...f, level: Number(e.target.value) }))}
-              className="w-full accent-lime-400"
+              className="w-full accent-primary"
             />
           </div>
           <AdminInput label="Order" type="number" value={form.order_index} onChange={e => setForm(f => ({ ...f, order_index: Number(e.target.value) }))} />
           <div className="flex gap-3 pt-2">
             <button onClick={() => setModalOpen(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-gray-400 text-sm font-bold">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="flex-1 py-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-sm font-black disabled:opacity-50">
+            <button onClick={handleSave} disabled={saving} className="flex-1 py-3 rounded-xl btn-primary text-sm font-black disabled:opacity-50">
               {saving ? "Saving..." : "Save Skill"}
             </button>
           </div>

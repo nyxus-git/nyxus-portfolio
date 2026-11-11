@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Download, Code2, Cpu, Terminal } from "lucide-react";
+import { Download, ArrowRight, Sparkles, Terminal } from "lucide-react";
 import { Navbar } from "@/components/sections/Navbar";
 import { getAbout, type About } from "../../lib/api";
 import { NeuralNetCanvas } from "@/components/ui/NeuralNetCanvas";
@@ -17,7 +17,9 @@ export function Hero() {
     getAbout().then(setAbout);
   }, []);
 
-  const roles = about?.roles ? about.roles.split(",").map(r => r.trim()) : ["AI Engineer", "Full Stack Developer", "Open Source Contributor"];
+  const roles = about?.roles
+    ? about.roles.split(",").map((r) => r.trim())
+    : ["AI Engineer", "Full Stack Developer", "Open Source Contributor"];
 
   useEffect(() => {
     if (roles.length <= 1) return;
@@ -32,108 +34,127 @@ export function Hero() {
       <Navbar />
       <section
         id="home"
-        className="relative flex flex-col items-center justify-center min-h-screen py-20 text-center px-4 overflow-hidden pt-32 md:pt-24"
+        className="relative flex flex-col items-center justify-center min-h-screen py-24 text-center px-4 overflow-hidden pt-32 md:pt-28"
       >
-        {/* Neural Network Canvas Background */}
+        {/* Interactive Neural Network Canvas */}
         <div className="absolute inset-0 z-0">
           <NeuralNetCanvas />
         </div>
 
-        {/* Soft radial vignette so text stays readable */}
-        <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_30%,rgba(3,7,18,0.85)_100%)]" />
+        {/* Radial Obsidian Vignette + Central Violet Spotlight */}
+        <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_75%_55%_at_50%_45%,rgba(139,92,246,0.14),transparent_60%)]" />
+        <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_85%_70%_at_50%_50%,transparent_25%,#04040a_96%)]" />
 
-        {/* Floating Icons — keep but reduce opacity slightly */}
-        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none opacity-15">
-          <motion.div className="absolute top-1/3 left-1/4 text-primary" animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
-            <Code2 size={48} />
-          </motion.div>
-          <motion.div className="absolute top-1/4 right-1/4 text-accent" animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <Cpu size={64} />
-          </motion.div>
-          <motion.div className="absolute bottom-1/3 left-1/3 text-white/50" animate={{ y: [0, 15, 0], rotate: [0, 5, 0] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}>
-            <Terminal size={32} />
-          </motion.div>
-        </div>
-
-        <div className="max-w-4xl relative z-10 flex flex-col items-center">
+        <div className="max-w-5xl relative z-10 flex flex-col items-center">
+          {/* Status Availability Pill */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-6 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md inline-flex items-center gap-2"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-8 px-4 py-1.5 rounded-full border border-primary/25 bg-[#0d0c1a]/80 backdrop-blur-xl inline-flex items-center gap-2.5 shadow-[0_0_24px_-4px_rgba(168,85,247,0.3)]"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-80" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
-            <span className="text-sm font-medium text-gray-300">Available for new opportunities</span>
+            <span className="text-xs font-mono uppercase tracking-[0.16em] text-gray-200">
+              Available for AI &amp; Systems Engineering
+            </span>
           </motion.div>
 
+          {/* Editorial Display Name */}
           <motion.h1
-            className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter"
-            initial={{ opacity: 0, y: 20 }}
+            className="text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black mb-5 tracking-[-0.04em] leading-[0.95]"
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="text-white">Hi, I&apos;m </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent text-glow-primary">
+            <span className="text-white block sm:inline">Hi, I&apos;m </span>
+            <span className="text-gradient-accent text-glow-primary">
               {about?.name || "Rohan Mane"}
             </span>
           </motion.h1>
 
-          <div className="h-16 md:h-20 mb-4 flex items-center justify-center overflow-hidden">
+          {/* Dynamic Role Ticker */}
+          <div className="h-14 md:h-16 mb-5 flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait">
-              <motion.h2
+              <motion.div
                 key={currentRoleIndex}
-                className="text-2xl md:text-4xl lg:text-5xl font-semibold text-gray-300"
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, y: -28 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md"
               >
-                {roles[currentRoleIndex]}
-              </motion.h2>
+                <Sparkles size={18} className="text-accent flex-shrink-0" />
+                <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-100 tracking-tight">
+                  {roles[currentRoleIndex]}
+                </h2>
+              </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Terminal typewriter line */}
+          {/* Mini Terminal Identity */}
           <motion.div
-            className="mb-8"
+            className="mb-8 flex flex-col items-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
           >
+            <div className="flex items-center gap-2 text-[11px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">
+              <Terminal size={12} className="text-primary" />
+              <span>runtime.identity</span>
+            </div>
             <TerminalLine
               lines={[
                 "$ whoami",
-                `> ${(about?.roles ? about.roles.split(",").map(r => r.trim()).join("  |  ") : "AI Engineer  |  ML Engineer  |  Open Source Contributor")}`,
+                `> ${
+                  about?.roles
+                    ? about.roles
+                        .split(",")
+                        .map((r) => r.trim())
+                        .join("  ·  ")
+                    : "AI Engineer  ·  ML Engineer  ·  Open Source Contributor"
+                }`,
               ]}
-              startDelay={1400}
-              speed={32}
+              startDelay={1200}
+              speed={30}
             />
           </motion.div>
 
+          {/* Tagline */}
           <motion.p
-            className="text-lg md:text-xl lg:text-2xl mb-12 text-gray-400 max-w-2xl leading-relaxed"
+            className="text-base sm:text-lg md:text-xl mb-10 text-gray-400 max-w-2xl leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.35, duration: 0.8 }}
           >
-            {about?.tagline || "Building innovative AI solutions and contributing to impactful open source projects."}
+            {about?.tagline ||
+              "Building innovative AI solutions and contributing to impactful open source projects."}
           </motion.p>
 
+          {/* Action Row */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center w-full sm:w-auto"
+            className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 justify-center w-full sm:w-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
           >
-            <Link href="#best-project" className="group relative px-8 py-4 bg-primary text-black font-bold text-lg rounded-full overflow-hidden transition-transform active:scale-95">
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-              <span className="relative z-10">View My Work</span>
+            <Link
+              href="#best-project"
+              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 btn-primary rounded-full text-sm md:text-base active:scale-95"
+            >
+              <span>Explore My Work</span>
+              <ArrowRight
+                size={17}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
-            
-            <Link href="#contact" className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold text-lg rounded-full backdrop-blur-md transition-all active:scale-95">
+
+            <Link
+              href="#contact"
+              className="inline-flex items-center justify-center px-8 py-4 bg-white/[0.04] hover:bg-primary/10 text-white border border-white/15 hover:border-primary/45 font-semibold text-sm md:text-base rounded-full backdrop-blur-xl transition-all active:scale-95"
+            >
               Get In Touch
             </Link>
 
@@ -142,24 +163,30 @@ export function Hero() {
                 href={about.resume_url}
                 target="_blank"
                 rel="noreferrer"
-                className="px-8 py-4 bg-transparent hover:bg-white/5 text-gray-300 border border-transparent hover:border-white/10 font-medium text-lg rounded-full transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-transparent hover:bg-white/[0.05] text-gray-300 hover:text-white border border-white/10 hover:border-white/20 font-medium text-sm md:text-base rounded-full transition-all active:scale-95"
               >
-                <Download size={20} />
-                Resume
+                <Download size={17} className="text-primary" />
+                <span>Resume</span>
               </a>
             )}
           </motion.div>
         </div>
 
+        {/* Scroll Cue */}
         <motion.div
-          className="absolute bottom-10"
+          className="absolute bottom-8 z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 1 }}
+          transition={{ delay: 1.1, duration: 1 }}
         >
-          <Link href="#best-project" className="flex flex-col items-center text-gray-500 hover:text-primary transition-colors">
-            <span className="text-xs uppercase tracking-widest mb-2 font-semibold">Scroll</span>
-            <div className="w-[1px] h-12 bg-gradient-to-b from-primary/50 to-transparent animate-pulse-glow" />
+          <Link
+            href="#best-project"
+            className="flex flex-col items-center text-gray-500 hover:text-primary transition-colors group"
+          >
+            <span className="text-[10px] font-mono uppercase tracking-[0.25em] mb-2">
+              Scroll
+            </span>
+            <div className="w-[1px] h-10 bg-gradient-to-b from-primary via-accent/60 to-transparent animate-pulse-glow" />
           </Link>
         </motion.div>
       </section>

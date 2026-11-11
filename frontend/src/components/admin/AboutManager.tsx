@@ -52,7 +52,7 @@ export function AboutManager() {
           <p className="text-gray-500 text-sm">Manage your personal information, bio, and social links</p>
         </div>
         <button onClick={handleSave} disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-bold text-sm transition-all disabled:opacity-50">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl btn-primary text-sm transition-all disabled:opacity-50">
           <Save size={16} />
           {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Changes"}
         </button>

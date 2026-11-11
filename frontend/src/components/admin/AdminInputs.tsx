@@ -15,8 +15,8 @@ export function AdminInput({ label, className, ...props }: InputProps) {
       <input
         {...props}
         className={cn(
-          "w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-600",
-          "focus:outline-none focus:border-lime-500/50 focus:ring-1 focus:ring-lime-500/20 transition-all text-sm",
+          "w-full px-4 py-3 bg-[#070612]/80 border border-white/10 rounded-xl text-white placeholder-gray-600",
+          "focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all text-sm",
           className
         )}
       />
@@ -31,8 +31,8 @@ export function AdminTextarea({ label, className, ...props }: TextareaProps) {
       <textarea
         {...props}
         className={cn(
-          "w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-600",
-          "focus:outline-none focus:border-lime-500/50 focus:ring-1 focus:ring-lime-500/20 transition-all text-sm resize-none",
+          "w-full px-4 py-3 bg-[#070612]/80 border border-white/10 rounded-xl text-white placeholder-gray-600",
+          "focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all text-sm resize-none",
           className
         )}
       />
@@ -52,13 +52,13 @@ export function AdminSelect({ label, options, className, ...props }: SelectProps
       <select
         {...props}
         className={cn(
-          "w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white",
-          "focus:outline-none focus:border-lime-500/50 focus:ring-1 focus:ring-lime-500/20 transition-all text-sm",
+          "w-full px-4 py-3 bg-[#070612]/80 border border-white/10 rounded-xl text-white",
+          "focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all text-sm",
           className
         )}
       >
         {options.map(opt => (
-          <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>
+          <option key={opt.value} value={opt.value} className="bg-[#090814]">{opt.label}</option>
         ))}
       </select>
     </div>
