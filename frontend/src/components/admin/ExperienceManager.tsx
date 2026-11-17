@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, MapPin, Globe, Laptop, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin, Globe, Laptop, ChevronDown, ChevronUp, Link2 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   getExperiences,
@@ -9,7 +9,8 @@ import {
   updateExperience,
   deleteExperience,
   Experience,
-  CompanyProject
+  CompanyProject,
+  ProjectLink,
 } from "@/lib/api";
 import { Modal } from "./Modal";
 import { AdminInput, AdminTextarea } from "./AdminInputs";
@@ -19,10 +20,14 @@ const DEFAULT_PROJECT: CompanyProject = {
   tagline: "",
   description: "",
   role: "",
+  category: "",
+  is_published: true,
   live_url: "",
   github_url: "",
+  links: [],
+  responsibilities: [],
   impact: [],
-  tech_stack: []
+  tech_stack: [],
 };
 
 const DEFAULT_FORM: Omit<Experience, "id"> = {
@@ -57,7 +62,7 @@ export function ExperienceManager() {
 
   const load = () => {
     setLoading(true);
-    getExperiences().then(data => {
+    getExperiences().then((data) => {
       setItems(data);
       setLoading(false);
     });
@@ -97,15 +102,15 @@ export function ExperienceManager() {
 
   function handleAddProject() {
     const newProj: CompanyProject = { ...DEFAULT_PROJECT };
-    setForm(f => ({
+    setForm((f) => ({
       ...f,
-      projects: [...(f.projects || []), newProj]
+      projects: [...(f.projects || []), newProj],
     }));
-    setActiveProjectIdx((form.projects?.length || 0));
+    setActiveProjectIdx(form.projects?.length || 0);
   }
 
   function handleUpdateProject(index: number, updated: CompanyProject) {
-    setForm(f => {
+    setForm((f) => {
       const next = [...(f.projects || [])];
       next[index] = updated;
       return { ...f, projects: next };
@@ -113,25 +118,46 @@ export function ExperienceManager() {
   }
 
   function handleDeleteProject(index: number) {
-    setForm(f => ({
+    setForm((f) => ({
       ...f,
-      projects: (f.projects || []).filter((_, i) => i !== index)
+      projects: (f.projects || []).filter((_, i) => i !== index),
     }));
     if (activeProjectIdx === index) setActiveProjectIdx(null);
+  }
+
+  // ── Link helpers per project ──────────────────────────────
+  function handleAddLink(pIdx: number) {
+    const proj = (form.projects || [])[pIdx];
+    if (!proj) return;
+    const newLink: ProjectLink = { label: "", url: "", display_order: (proj.links?.length || 0) };
+    handleUpdateProject(pIdx, { ...proj, links: [...(proj.links || []), newLink] });
+  }
+
+  function handleUpdateLink(pIdx: number, lIdx: number, field: keyof ProjectLink, value: string | number) {
+    const proj = (form.projects || [])[pIdx];
+    if (!proj) return;
+    const updatedLinks = [...(proj.links || [])];
+    updatedLinks[lIdx] = { ...updatedLinks[lIdx], [field]: value };
+    handleUpdateProject(pIdx, { ...proj, links: updatedLinks });
+  }
+
+  function handleRemoveLink(pIdx: number, lIdx: number) {
+    const proj = (form.projects || [])[pIdx];
+    if (!proj) return;
+    const updatedLinks = (proj.links || []).filter((_, i) => i !== lIdx);
+    handleUpdateProject(pIdx, { ...proj, links: updatedLinks });
   }
 
   async function handleSave() {
     setSaving(true);
     try {
-      // Process highlights and skills
       const finalSkills = skillsStr
         .split(",")
-        .map(s => s.trim())
+        .map((s) => s.trim())
         .filter(Boolean);
-
       const finalHighlights = highlightsStr
         .split("\n")
-        .map(h => h.trim())
+        .map((h) => h.trim())
         .filter(Boolean);
 
       const payload = {
@@ -169,7 +195,7 @@ export function ExperienceManager() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-black text-white">Work Experience</h2>
-          <p className="text-gray-500 text-sm">{items.length} companies & organizations</p>
+          <p className="text-gray-500 text-sm">{items.length} companies &amp; organizations</p>
         </div>
         <button
           onClick={openCreate}
@@ -266,14 +292,14 @@ export function ExperienceManager() {
             <AdminInput
               label="Job Title *"
               value={form.job_title}
-              onChange={e => setForm(f => ({ ...f, job_title: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, job_title: e.target.value }))}
               placeholder="Junior ML Engineer"
             />
             <AdminInput
               label="Company Name *"
               value={form.company_name}
-              onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
-              placeholder="Sampro License India Pvt. Ltd."
+              onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
+              placeholder="SAMPRO LICENSE INDIA PRIVATE LIMITED"
             />
           </div>
 
@@ -281,13 +307,13 @@ export function ExperienceManager() {
             <AdminInput
               label="Company URL (Optional)"
               value={form.company_url || ""}
-              onChange={e => setForm(f => ({ ...f, company_url: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, company_url: e.target.value }))}
               placeholder="https://samprolicense.com"
             />
             <AdminInput
               label="Role Type"
               value={form.role_type || ""}
-              onChange={e => setForm(f => ({ ...f, role_type: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, role_type: e.target.value }))}
               placeholder="Full-Time / Research / Internship"
             />
           </div>
@@ -296,19 +322,19 @@ export function ExperienceManager() {
             <AdminInput
               label="Location"
               value={form.location || ""}
-              onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
               placeholder="Wakad, Pune"
             />
             <AdminInput
               label="Start Date *"
               value={form.start_date}
-              onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
-              placeholder="Dec 2025"
+              onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))}
+              placeholder="Dec 2024"
             />
             <AdminInput
               label="End Date (or 'Present')"
               value={form.end_date || ""}
-              onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))}
               placeholder="Present"
             />
           </div>
@@ -316,7 +342,7 @@ export function ExperienceManager() {
           <AdminTextarea
             label="Role Overview / Mission Description"
             value={form.description || ""}
-            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             rows={3}
             placeholder="High level overview of your responsibilities at this company..."
           />
@@ -324,23 +350,23 @@ export function ExperienceManager() {
           <AdminTextarea
             label="Key Highlights & Achievements (One per line)"
             value={highlightsStr}
-            onChange={e => setHighlightsStr(e.target.value)}
+            onChange={(e) => setHighlightsStr(e.target.value)}
             rows={3}
-            placeholder="Architected 4+ production AI systems&#10;Reduced latency by 30%..."
+            placeholder={"Architected 4+ production AI systems\nReduced latency by 30%..."}
           />
 
           <AdminInput
             label="Company Tech Stack (Comma separated)"
             value={skillsStr}
-            onChange={e => setSkillsStr(e.target.value)}
-            placeholder="FastAPI, React, LangChain, Azure, Docker"
+            onChange={(e) => setSkillsStr(e.target.value)}
+            placeholder="Python, Flask, React.js, Azure, Docker"
           />
 
           <AdminInput
             label="Display Order (0 = Top)"
             type="number"
             value={form.order_index}
-            onChange={e => setForm(f => ({ ...f, order_index: Number(e.target.value) }))}
+            onChange={(e) => setForm((f) => ({ ...f, order_index: Number(e.target.value) }))}
           />
 
           {/* ── Sub-Projects Section ── */}
@@ -349,7 +375,7 @@ export function ExperienceManager() {
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <Laptop size={15} className="text-primary" />
-                  Company Projects & Deliverables ({form.projects?.length || 0})
+                  Company Projects &amp; Deliverables ({form.projects?.length || 0})
                 </h3>
                 <p className="text-xs text-gray-500">
                   Projects engineered during your tenure at {form.company_name || "this company"}
@@ -367,6 +393,7 @@ export function ExperienceManager() {
             <div className="space-y-3">
               {(form.projects || []).map((proj, pIdx) => {
                 const isExpanded = activeProjectIdx === pIdx;
+                const linkCount = proj.links?.length || 0;
                 return (
                   <div
                     key={pIdx}
@@ -380,9 +407,14 @@ export function ExperienceManager() {
                       >
                         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         <span>{proj.name || `Project #${pIdx + 1} (Untitled)`}</span>
-                        {proj.live_url && (
+                        {linkCount > 0 && (
                           <span className="text-[10px] font-mono text-primary px-1.5 py-0.5 rounded bg-primary/15">
-                            Live
+                            {linkCount} link{linkCount > 1 ? "s" : ""}
+                          </span>
+                        )}
+                        {proj.is_published === false && (
+                          <span className="text-[10px] font-mono text-orange-400 px-1.5 py-0.5 rounded bg-orange-400/15">
+                            Hidden
                           </span>
                         )}
                       </button>
@@ -403,80 +435,152 @@ export function ExperienceManager() {
                           <AdminInput
                             label="Project Name *"
                             value={proj.name}
-                            onChange={e => {
-                              const updated = { ...proj, name: e.target.value };
-                              handleUpdateProject(pIdx, updated);
-                            }}
-                            placeholder="SmartResume"
+                            onChange={(e) => handleUpdateProject(pIdx, { ...proj, name: e.target.value })}
+                            placeholder="Smart Resume – AI-Powered Resume Builder"
                           />
                           <AdminInput
                             label="Tagline"
                             value={proj.tagline || ""}
-                            onChange={e => {
-                              const updated = { ...proj, tagline: e.target.value };
-                              handleUpdateProject(pIdx, updated);
-                            }}
-                            placeholder="AI ATS Resume Optimization Platform"
+                            onChange={(e) => handleUpdateProject(pIdx, { ...proj, tagline: e.target.value })}
+                            placeholder="AI-powered career development platform..."
                           />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <AdminInput
-                            label="Live URL (e.g. https://...)"
-                            value={proj.live_url || ""}
-                            onChange={e => {
-                              const updated = { ...proj, live_url: e.target.value };
-                              handleUpdateProject(pIdx, updated);
-                            }}
-                            placeholder="https://smartresume.samprolicense.com"
+                            label="Role / Your Title"
+                            value={proj.role || ""}
+                            onChange={(e) => handleUpdateProject(pIdx, { ...proj, role: e.target.value })}
+                            placeholder="Backend & AI Developer"
                           />
                           <AdminInput
-                            label="Role / Title"
-                            value={proj.role || ""}
-                            onChange={e => {
-                              const updated = { ...proj, role: e.target.value };
-                              handleUpdateProject(pIdx, updated);
-                            }}
-                            placeholder="Lead AI Developer"
+                            label="Category (pipe-separated)"
+                            value={proj.category || ""}
+                            onChange={(e) => handleUpdateProject(pIdx, { ...proj, category: e.target.value })}
+                            placeholder="Generative AI | Backend Development | DevOps"
                           />
                         </div>
+
+                        {/* Published toggle */}
+                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                          <div className="relative">
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={proj.is_published !== false}
+                              onChange={(e) => handleUpdateProject(pIdx, { ...proj, is_published: e.target.checked })}
+                            />
+                            <div
+                              className={`w-10 h-5 rounded-full transition-colors ${proj.is_published !== false ? "bg-primary" : "bg-white/10"}`}
+                            />
+                            <div
+                              className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${proj.is_published !== false ? "translate-x-5" : ""}`}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-300">Published (visible on portfolio)</span>
+                        </label>
 
                         <AdminTextarea
                           label="Description"
                           value={proj.description || ""}
-                          onChange={e => {
-                            const updated = { ...proj, description: e.target.value };
-                            handleUpdateProject(pIdx, updated);
-                          }}
+                          onChange={(e) => handleUpdateProject(pIdx, { ...proj, description: e.target.value })}
                           rows={2}
-                          placeholder="Brief technical summary..."
+                          placeholder="Brief technical summary of this project..."
+                        />
+
+                        {/* ── Project Links ── */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                              <Link2 size={12} className="text-primary" />
+                              Project Links ({linkCount})
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => handleAddLink(pIdx)}
+                              className="text-[11px] font-mono text-primary hover:text-accent flex items-center gap-1 px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-all"
+                            >
+                              <Plus size={11} /> Add Link
+                            </button>
+                          </div>
+
+                          {(proj.links || []).map((link, lIdx) => (
+                            <div key={lIdx} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={link.label}
+                                onChange={(e) => handleUpdateLink(pIdx, lIdx, "label", e.target.value)}
+                                placeholder="Label (e.g. Live Application)"
+                                className="w-36 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-primary/50 font-mono"
+                              />
+                              <input
+                                type="url"
+                                value={link.url}
+                                onChange={(e) => handleUpdateLink(pIdx, lIdx, "url", e.target.value)}
+                                placeholder="https://..."
+                                className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-primary/50"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveLink(pIdx, lIdx)}
+                                className="text-gray-500 hover:text-red-400 p-1.5 transition-colors flex-shrink-0"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          ))}
+
+                          {linkCount === 0 && (
+                            <p className="text-[11px] text-gray-600 font-mono italic">
+                              No links yet. Click &quot;Add Link&quot; to add website, app store, etc.
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Legacy live_url fallback */}
+                        <AdminInput
+                          label="Legacy Live URL (Fallback if no links above)"
+                          value={proj.live_url || ""}
+                          onChange={(e) => handleUpdateProject(pIdx, { ...proj, live_url: e.target.value })}
+                          placeholder="https://..."
                         />
 
                         <AdminTextarea
-                          label="Impact / Key Highlights (One per line)"
-                          value={(proj.impact || []).join("\n")}
-                          onChange={e => {
-                            const updated = {
+                          label="Responsibilities (One per line)"
+                          value={(proj.responsibilities || []).join("\n")}
+                          onChange={(e) =>
+                            handleUpdateProject(pIdx, {
                               ...proj,
-                              impact: e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
-                            };
-                            handleUpdateProject(pIdx, updated);
-                          }}
+                              responsibilities: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                            })
+                          }
+                          rows={4}
+                          placeholder={"Developed backend APIs using Python and Flask\nIntegrated Groq LLM APIs..."}
+                        />
+
+                        <AdminTextarea
+                          label="Key Impact / Achievements (One per line)"
+                          value={(proj.impact || []).join("\n")}
+                          onChange={(e) =>
+                            handleUpdateProject(pIdx, {
+                              ...proj,
+                              impact: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                            })
+                          }
                           rows={3}
-                          placeholder="Structured JSON output extraction under 2s&#10;ATS keyword comparison..."
+                          placeholder={"Integrated Groq LLM for AI resume generation\nContainerized on Azure..."}
                         />
 
                         <AdminInput
                           label="Tech Stack (Comma separated)"
                           value={(proj.tech_stack || []).join(", ")}
-                          onChange={e => {
-                            const updated = {
+                          onChange={(e) =>
+                            handleUpdateProject(pIdx, {
                               ...proj,
-                              tech_stack: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
-                            };
-                            handleUpdateProject(pIdx, updated);
-                          }}
-                          placeholder="Python, FastAPI, LangChain, React, Azure"
+                              tech_stack: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            })
+                          }
+                          placeholder="Python, Flask, React.js, Groq API, Docker, Azure"
                         />
                       </div>
                     )}

@@ -2,19 +2,32 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List, Any
 
 
+class ProjectLink(BaseModel):
+    label: str
+    url: str
+    display_order: Optional[int] = 0
+
+
 class CompanyProject(BaseModel):
     name: str
     tagline: Optional[str] = None
     description: Optional[str] = None
     role: Optional[str] = None
+    category: Optional[str] = None
+    is_published: Optional[bool] = True
+    # Legacy single-URL fields (kept for backward compat)
     live_url: Optional[str] = None
     github_url: Optional[str] = None
+    # Multi-link support
+    links: Optional[List[ProjectLink]] = []
+    # Responsibilities (replaces impact for SAMPRO projects)
     impact: Optional[List[str]] = []
+    responsibilities: Optional[List[str]] = []
     tech_stack: Optional[List[str]] = []
 
-    @field_validator("impact", "tech_stack", mode="before")
+    @field_validator("impact", "tech_stack", "responsibilities", "links", mode="before")
     @classmethod
-    def default_impact_stack(cls, v):
+    def default_empty_list(cls, v):
         return v if v is not None else []
 
 

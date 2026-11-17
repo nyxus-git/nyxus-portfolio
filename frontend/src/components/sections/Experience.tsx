@@ -53,9 +53,19 @@ export function Experience() {
   if (loading || experiences.length === 0) return null;
 
   const active = experiences[activeIndex];
-  const hasProjects = active.projects && active.projects.length > 0;
+  // Only show published projects
+  const visibleProjects = (active.projects || []).filter(
+    (p) => p.is_published !== false
+  );
+  const hasProjects = visibleProjects.length > 0;
   const hasHighlights = active.highlights && active.highlights.length > 0;
   const hasSkills = active.skills && active.skills.length > 0;
+
+  // Helper: resolve first link URL for a project
+  function getProjectFirstUrl(proj: (typeof visibleProjects)[0]): string | null {
+    if (proj.links && proj.links.length > 0) return proj.links[0].url;
+    return proj.live_url || null;
+  }
 
   return (
     <section id="experience" className="py-24 md:py-32 px-4 relative overflow-hidden">
@@ -172,7 +182,7 @@ export function Experience() {
               </div>
               <div className="p-3.5 rounded-2xl glass-card text-center">
                 <div className="text-xl font-black text-white">
-                  {experiences.reduce((acc, e) => acc + (e.projects?.length || 0), 0)}
+                  {experiences.reduce((acc, e) => acc + (e.projects?.filter((p) => p.is_published !== false).length || 0), 0)}
                 </div>
                 <div className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mt-0.5">
                   Live Systems
@@ -321,38 +331,49 @@ export function Experience() {
               {hasProjects && (
                 <div className="space-y-2.5 pt-3 border-t border-white/[0.06]">
                   <h4 className="text-[11px] font-mono uppercase tracking-[0.18em] text-gray-400 font-bold flex items-center gap-1.5">
-                    <Laptop size={13} className="text-accent" /> Key Systems Delivered ({active.projects!.length})
+                    <Laptop size={13} className="text-accent" /> Key Systems Delivered ({visibleProjects.length})
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {(showAllProjects ? active.projects! : active.projects!.slice(0, 2)).map(
-                      (proj, pIdx) => (
-                        <div
-                          key={pIdx}
-                          className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-primary/35 flex items-center justify-between gap-2 transition-colors"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-white truncate">{proj.name}</p>
-                            <p className="text-[11px] text-gray-400 truncate">
-                              {proj.tagline || "Production Application"}
-                            </p>
+                    {(showAllProjects ? visibleProjects : visibleProjects.slice(0, 2)).map(
+                      (proj, pIdx) => {
+                        const firstUrl = getProjectFirstUrl(proj);
+                        const linkCount = proj.links?.length || 0;
+                        return (
+                          <div
+                            key={pIdx}
+                            className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-primary/35 flex items-center justify-between gap-2 transition-colors"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-bold text-white truncate">{proj.name}</p>
+                              {proj.category && (
+                                <p className="text-[10px] text-primary/70 font-mono truncate mt-0.5">
+                                  {proj.category.split("|")[0].trim()}
+                                </p>
+                              )}
+                              {!proj.category && (
+                                <p className="text-[11px] text-gray-400 truncate">
+                                  {proj.tagline || "Production Application"}
+                                </p>
+                              )}
+                            </div>
+                            {firstUrl && (
+                              <a
+                                href={firstUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-xl bg-primary/15 text-primary hover:bg-primary hover:text-white transition-all flex-shrink-0"
+                                title={linkCount > 1 ? `${linkCount} links` : "Open Live App"}
+                              >
+                                <Globe size={13} />
+                              </a>
+                            )}
                           </div>
-                          {proj.live_url && (
-                            <a
-                              href={proj.live_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-2 rounded-xl bg-primary/15 text-primary hover:bg-primary hover:text-white transition-all flex-shrink-0"
-                              title="Open Live App"
-                            >
-                              <Globe size={13} />
-                            </a>
-                          )}
-                        </div>
-                      )
+                        );
+                      }
                     )}
                   </div>
 
-                  {active.projects!.length > 2 && (
+                  {visibleProjects.length > 2 && (
                     <button
                       onClick={() => setShowAllProjects(!showAllProjects)}
                       className="text-[11px] font-mono text-primary hover:text-accent hover:underline inline-flex items-center gap-1 pt-0.5"
@@ -363,7 +384,7 @@ export function Experience() {
                         </>
                       ) : (
                         <>
-                          +{active.projects!.length - 2} More Projects <ChevronDown size={11} />
+                          +{visibleProjects.length - 2} More Projects <ChevronDown size={11} />
                         </>
                       )}
                     </button>

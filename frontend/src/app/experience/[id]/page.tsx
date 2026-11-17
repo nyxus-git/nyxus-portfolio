@@ -19,6 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Share2,
+  Tag,
+  ListChecks,
 } from "lucide-react";
 import { getExperience, getExperiences, type Experience } from "@/lib/api";
 import { Navbar } from "@/components/sections/Navbar";
@@ -101,7 +103,8 @@ export default function ExperienceDetailPage() {
   const nextExp =
     currentIndex < allExperiences.length - 1 ? allExperiences[currentIndex + 1] : null;
 
-  const hasProjects = experience.projects && experience.projects.length > 0;
+  const hasProjects = experience.projects && experience.projects.filter((p) => p.is_published !== false).length > 0;
+  const visibleProjects = (experience.projects || []).filter((p) => p.is_published !== false);
   const hasHighlights = experience.highlights && experience.highlights.length > 0;
   const hasSkills = experience.skills && experience.skills.length > 0;
 
@@ -258,7 +261,7 @@ export default function ExperienceDetailPage() {
               className="p-6 rounded-3xl bg-primary/10 border border-primary/25 text-center space-y-1.5"
             >
               <div className="text-3xl font-black text-gradient-accent">
-                {experience.projects?.length || 0}
+                {visibleProjects.length}
               </div>
               <div className="text-[11px] font-mono text-gray-300 uppercase tracking-wider">
                 Production Deliverables
@@ -280,106 +283,145 @@ export default function ExperienceDetailPage() {
                 <span>Production Systems &amp; Projects Delivered</span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">
-                Detailed breakdown of applications, LLM pipelines, and tools built for{" "}
+                Detailed breakdown of applications, integrations, and tools built for{" "}
                 {experience.company_name}
               </p>
             </div>
 
             <div className="space-y-6">
-              {experience.projects!.map((proj, pIdx) => (
-                <div
-                  key={pIdx}
-                  className="glass-card glass-card-hover rounded-3xl p-6 sm:p-8 md:p-10 space-y-4"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <h3 className="text-xl sm:text-2xl font-bold text-white">{proj.name}</h3>
-                        {proj.role && (
-                          <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-white/[0.05] text-gray-300 border border-white/10">
-                            {proj.role}
-                          </span>
+              {visibleProjects.map((proj, pIdx) => {
+                // Determine effective links: prefer links[] array, fallback to legacy live_url/github_url
+                const effectiveLinks: Array<{ label: string; url: string }> = [];
+                if (proj.links && proj.links.length > 0) {
+                  proj.links
+                    .slice()
+                    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+                    .forEach((l) => effectiveLinks.push({ label: l.label, url: l.url }));
+                } else {
+                  if (proj.live_url) effectiveLinks.push({ label: "Live Application", url: proj.live_url });
+                  if (proj.github_url) effectiveLinks.push({ label: "View Code", url: proj.github_url });
+                }
+
+                // Responsibilities: prefer responsibilities[], fallback to impact[]
+                const bulletPoints = (proj.responsibilities && proj.responsibilities.length > 0)
+                  ? proj.responsibilities
+                  : (proj.impact || []);
+                const hasMoreBullets = bulletPoints.length > 2;
+
+                return (
+                  <div
+                    key={pIdx}
+                    className="glass-card glass-card-hover rounded-3xl p-6 sm:p-8 md:p-10 space-y-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2.5 mb-1">
+                          <h3 className="text-xl sm:text-2xl font-bold text-white">{proj.name}</h3>
+                          {proj.role && (
+                            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-white/[0.05] text-gray-300 border border-white/10">
+                              {proj.role}
+                            </span>
+                          )}
+                        </div>
+                        {proj.tagline && (
+                          <p className="text-sm text-primary font-medium mt-0.5">{proj.tagline}</p>
+                        )}
+                        {proj.category && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {proj.category.split("|").map((cat, cIdx) => (
+                              <span
+                                key={cIdx}
+                                className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/10 border border-accent/25 text-accent/80"
+                              >
+                                <Tag size={9} />
+                                {cat.trim()}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
-                      {proj.tagline && (
-                        <p className="text-sm text-primary font-medium mt-1">{proj.tagline}</p>
+
+                      {/* Project links */}
+                      {effectiveLinks.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                          {effectiveLinks.map((lnk, lIdx) => (
+                            <a
+                              key={lIdx}
+                              href={lnk.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={
+                                lIdx === 0
+                                  ? "inline-flex items-center gap-2 px-4 py-2 rounded-full btn-primary text-xs sm:text-sm"
+                                  : "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-xs sm:text-sm font-bold hover:bg-primary/20 border border-white/10 hover:border-primary/40 transition-all"
+                              }
+                            >
+                              {lnk.label.toLowerCase().includes("android") || lnk.label.toLowerCase().includes("app store") ? (
+                                <span className="text-sm">📱</span>
+                              ) : lnk.label.toLowerCase().includes("github") || lnk.label.toLowerCase().includes("code") ? (
+                                <Github size={15} />
+                              ) : (
+                                <Globe size={15} />
+                              )}
+                              <span>{lnk.label} ↗</span>
+                            </a>
+                          ))}
+                        </div>
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
-                      {proj.live_url && (
-                        <a
-                          href={proj.live_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full btn-primary text-xs sm:text-sm"
-                        >
-                          <Globe size={15} />
-                          <span>Visit Live App ↗</span>
-                        </a>
-                      )}
-                      {proj.github_url && (
-                        <a
-                          href={proj.github_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-xs sm:text-sm font-bold hover:bg-primary/20 border border-white/10 hover:border-primary/40 transition-all"
-                        >
-                          <Github size={15} />
-                          <span>View Code</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                    {proj.description && (
+                      <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
+                        {proj.description}
+                      </p>
+                    )}
 
-                  {proj.description && (
-                    <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
-                      {proj.description}
-                    </p>
-                  )}
-
-                  {proj.impact && proj.impact.length > 0 && (
-                    <div className="p-4 sm:p-5 rounded-2xl bg-[#070612]/80 border border-white/[0.06] space-y-2">
-                      <div className="text-[11px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1">
-                        Key Engineering Contributions:
+                    {bulletPoints.length > 0 && (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#070612]/80 border border-white/[0.06] space-y-2">
+                        <div className="text-[11px] font-mono uppercase tracking-wider text-gray-400 font-semibold mb-1 flex items-center gap-1.5">
+                          <ListChecks size={12} className="text-primary" />
+                          {proj.responsibilities && proj.responsibilities.length > 0
+                            ? "Responsibilities & Contributions:"
+                            : "Key Engineering Contributions:"}
+                        </div>
+                        {(expandedImpacts[pIdx] ? bulletPoints : bulletPoints.slice(0, 4)).map(
+                          (bullet, bIdx) => (
+                            <div key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-300">
+                              <span className="text-accent font-bold mt-0.5">›</span>
+                              <span className="leading-relaxed">{bullet}</span>
+                            </div>
+                          )
+                        )}
+                        {hasMoreBullets && (
+                          <button
+                            type="button"
+                            onClick={() => toggleImpact(pIdx)}
+                            className="text-[11px] font-mono text-primary hover:text-accent hover:underline inline-flex items-center gap-1 pt-1"
+                          >
+                            {expandedImpacts[pIdx]
+                              ? "Show Less ▴"
+                              : `+${bulletPoints.length - 4} More Points ▾`}
+                          </button>
+                        )}
                       </div>
-                      {(expandedImpacts[pIdx] ? proj.impact : proj.impact.slice(0, 2)).map(
-                        (bullet, bIdx) => (
-                          <div key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-300">
-                            <span className="text-accent font-bold mt-0.5">›</span>
-                            <span className="leading-relaxed">{bullet}</span>
-                          </div>
-                        )
-                      )}
-                      {proj.impact.length > 2 && (
-                        <button
-                          type="button"
-                          onClick={() => toggleImpact(pIdx)}
-                          className="text-[11px] font-mono text-primary hover:text-accent hover:underline inline-flex items-center gap-1 pt-1"
-                        >
-                          {expandedImpacts[pIdx]
-                            ? "Show Less Impact ▴"
-                            : `+${proj.impact.length - 2} More Impact Points ▾`}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    )}
 
-                  {proj.tech_stack && proj.tech_stack.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 pt-2">
-                      <span className="text-xs text-gray-500 font-mono mr-1">Stack:</span>
-                      {proj.tech_stack.map((tech, tIdx) => (
-                        <span
-                          key={tIdx}
-                          className="text-xs font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] text-gray-300 border border-white/10"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {proj.tech_stack && proj.tech_stack.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-2">
+                        <span className="text-xs text-gray-500 font-mono mr-1">Stack:</span>
+                        {proj.tech_stack.map((tech, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="text-xs font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] text-gray-300 border border-white/10"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
         )}

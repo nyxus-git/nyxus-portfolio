@@ -203,13 +203,26 @@ export async function deleteProject(id: number): Promise<void> {
 }
 
 // ─── Experience ───────────────────────────────────────────────────────────────
+export interface ProjectLink {
+  label: string;
+  url: string;
+  display_order?: number;
+}
+
 export interface CompanyProject {
   name: string;
   tagline?: string | null;
   description?: string | null;
   role?: string | null;
+  category?: string | null;
+  is_published?: boolean;
+  // Legacy single-URL fields (kept for backward compat)
   live_url?: string | null;
   github_url?: string | null;
+  // Multi-link support
+  links?: ProjectLink[];
+  // Responsibilities (detailed bullet points)
+  responsibilities?: string[];
   impact: string[];
   tech_stack: string[];
 }
