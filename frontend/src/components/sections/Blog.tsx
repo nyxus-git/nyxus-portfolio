@@ -12,10 +12,15 @@ export function Blog() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getBlogs().then((data) => {
-      setBlogs(data);
-      setLoading(false);
-    });
+    getBlogs()
+      .then((data) => {
+        setBlogs(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Could not load blogs:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading || blogs.length === 0) return null;

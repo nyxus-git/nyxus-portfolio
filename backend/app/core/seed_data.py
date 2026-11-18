@@ -415,76 +415,164 @@ def sync_canonical_projects(db: Session):
 CANONICAL_EXPERIENCES: List[Dict[str, Any]] = [
     {
         "job_title": "Junior ML Engineer",
-        "company_name": "Sampro License India Pvt. Ltd.",
-        "company_url": "https://smartresume.samprolicense.com",
+        "company_name": "SAMPRO LICENSE INDIA PRIVATE LIMITED",
+        "company_url": "https://samprolicense.com",
         "role_type": "Full-Time",
         "location": "Wakad, Pune",
-        "start_date": "Dec 2025",
+        "start_date": "Dec 2024",
         "end_date": "Present",
-        "description": "Architecting and maintaining 4+ production AI applications, microservices, and end-to-end LLM inference pipelines with enterprise-grade latency and reliability.",
+        "description": "Worked on multiple production-grade AI, enterprise software, and EdTech applications, focusing on Python backend development, Generative AI integrations, REST API development, application development, cloud infrastructure, DevOps, CI/CD pipelines, and production deployment. Responsibilities included developing backend functionality, integrating third-party services, managing cloud environments, implementing application monitoring, handling application releases, and maintaining production applications.",
         "highlights": [
-            "Architected and deployed 4+ production AI systems on Microsoft Azure utilizing Docker and GitHub Actions CI/CD.",
-            "Engineered 10+ high-performance REST APIs in FastAPI and Flask for real-time AI inference, document parsing, and analytics.",
-            "Constructed custom RAG pipelines and computer vision proctoring systems operating under 200ms latency."
+            "Architected CI/CD pipelines and Docker-based containerization for multi-environment production applications on Microsoft Azure.",
+            "Integrated Groq LLM APIs to power low-latency AI-driven resume generation, cover letters, and career coaching features.",
+            "Engineered and integrated Sentry for real-time application error tracking, performance monitoring, and production reliability.",
+            "Managed mobile build automation (AAB via Expo) and publishing workflows on Google Play Console for Navya English School.",
+            "Integrated Zoom SDK into the LearnWithJD platform for host/participant webinar sessions, meeting auth, and email marketing workflows.",
+            "Developed RESTful backend services in Python, Flask, and FastAPI with Razorpay payment processing and Google OAuth."
         ],
-        "skills": ["Python", "FastAPI", "React", "TypeScript", "LangChain", "OpenAI API", "Docker", "Microsoft Azure", "OpenCV", "PostgreSQL"],
+        "skills": [
+            "Python", "Flask", "React.js", "Next.js", "React Native", "Expo",
+            "Groq API", "Docker", "Microsoft Azure", "CI/CD", "Sentry", "Nginx",
+            "Razorpay", "Google OAuth", "Telegram Bot API", "Zoom SDK",
+            "REST APIs", "Google Play Console", "Android"
+        ],
         "projects": [
             {
-                "name": "SmartResume",
-                "tagline": "AI ATS Optimization & Structured Resume Extraction Platform",
-                "description": "Enterprise resume intelligence platform that converts multi-format resumes into structured JSON schemas, scores ATS compatibility against job descriptions, and recommends contextual section improvements.",
-                "role": "Lead AI / Full Stack Developer",
-                "live_url": "https://smartresume.samprolicense.com",
+                "name": "Smart Resume – AI-Powered Resume Builder",
+                "tagline": "AI-Powered Career Development & ATS Resume Generation Platform",
+                "description": "Smart Resume is an AI-powered career development platform designed to help users generate professional resumes and cover letters and access AI-powered career assistance.",
+                "role": "Backend & AI Developer",
+                "category": "Generative AI | Backend Development | Automation | DevOps",
+                "is_published": True,
+                "live_url": "https://smartresume.samprolicense.com/",
                 "github_url": None,
-                "impact": [
-                    "Engineered structured JSON schema extraction pipeline with sub-2s latency using modern LLM function calling.",
-                    "Implemented semantic ATS keyword matching algorithm comparing applicant experience to target job requirements.",
-                    "Built automated Cover Letter generator producing contextual letters tailored to specific roles.",
-                    "Containerized and deployed to Azure App Services with automated CI/CD workflows."
+                "links": [
+                    {"label": "Live Application", "url": "https://smartresume.samprolicense.com/", "display_order": 0}
                 ],
-                "tech_stack": ["Python", "FastAPI", "React", "TypeScript", "LangChain", "OpenAI API", "Docker", "Azure"]
+                "responsibilities": [
+                    "Developed and maintained backend APIs using Python and Flask.",
+                    "Integrated Groq LLM APIs to power AI-driven application features.",
+                    "Implemented AI-based resume generation and cover letter generation.",
+                    "Integrated Telegram automation bot functionality into the Smart Resume platform.",
+                    "Worked on Smart Job Hunts and automated daily job alert functionality.",
+                    "Contributed to AI-powered interview coaching functionality.",
+                    "Implemented email automation for lead marketing, user communication, and plan-related workflows.",
+                    "Worked on Razorpay payment integration and resolved payment-related issues.",
+                    "Worked on Google OAuth authentication and logout functionality.",
+                    "Integrated Sentry for application error tracking and performance monitoring.",
+                    "Troubleshot backend issues and production bugs.",
+                    "Resolved application integration and deployment-related issues.",
+                    "Created and maintained CI/CD pipelines for application deployment.",
+                    "Implemented Docker-based application containerization.",
+                    "Configured Azure App Services and application instances.",
+                    "Managed production, staging, and pre-production environments.",
+                    "Handled application deployment, testing, and release workflows.",
+                    "Configured SSL certificates and supported Nginx infrastructure."
+                ],
+                "impact": [
+                    "Integrated Groq LLM for AI resume and cover letter generation with sub-second response times.",
+                    "Containerized and deployed to Azure App Services with automated CI/CD workflows.",
+                    "Integrated Sentry for real-time error tracking and performance monitoring across production environments.",
+                    "Integrated Telegram automation bot directly into the platform workflow."
+                ],
+                "tech_stack": [
+                    "Python", "Flask", "React.js", "Next.js", "Groq API", "Docker",
+                    "Microsoft Azure", "CI/CD", "Sentry", "Nginx", "Razorpay", "Google OAuth", "Telegram Bot API"
+                ]
             },
             {
-                "name": "KnowledgeHub AI Chatbot & Aptitude Platform",
-                "tagline": "RAG-Powered Assessment & Computer-Vision Proctoring System",
-                "description": "Intelligent domain knowledge retrieval engine and examination platform equipped with automated computer-vision anti-cheat proctoring.",
-                "role": "AI Engineer",
-                "live_url": "https://smartresume.samprolicense.com",
+                "name": "Navya English Medium School – Web & Android Application",
+                "tagline": "Institutional School Management Ecosystem (Web & Android Mobile)",
+                "description": "Navya English Medium School is a school application ecosystem consisting of a web platform and Android mobile application providing digital school-related services and administrative functionality.",
+                "role": "Full-Stack & Mobile Developer",
+                "category": "Full-Stack Development | Mobile Application | Deployment | Release Management",
+                "is_published": True,
+                "live_url": "https://navyaenglishschool.com/",
                 "github_url": None,
-                "impact": [
-                    "Engineered RAG pipeline with dense vector indexing delivering precise aptitude question explanations.",
-                    "Developed real-time computer vision proctoring with face tracking and window tab-switch detection via OpenCV.",
-                    "Constructed dynamic quiz generation APIs with automated scoring and performance telemetry."
+                "links": [
+                    {"label": "Website", "url": "https://navyaenglishschool.com/", "display_order": 0},
+                    {"label": "Android App", "url": "https://play.google.com/store/apps/details?id=com.navyaenglish.app", "display_order": 1}
                 ],
-                "tech_stack": ["FastAPI", "OpenCV", "LangChain", "React", "TypeScript", "PostgreSQL", "Azure"]
+                "responsibilities": [
+                    "Worked on web application development using React.js and Next.js.",
+                    "Contributed to administrative-side functionality.",
+                    "Worked on application maintenance and integration.",
+                    "Worked on Android mobile application development using React Native.",
+                    "Used Expo and local development environments for application build preparation.",
+                    "Generated Android App Bundle (.aab) files using the local development setup and Expo.",
+                    "Managed mobile application build and deployment processes.",
+                    "Prepared Android application releases.",
+                    "Managed new releases through Google Play Console.",
+                    "Handled Play Store release preparation and publishing workflows.",
+                    "Supported application deployment and release-related troubleshooting."
+                ],
+                "impact": [
+                    "Generated Android App Bundle (.aab) for production Play Store release via Expo.",
+                    "Managed Google Play Console release preparation, signing, and publishing workflows.",
+                    "Delivered web and mobile applications for institutional school services."
+                ],
+                "tech_stack": ["React.js", "Next.js", "React Native", "Expo", "Android", "AAB", "Google Play Console"]
             },
             {
-                "name": "SmartResume Conversational Agent & Telegram Bot",
-                "tagline": "Multi-Turn Interactive Career Coach & Workflow Automation Bot",
-                "description": "Conversational assistant designed to conduct interactive interviews with candidates to gather accomplishments, draft missing bullet points, and dispatch job application alerts.",
-                "role": "AI / Backend Developer",
-                "live_url": None,
+                "name": "HRMS – Incident & SLA Management System",
+                "tagline": "Enterprise Incident Management & Automated SLA Escalation Engine",
+                "description": "An HRMS platform with Incident and SLA Management functionality designed to manage incidents, automatically assign priorities, monitor resolution workflows, and support escalation management.",
+                "role": "Backend Developer",
+                "category": "Enterprise Software | Backend Development | Workflow Automation",
+                "is_published": True,
+                "live_url": "https://hr.samprolicense.com/",
                 "github_url": None,
-                "impact": [
-                    "Developed multi-turn conversational state machine guiding candidates through iterative resume refinement.",
-                    "Integrated Telegram Bot API for automated alert dispatching and candidate lead collection.",
-                    "Engineered asynchronous queue handling with Celery and Redis for background generation tasks."
+                "links": [
+                    {"label": "Live Application", "url": "https://hr.samprolicense.com/", "display_order": 0}
                 ],
-                "tech_stack": ["Python", "FastAPI", "Telegram Bot API", "LangChain", "Redis", "PostgreSQL"]
+                "responsibilities": [
+                    "Worked on Incident Management module development.",
+                    "Implemented incident creation and management workflows.",
+                    "Developed automatic priority assignment based on impact and urgency.",
+                    "Implemented P1, P2, P3, and P4 priority classification.",
+                    "Worked on SLA tracking and management workflows.",
+                    "Implemented priority-based escalation matrix logic.",
+                    "Contributed to incident status management and resolution workflows.",
+                    "Worked on backend business logic and application integration."
+                ],
+                "impact": [
+                    "Developed automatic priority assignment (P1, P2, P3, P4) based on impact and urgency matrix.",
+                    "Implemented SLA tracking and escalation workflows for incident resolution.",
+                    "Engineered backend business logic and REST APIs for enterprise workflows."
+                ],
+                "tech_stack": ["Backend Development", "REST APIs", "Incident Management", "SLA Management", "Workflow Automation"]
             },
             {
-                "name": "Navya English School App",
-                "tagline": "Digital Academic Portal & Attendance Management System",
-                "description": "Full-stack institutional management portal for student attendance tracking, academic gradebook evaluation, and parent communication.",
-                "role": "Full Stack Developer",
-                "live_url": None,
+                "name": "LearnWithJD – EdTech Platform & Zoom SDK Integration",
+                "tagline": "EdTech Platform with Zoom SDK Integration & Marketing Automation",
+                "description": "An educational platform supporting online training, webinar management, and student engagement workflows.",
+                "role": "Backend & Integration Developer",
+                "category": "EdTech | Zoom SDK Integration | Webinar Management | Email Automation",
+                "is_published": True,
+                "live_url": "https://learnwithjd.in/",
                 "github_url": None,
-                "impact": [
-                    "Implemented role-based access control (RBAC) supporting administrators, teachers, and student parents.",
-                    "Designed real-time attendance logging system with automated monthly report card generation.",
-                    "Constructed responsive UI with Tailwind CSS and React."
+                "links": [
+                    {"label": "Website", "url": "https://learnwithjd.in/", "display_order": 0}
                 ],
-                "tech_stack": ["React", "TypeScript", "FastAPI", "PostgreSQL", "Tailwind CSS"]
+                "responsibilities": [
+                    "Integrated Zoom SDK into the LearnWithJD platform.",
+                    "Worked on admin-side webinar creation and management.",
+                    "Implemented webinar joining workflows using generated meeting links.",
+                    "Worked on host and participant joining functionality.",
+                    "Integrated embedded Zoom meeting functionality into the platform.",
+                    "Worked on meeting authentication and user identity handling.",
+                    "Worked on lead collection and email marketing automation workflows.",
+                    "Organized leads collected from LinkedIn polls and form responses.",
+                    "Prepared structured lead datasets.",
+                    "Worked on lead segmentation for ITAM Tool and SAM Corporate Training.",
+                    "Prepared email campaigns for training promotion and user communication."
+                ],
+                "impact": [
+                    "Integrated Zoom SDK for host/participant webinar joining and embedded meetings.",
+                    "Built webinar creation and admin management workflows.",
+                    "Automated lead collection and email campaign segmentation for corporate training."
+                ],
+                "tech_stack": ["Zoom SDK", "API Integration", "Webinar Management", "Authentication", "Email Automation", "Lead Management"]
             }
         ],
         "order_index": 0
@@ -566,11 +654,31 @@ def sync_canonical_experiences(db: Session):
         for lt in legacy_titles:
             db.query(Experience).filter(Experience.job_title == lt).delete(synchronize_session=False)
 
+        # Clean up any duplicate SAMPRO records
+        sampro_rows = db.query(Experience).filter(
+            (Experience.company_name.ilike("%sampro%")) |
+            (Experience.job_title.ilike("%ML Engineer%"))
+        ).all()
+        if len(sampro_rows) > 1:
+            for extra in sampro_rows[1:]:
+                db.delete(extra)
+            db.commit()
+
         for exp_data in CANONICAL_EXPERIENCES:
-            existing = db.query(Experience).filter(
-                (Experience.company_name == exp_data["company_name"]) |
-                (Experience.job_title == exp_data["job_title"])
-            ).first()
+            if "sampro" in exp_data["company_name"].lower():
+                existing = db.query(Experience).filter(
+                    (Experience.company_name.ilike("%sampro%")) |
+                    (Experience.job_title == exp_data["job_title"])
+                ).first()
+            elif "drdo" in exp_data["company_name"].lower() or "diat" in exp_data["company_name"].lower():
+                existing = db.query(Experience).filter(
+                    (Experience.company_name.ilike("%drdo%")) |
+                    (Experience.company_name.ilike("%diat%"))
+                ).first()
+            else:
+                existing = db.query(Experience).filter(
+                    Experience.company_name == exp_data["company_name"]
+                ).first()
 
             if not existing:
                 db.add(Experience(**exp_data))

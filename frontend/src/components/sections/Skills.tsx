@@ -19,10 +19,15 @@ export function Skills() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getSkills().then((data) => {
-      setSkills(data);
-      setLoading(false);
-    });
+    getSkills()
+      .then((data) => {
+        setSkills(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Could not load skills:", err);
+        setLoading(false);
+      });
   }, []);
 
   const categories = skills.reduce<Record<string, Skill[]>>((acc, skill) => {

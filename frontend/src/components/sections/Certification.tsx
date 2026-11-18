@@ -12,10 +12,15 @@ export function Certification() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCertifications().then((data) => {
-      setCertifications(data);
-      setLoading(false);
-    });
+    getCertifications()
+      .then((data) => {
+        setCertifications(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Could not load certifications:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading || certifications.length === 0) return null;

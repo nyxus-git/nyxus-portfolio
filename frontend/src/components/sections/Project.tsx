@@ -19,10 +19,15 @@ export function Project() {
   };
 
   useEffect(() => {
-    getProjects().then((data) => {
-      setProjects(data.filter((p) => p.featured !== 1 && p.is_visible !== 0));
-      setLoading(false);
-    });
+    getProjects()
+      .then((data) => {
+        setProjects(data.filter((p) => p.featured !== 1 && p.is_visible !== 0));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Could not load projects:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return null;

@@ -1,15 +1,50 @@
+const PROD_API_BASE_URL = "https://nyxus-backend.onrender.com/api";
+
 const BACKEND_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   (typeof window !== "undefined" &&
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1" ||
     window.location.port === "3000")
-    ? "http://localhost:8000/api"
+    ? "http://127.0.0.1:8000/api"
     : process.env.NODE_ENV === "development"
-    ? "http://localhost:8000/api"
-    : "https://nyxus-backend.onrender.com/api");
+    ? "http://127.0.0.1:8000/api"
+    : PROD_API_BASE_URL);
 
 const API_BASE_URL = BACKEND_BASE;
+
+/**
+ * Resilient fetch wrapper:
+ * 1. Attempts request against API_BASE_URL (defaults to local 127.0.0.1:8000).
+ * 2. If connection fails / NetworkError occurs while running locally, automatically
+ *    falls back to production backend (nyxus-backend.onrender.com).
+ */
+export async function safeApiFetch(
+  endpoint: string,
+  options?: RequestInit
+): Promise<Response> {
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const primaryUrl = `${API_BASE_URL}${cleanEndpoint}`;
+
+  try {
+    const res = await fetch(primaryUrl, options);
+    return res;
+  } catch (primaryErr) {
+    // If local fetch fails (e.g. backend offline / restarting / network error),
+    // and we're currently trying local backend, attempt fallback to production API
+    if (API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1")) {
+      const fallbackUrl = `${PROD_API_BASE_URL}${cleanEndpoint}`;
+      try {
+        console.warn(`[API] Local backend unreachable at ${primaryUrl}, falling back to production API...`);
+        const fallbackRes = await fetch(fallbackUrl, options);
+        return fallbackRes;
+      } catch {
+        // Both failed, throw original error
+      }
+    }
+    throw primaryErr;
+  }
+}
 
 /**
  * Image URL resolver.
@@ -64,8 +99,9 @@ export function getImageUrl(
 export function getBlurUrl(_url: string | null | undefined): string | null {
   return null;
 }
+
 export async function adminLogin(username: string, password: string): Promise<string> {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+  const res = await safeApiFetch("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -96,13 +132,13 @@ export async function verifyAdminToken(): Promise<boolean> {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
   if (!token) return false;
   try {
-    let res = await fetch(`${API_BASE_URL}/auth/verify`, {
+    let res = await safeApiFetch("/auth/verify", {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
     if (res.status === 404) {
       // Compat fallback if backend hasn't restarted with /auth/verify yet
-      res = await fetch(`${API_BASE_URL}/projects/admin/all`, {
+      res = await safeApiFetch("/projects/admin/all", {
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
@@ -138,13 +174,18 @@ export interface Project {
 }
 
 export async function getProjects(): Promise<Project[]> {
-  const res = await fetch(`${API_BASE_URL}/projects/`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await safeApiFetch("/projects/", { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch projects:", err);
+    return [];
+  }
 }
 
 export async function getAllProjectsAdmin(): Promise<Project[]> {
-  const res = await fetch(`${API_BASE_URL}/projects/admin/all`, {
+  const res = await safeApiFetch("/projects/admin/all", {
     headers: authHeaders(),
     cache: "no-store",
   });
@@ -156,7 +197,7 @@ export async function getAllProjectsAdmin(): Promise<Project[]> {
 }
 
 export async function toggleProjectVisibility(id: number): Promise<Project> {
-  const res = await fetch(`${API_BASE_URL}/projects/${id}/visibility`, {
+  const res = await safeApiFetch(`/projects/${id}/visibility`, {
     method: "PATCH",
     headers: authHeaders(),
   });
@@ -168,37 +209,58 @@ export async function toggleProjectVisibility(id: number): Promise<Project> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  const res = await fetch(`${API_BASE_URL}/projects/slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
-  if (res.ok) return res.json();
-  // Fallback to searching the full list in case of slug discrepancy or offline server
-  const all = await getProjects();
-  return all.find(p => p.slug === slug || String(p.id) === slug) || null;
+  try {
+    const res = await safeApiFetch(`/projects/slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (res.ok) return await res.json();
+    // Fallback to searching the full list in case of slug discrepancy or offline server
+    const all = await getProjects();
+    return all.find((p) => p.slug === slug || String(p.id) === slug) || null;
+  } catch (err) {
+    console.warn(`Failed to fetch project by slug (${slug}):`, err);
+    return null;
+  }
 }
 
 export async function getProject(idOrSlug: string | number): Promise<Project | null> {
-  // If numeric, try by ID first
-  if (typeof idOrSlug === "number" || /^\d+$/.test(String(idOrSlug))) {
-    const res = await fetch(`${API_BASE_URL}/projects/${idOrSlug}`, { cache: "no-store" });
-    if (res.ok) return res.json();
+  try {
+    // If numeric, try by ID first
+    if (typeof idOrSlug === "number" || /^\d+$/.test(String(idOrSlug))) {
+      const res = await safeApiFetch(`/projects/${idOrSlug}`, { cache: "no-store" });
+      if (res.ok) return await res.json();
+    }
+    // Try by slug
+    return await getProjectBySlug(String(idOrSlug));
+  } catch (err) {
+    console.warn(`Failed to fetch project (${idOrSlug}):`, err);
+    return null;
   }
-  // Try by slug
-  return getProjectBySlug(String(idOrSlug));
 }
 
 export async function createProject(data: Omit<Project, "id">): Promise<Project> {
-  const res = await fetch(`${API_BASE_URL}/projects/`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/projects/", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function updateProject(id: number, data: Omit<Project, "id">): Promise<Project> {
-  const res = await fetch(`${API_BASE_URL}/projects/${id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch(`/projects/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function deleteProject(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/projects/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await safeApiFetch(`/projects/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -244,31 +306,52 @@ export interface Experience {
 }
 
 export async function getExperiences(): Promise<Experience[]> {
-  const res = await fetch(`${API_BASE_URL}/experience/`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await safeApiFetch("/experience/", { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch experiences:", err);
+    return [];
+  }
 }
 
 export async function getExperience(id: number | string): Promise<Experience | null> {
-  const res = await fetch(`${API_BASE_URL}/experience/${id}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await safeApiFetch(`/experience/${id}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn(`Failed to fetch experience (${id}):`, err);
+    return null;
+  }
 }
 
 export async function createExperience(data: Omit<Experience, "id">): Promise<Experience> {
-  const res = await fetch(`${API_BASE_URL}/experience/`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/experience/", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function updateExperience(id: number, data: Omit<Experience, "id">): Promise<Experience> {
-  const res = await fetch(`${API_BASE_URL}/experience/${id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch(`/experience/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function deleteExperience(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/experience/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await safeApiFetch(`/experience/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -286,25 +369,41 @@ export interface Certification {
 }
 
 export async function getCertifications(): Promise<Certification[]> {
-  const res = await fetch(`${API_BASE_URL}/certifications/`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await safeApiFetch("/certifications/", { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch certifications:", err);
+    return [];
+  }
 }
 
 export async function createCertification(data: Omit<Certification, "id">): Promise<Certification> {
-  const res = await fetch(`${API_BASE_URL}/certifications/`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/certifications/", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function updateCertification(id: number, data: Omit<Certification, "id">): Promise<Certification> {
-  const res = await fetch(`${API_BASE_URL}/certifications/${id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch(`/certifications/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function deleteCertification(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/certifications/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await safeApiFetch(`/certifications/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -323,13 +422,21 @@ export interface BlogPost {
 }
 
 export async function getBlogs(): Promise<BlogPost[]> {
-  const res = await fetch(`${API_BASE_URL}/blogs/`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await safeApiFetch("/blogs/", { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch blogs:", err);
+    return [];
+  }
 }
 
 export async function getAllBlogs(): Promise<BlogPost[]> {
-  const res = await fetch(`${API_BASE_URL}/blogs/all`, { headers: authHeaders(), cache: "no-store" });
+  const res = await safeApiFetch("/blogs/all", {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
   if (!res.ok) {
     handleAuthError(res);
     throw new Error(`Failed to fetch blogs (${res.status})`);
@@ -338,25 +445,41 @@ export async function getAllBlogs(): Promise<BlogPost[]> {
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogPost | null> {
-  const res = await fetch(`${API_BASE_URL}/blogs/${slug}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await safeApiFetch(`/blogs/${slug}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn(`Failed to fetch blog (${slug}):`, err);
+    return null;
+  }
 }
 
 export async function createBlog(data: Omit<BlogPost, "id">): Promise<BlogPost> {
-  const res = await fetch(`${API_BASE_URL}/blogs/`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/blogs/", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function updateBlog(id: number, data: Omit<BlogPost, "id">): Promise<BlogPost> {
-  const res = await fetch(`${API_BASE_URL}/blogs/${id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch(`/blogs/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function deleteBlog(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/blogs/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await safeApiFetch(`/blogs/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -383,24 +506,21 @@ export async function uploadFile(
     formData.append("replace_url", replaceUrl);
   }
 
-  const res = await fetch(`${API_BASE_URL}/upload/`, {
+  const res = await safeApiFetch("/upload/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
-  
+
   if (!res.ok) {
     handleAuthError(res);
     const errorData = await res.json().catch(() => null);
     throw new Error(errorData?.detail || "Failed to upload file");
   }
-  
-  const data = await res.json();
-  // Backend now returns a Next.js-served path like /images/uploads/<filename>
-  // No URL adjustment needed.
-  return data;
+
+  return res.json();
 }
 
 export async function listUploads(
@@ -409,7 +529,7 @@ export async function listUploads(
 ): Promise<{ images: UploadedImage[]; next_cursor?: string; source: string }> {
   const params = new URLSearchParams({ max_results: "40" });
   if (nextCursor) params.set("next_cursor", nextCursor);
-  const res = await fetch(`${API_BASE_URL}/upload/?${params}`, {
+  const res = await safeApiFetch(`/upload/?${params}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) {
@@ -420,7 +540,7 @@ export async function listUploads(
 }
 
 export async function deleteUpload(publicId: string, token: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/upload/${encodeURIComponent(publicId)}`, {
+  const res = await safeApiFetch(`/upload/${encodeURIComponent(publicId)}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -440,25 +560,41 @@ export interface Skill {
 }
 
 export async function getSkills(): Promise<Skill[]> {
-  const res = await fetch(`${API_BASE_URL}/skills`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await safeApiFetch("/skills", { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch skills:", err);
+    return [];
+  }
 }
 
 export async function createSkill(data: Omit<Skill, "id">): Promise<Skill> {
-  const res = await fetch(`${API_BASE_URL}/skills`, { method: "POST", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/skills", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function updateSkill(id: number, data: Omit<Skill, "id">): Promise<Skill> {
-  const res = await fetch(`${API_BASE_URL}/skills/${id}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch(`/skills/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 export async function deleteSkill(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/skills/${id}`, { method: "DELETE", headers: authHeaders() });
+  const res = await safeApiFetch(`/skills/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -483,13 +619,22 @@ export interface About {
 }
 
 export async function getAbout(): Promise<About | null> {
-  const res = await fetch(`${API_BASE_URL}/about`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await safeApiFetch("/about", { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn("Failed to fetch about:", err);
+    return null;
+  }
 }
 
 export async function updateAbout(data: Omit<About, "id">): Promise<About> {
-  const res = await fetch(`${API_BASE_URL}/about`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(data) });
+  const res = await safeApiFetch("/about", {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

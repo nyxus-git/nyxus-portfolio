@@ -38,10 +38,15 @@ export function Experience() {
   const [showAllProjects, setShowAllProjects] = useState(false);
 
   useEffect(() => {
-    getExperiences().then((data) => {
-      setExperiences(data);
-      setLoading(false);
-    });
+    getExperiences()
+      .then((data) => {
+        setExperiences(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Could not load experiences:", err);
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {

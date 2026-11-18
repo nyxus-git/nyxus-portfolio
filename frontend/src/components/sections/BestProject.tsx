@@ -14,10 +14,12 @@ export function BestProject() {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    getProjects().then((data) => {
-      const best = data.find((p) => p.featured === 1 && p.is_visible !== 0);
-      if (best) setFeaturedProject(best);
-    });
+    getProjects()
+      .then((data) => {
+        const best = data.find((p) => p.featured === 1 && p.is_visible !== 0);
+        if (best) setFeaturedProject(best);
+      })
+      .catch((err) => console.warn("Could not load featured project:", err));
   }, []);
 
   if (!featuredProject) return null;

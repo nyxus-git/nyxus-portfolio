@@ -19,7 +19,11 @@ export function About() {
   const [about, setAbout] = useState<AboutType | null>(null);
 
   useEffect(() => {
-    getAbout().then(setAbout);
+    getAbout()
+      .then((data) => {
+        if (data) setAbout(data);
+      })
+      .catch((err) => console.warn("Could not load about data:", err));
   }, []);
 
   return (
